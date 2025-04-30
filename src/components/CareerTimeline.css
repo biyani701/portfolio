@@ -31,3 +31,39 @@
   transform: translateY(-50%);
   z-index: 1;
 }
+
+/* Custom styles for Material-UI Stepper */
+.MuiStepper-root {
+  padding: 24px 0;
+}
+
+.MuiStepConnector-line {
+  min-height: 2px;
+}
+
+.MuiStepLabel-label {
+  font-size: 0.875rem;
+}
+
+.MuiStepContent-root {
+  border-left: 2px solid #e0e0e0;
+  margin-left: 16px;
+  padding-left: 16px;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .MuiStepContent-root {
+  border-left-color: #424242;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .MuiStepper-root {
+    padding: 16px 0;
+  }
+  
+  .MuiStepContent-root {
+    margin-left: 8px;
+    padding-left: 8px;
+  }
+}

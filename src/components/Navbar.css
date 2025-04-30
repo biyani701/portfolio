@@ -103,3 +103,60 @@
   .navbar .nav-link:hover {
     color: #ffcc00;
   }
+
+/* Custom styles for Material-UI components */
+.MuiAppBar-root {
+  background-color: #1a237e !important; /* Deep blue color */
+}
+
+.MuiDrawer-paper {
+  width: 250px;
+  background-color: #1a237e;
+  color: white;
+}
+
+.MuiListItem-root {
+  color: white;
+}
+
+.MuiListItem-root:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.MuiButton-root {
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Main content area padding to account for fixed AppBar */
+main {
+  padding-top: 64px;
+}
+
+@media (max-width: 600px) {
+  main {
+    padding-top: 56px;
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Remove default margin and padding */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+body.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+}
