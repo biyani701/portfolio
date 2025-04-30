@@ -1,0 +1,33 @@
+.timeline {
+  position: relative;
+  padding: 1rem 0;
+}
+
+.timeline-item {
+  flex: 1;
+  max-width: 200px;
+  position: relative;
+}
+
+.timeline-logo {
+  width: 60px;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(100%);
+  transition: filter 0.3s ease;
+}
+
+.timeline-logo:hover {
+  filter: grayscale(0%);
+}
+
+.timeline-connector {
+  width: 100px;
+  height: 2px;
+  background: #6c757d;
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
