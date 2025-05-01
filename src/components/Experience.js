@@ -22,9 +22,21 @@ import {
 import WorkIcon from '@mui/icons-material/Work';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
+import Chip from '@mui/material/Chip';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import BusinessIcon from '@mui/icons-material/Business';
+
 const ExperienceTimeline = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [expanded, setExpanded] = React.useState(false);
+  
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
   
   const experiences = [
     {
@@ -39,13 +51,46 @@ const ExperienceTimeline = () => {
       ]
     },
     {
-      company: "Cognizant Technology Solutions",
-      period: "2003 – 2019",
+      company: "Cognizant Technology Solutions India Pvt. Ltd",
+      period: "Oct 2003 – Sep 2019",
       title: "Delivery Lead",
-      location: "Pune, Dallas, Washington DC",
-      responsibilities: [
-        "Directed delivery for 8 UK banking clients, managed cross-functional dependencies.",
-        "Led Agile transformations and optimized delivery pipelines."
+      location: "Multiple Locations",
+      subExperiences: [
+        {
+          client: "BFS UK Accounts",
+          period: "Dec 2014 - Sep 2019",
+          title: "Delivery Lead",
+          achievements: [
+            "Multi-Client Delivery Leadership: Directed scope, timelines, and deliverables for eight UK banking clients, managing both Time & Material and Fixed Price engagements.",
+            "Portfolio Profitability Management: Oversaw P&L performance for key portfolios, consistently achieving top-line growth and bottom-line targets.",
+            "Cross-Functional Dependency Management: Led resolution of cross-team dependencies and proactively removed blockers to maintain project momentum.",
+            "Process Optimization & Resource Efficiency: Drove continuous process improvements, enhancing resource utilization and streamlining delivery pipelines.",
+            "Agile Transformation: Championed agile adoption across diverse teams, fostering a culture of iterative delivery and continuous improvement.",
+            "Strategic RFP & RFI Collaboration: Partnered with cross-functional teams to craft compelling, data-driven responses, contributing to new business wins."
+          ]
+        },
+        {
+          client: "International Finance Corporation, World Bank Group",
+          period: "Nov 2012 - Dec 2014",
+          title: "Senior Manager",
+          achievements: [
+            "Managed a suite of 50+ applications and led a team of 24 onsite and 26 offshore resources.",
+            "Transformed unstructured processes to structured processes, improving operational efficiency.",
+            "Created reporting dashboards using Tableau with data source as BMC Remedy.",
+            "Successfully managed development and releases for 50+ applications.",
+            "Directed production support activities, incident management, work prioritization, and root cause analysis."
+          ]
+        },
+        {
+          client: "JP Morgan Chase",
+          period: "Oct 2003 - Nov 2012",
+          title: "Technical Project Manager",
+          achievements: [
+            "Re-architected applications to be horizontally scalable, quadrupling system throughput and improving stability.",
+            "Proposed and led 10+ initiatives to automate manual work, reducing cost and increasing productivity.",
+            "Managed project and technical delivery, leading developer teams across onsite & offshore locations."
+          ]
+        }
       ]
     },
     {
@@ -103,10 +148,10 @@ const ExperienceTimeline = () => {
                   </Typography>
                   
                   <Typography variant="subtitle1" sx={{ fontStyle: 'italic', mb: 1 }}>
-                    {exp.title} – {exp.location}
+                    {exp.title} {exp.location && `– ${exp.location}`}
                   </Typography>
                   
-                  {exp.responsibilities.length > 0 && (
+                  {exp.responsibilities && exp.responsibilities.length > 0 && (
                     <List dense sx={{ pl: 1 }}>
                       {exp.responsibilities.map((resp, idx) => (
                         <ListItem key={idx} sx={{ p: 0.5 }}>
@@ -117,6 +162,70 @@ const ExperienceTimeline = () => {
                         </ListItem>
                       ))}
                     </List>
+                  )}
+                  
+                  {exp.subExperiences && exp.subExperiences.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                      {exp.subExperiences.map((subExp, idx) => (
+                        <Accordion 
+                          key={idx} 
+                          expanded={expanded === `panel-${idx}`} 
+                          onChange={handleChange(`panel-${idx}`)}
+                          sx={{ 
+                            mb: 2, 
+                            boxShadow: expanded === `panel-${idx}` ? 3 : 1,
+                            '&:before': { display: 'none' },
+                            backgroundColor: theme.palette.mode === 'dark' 
+                              ? theme.palette.grey[900] 
+                              : theme.palette.grey[50]
+                          }}
+                        >
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            sx={{ 
+                              flexDirection: 'row',
+                              '& .MuiAccordionSummary-content': { 
+                                flexDirection: isMobile ? 'column' : 'row',
+                                justifyContent: 'space-between',
+                                alignItems: isMobile ? 'flex-start' : 'center',
+                                gap: 1
+                              }
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, flex: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <BusinessIcon color="primary" fontSize="small" />
+                                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                                  {subExp.client}
+                                </Typography>
+                              </Box>
+                              <Typography variant="body2" color="text.secondary">
+                                {subExp.period}
+                              </Typography>
+                            </Box>
+                            
+                            <Chip 
+                              label={subExp.title} 
+                              size="small" 
+                              color="primary" 
+                              variant="outlined"
+                            />
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            <List dense sx={{ pl: 1, pt: 0 }}>
+                              {subExp.achievements.map((achievement, aIdx) => (
+                                <ListItem key={aIdx} sx={{ p: 0.5 }}>
+                                  <ListItemIcon sx={{ minWidth: 28 }}>
+                                    <ArrowRightIcon color="primary" fontSize="small" />
+                                  </ListItemIcon>
+                                  <ListItemText primary={achievement} />
+                                </ListItem>
+                              ))}
+                            </List>
+                          </AccordionDetails>
+                        </Accordion>
+                      ))}
+                    </Box>
                   )}
                 </Paper>
               </TimelineContent>

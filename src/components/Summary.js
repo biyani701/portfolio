@@ -1,130 +1,215 @@
-import React from 'react';
+import { useState } from 'react';
 import {
   Paper,
   Typography,
   Box,
   Grid,
-  useTheme,
+  Container,
   Avatar,
-  Divider
+  Divider,
+  Card,
+  CardContent,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Chip
 } from '@mui/material';
-import WorkIcon from '@mui/icons-material/Work';
-import SchoolIcon from '@mui/icons-material/School';
-import CodeIcon from '@mui/icons-material/Code';
-import './Summary.css';
+import EngineeringIcon from '@mui/icons-material/Engineering';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import GroupsIcon from '@mui/icons-material/Groups';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import TimelineIcon from '@mui/icons-material/Timeline';
 
-const Summary = () => {
-  const theme = useTheme();
+const ProfileSummary = () => {
+  const [hoveredCard, setHoveredCard] = useState(null);
+  
+  const handleMouseEnter = (index) => {
+    setHoveredCard(index);
+  };
+  
+  const handleMouseLeave = () => {
+    setHoveredCard(null);
+  };
 
-  const summaryPoints = [
-    {
-      icon: <WorkIcon />,
-      title: "Professional Experience",
-      points: [
-        "Over 20 years of experience in software development and project management",
-        "Expertise in credit card processing and payment systems",
-        "Strong background in system architecture and implementation"
-      ]
-    },
-    {
-      icon: <SchoolIcon />,
-      title: "Education & Certifications",
-      points: [
-        "Bachelor's degree in Computer Science",
-        "Multiple industry certifications in project management and software development",
-        "Continuous learning and skill development"
-      ]
-    },
-    {
-      icon: <CodeIcon />,
-      title: "Technical Expertise",
-      points: [
-        "Proficient in multiple programming languages and frameworks",
-        "Extensive experience with database systems and data visualization",
-        "Strong problem-solving and analytical skills"
-      ]
-    }
+  const profileData = {
+    title: "Technical Program Manager / Delivery Director",
+    experience: "25+ years",
+    summary: "A results-driven Technical Program Manager / Delivery Director with over 25 years of experience steering complex, high-impact software initiatives. Proven track record of aligning strategy with execution to deliver transformative business outcomes across diverse industries.",
+    keyPoints: [
+      {
+        icon: <TimelineIcon />,
+        title: "Methodology Expert",
+        description: "Expert in Agile, Waterfall, Scrum, and Kanban methodologies, leading cross-functional, globally distributed teams to deliver high-performance results and maximize client value."
+      },
+      {
+        icon: <TaskAltIcon />,
+        title: "Project Delivery",
+        description: "Delivered large-scale, mission-critical programs, including regulatory, time-sensitive, and high-complexity projects — consistently achieving on-time, within-budget delivery."
+      },
+      {
+        icon: <EngineeringIcon />,
+        title: "Strategic Problem-Solver",
+        description: "Strategic problem-solver, combining meticulous planning with proactive risk mitigation to ensure delivery excellence while fostering an innovation-first culture."
+      },
+      {
+        icon: <GroupsIcon />,
+        title: "Stakeholder Engagement",
+        description: "Exceptional stakeholder engagement, cultivating strong partnerships and promoting transparent, outcome-focused communication to keep business and technology teams aligned."
+      },
+      {
+        icon: <EmojiEventsIcon />,
+        title: "Award-Winning Leadership",
+        description: "Award-winning leadership, recognized with accolades such as \"Best Project Manager of the Quarter\" for driving measurable improvements in delivery, team performance, and client satisfaction."
+      }
+    ],
+    passion: "Passionate about leading high-impact programs, accelerating innovation, and empowering teams to exceed expectations."
+  };
+
+  const skills = [
+    "Agile", "Scrum", "Kanban", "Waterfall", "Risk Management", 
+    "Stakeholder Management", "Program Management", "Project Delivery", 
+    "Cross-functional Leadership", "Strategic Planning"
   ];
 
   return (
-    <section id="summary" className="py-5">
-      <div className="container">
-        <Typography 
-          variant="h4" 
-          component="h2" 
-          align="center" 
-          gutterBottom
+    <Box sx={{ py: 6, backgroundColor: "background.paper" }}>
+      <Container maxWidth="lg">
+        <Paper 
+          elevation={4}
           sx={{ 
-            mb: 4,
-            color: theme.palette.mode === 'dark' ? 'primary.light' : 'primary.main'
+            p: 4, 
+            borderRadius: 2, 
+            background: "linear-gradient(to right, #f5f7fa, #e4e8ed)",
+            mb: 4
           }}
         >
-          Professional Summary
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <Avatar
+              sx={{
+                bgcolor: "primary.main",
+                width: 64,
+                height: 64,
+                mr: 2,
+                fontSize: "2rem"
+              }}
+            >
+              <VerifiedIcon fontSize="large" />
+            </Avatar>
+            <Box>
+              <Typography variant="h4" component="h1" fontWeight="bold">
+                {profileData.title}
+              </Typography>
+              <Typography variant="h6" color="text.secondary">
+                {profileData.experience} of Professional Experience
+              </Typography>
+            </Box>
+          </Box>
+          
+          <Typography variant="body1" paragraph sx={{ fontSize: "1.1rem", mb: 3 }}>
+            {profileData.summary}
+          </Typography>
+          
+          <Box sx={{ mb: 4 }}>
+            <Grid container spacing={2}>
+              {skills.map((skill, index) => (
+                <Grid item key={index}>
+                  <Chip 
+                    label={skill} 
+                    color="primary" 
+                    variant="outlined" 
+                    sx={{ fontWeight: 500 }}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        </Paper>
+
+        <Typography 
+          variant="h5" 
+          component="h2" 
+          sx={{ 
+            mb: 3, 
+            fontWeight: "bold",
+            position: "relative",
+            pl: 2,
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              left: 0,
+              top: 0,
+              height: "100%",
+              width: "4px",
+              backgroundColor: "primary.main",
+              borderRadius: 1
+            }
+          }}
+        >
+          Professional Excellence
         </Typography>
-        <Grid container spacing={4}>
-          {summaryPoints.map((section, index) => (
-            <Grid item xs={12} md={4} key={index}>
-              <Paper
-                elevation={3}
+
+        <Grid container spacing={3}>
+          {profileData.keyPoints.map((point, index) => (
+            <Grid item xs={12} md={6} key={index}>
+              <Card 
+                elevation={hoveredCard === index ? 4 : 1}
+                onMouseEnter={() => handleMouseEnter(index)}
+                onMouseLeave={handleMouseLeave}
                 sx={{
-                  p: 3,
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  backgroundColor: theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50',
-                  transition: 'transform 0.3s ease-in-out',
-                  '&:hover': {
-                    transform: 'translateY(-5px)',
-                  },
+                  height: "100%",
+                  transition: "all 0.3s ease",
+                  transform: hoveredCard === index ? "translateY(-8px)" : "none",
+                  borderLeft: hoveredCard === index ? "4px solid" : "none",
+                  borderColor: "primary.main"
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Avatar
-                    sx={{
-                      bgcolor: theme.palette.primary.main,
-                      width: 40,
-                      height: 40,
-                      mr: 2
-                    }}
-                  >
-                    {section.icon}
-                  </Avatar>
-                  <Typography variant="h6" component="h3">
-                    {section.title}
-                  </Typography>
-                </Box>
-                <Divider sx={{ mb: 2 }} />
-                <Box component="ul" sx={{ pl: 2 }}>
-                  {section.points.map((point, pointIndex) => (
-                    <Typography
-                      key={pointIndex}
-                      component="li"
-                      variant="body1"
+                <CardContent>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <Avatar
                       sx={{
-                        mb: 1,
-                        position: 'relative',
-                        '&::before': {
-                          content: '"•"',
-                          color: theme.palette.primary.main,
-                          fontWeight: 'bold',
-                          display: 'inline-block',
-                          width: '1em',
-                          ml: '-1em'
-                        }
+                        bgcolor: "primary.main",
+                        width: 40,
+                        height: 40,
+                        mr: 2
                       }}
                     >
-                      {point}
+                      {point.icon}
+                    </Avatar>
+                    <Typography variant="h6" component="h3" fontWeight="bold">
+                      {point.title}
                     </Typography>
-                  ))}
-                </Box>
-              </Paper>
+                  </Box>
+                  <Divider sx={{ mb: 2 }} />
+                  <Typography variant="body1">
+                    {point.description}
+                  </Typography>
+                </CardContent>
+              </Card>
             </Grid>
           ))}
         </Grid>
-      </div>
-    </section>
+        
+        <Box sx={{ mt: 4, textAlign: "center" }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontStyle: "italic", 
+              color: "text.secondary",
+              maxWidth: "800px",
+              mx: "auto",
+              p: 2,
+              borderRadius: 1,
+              backgroundColor: "rgba(0,0,0,0.02)"
+            }}
+          >
+            {profileData.passion}
+          </Typography>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 
-export default Summary;
-  
+export default ProfileSummary;

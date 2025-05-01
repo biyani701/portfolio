@@ -5,7 +5,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import NavigationBar from './components/Navbar';
 import Hero from './components/Hero';
-import Summary from './components/Summary';
+import ProfileSummary from './components/ProfileSummary';
 import Skills from './components/Skills';
 import ExperienceTimeline from './components/Experience';
 import Certifications from './components/Certifications';
@@ -13,6 +13,8 @@ import Education from './components/Education';
 import Recognition from './components/Recognition';
 import Contact from './components/Contact';
 import CareerTimeline from './components/CareerTimeline';
+import Footer from './components/Footer';
+
 import './App.css';
 
 function App() {
@@ -236,7 +238,7 @@ function App() {
             <Hero />
           </section>
           <section id="summary" data-aos="fade-up">
-            <Summary />
+            <ProfileSummary />
           </section>
           <section id="timeline" data-aos="fade-up">
             <CareerTimeline />
@@ -258,7 +260,7 @@ function App() {
           </section>
         </main>
         <footer id="contact" data-aos="fade-up">
-          <Contact />
+          <Footer />
         </footer>
       </div>
     </ThemeProvider>

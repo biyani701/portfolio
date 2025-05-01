@@ -3,10 +3,10 @@ html {
 }
 
 .App {
-  text-align: center;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  text-align: center;
+  min-height: 100vh;  
   position: relative;
   padding-bottom: 60px;
 }
