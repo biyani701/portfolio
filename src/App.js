@@ -7,7 +7,7 @@ import NavigationBar from './components/Navbar';
 import Hero from './components/Hero';
 import Summary from './components/Summary';
 import Skills from './components/Skills';
-import Experience from './components/Experience';
+import ExperienceTimeline from './components/Experience';
 import Certifications from './components/Certifications';
 import Education from './components/Education';
 import Recognition from './components/Recognition';
@@ -245,7 +245,7 @@ function App() {
             <Skills />
           </section>
           <section id="experience" data-aos="fade-up">
-            <Experience />
+            <ExperienceTimeline />
           </section>
           <section id="certifications" data-aos="fade-up">
             <Certifications />
