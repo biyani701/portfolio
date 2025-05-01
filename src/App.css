@@ -4,6 +4,11 @@ html {
 
 .App {
   text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-bottom: 60px;
 }
 
 .App-logo {
@@ -39,4 +44,9 @@ html {
   to {
     transform: rotate(360deg);
   }
+}
+
+main {
+  flex: 1;
+  padding-bottom: 20px;
 }
