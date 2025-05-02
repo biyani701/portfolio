@@ -47,6 +47,6 @@ html {
 }
 
 main {
-  flex: 1;
-  padding-bottom: 20px;
+  flex: 1;  
+  padding-bottom: 5px;
 }

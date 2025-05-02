@@ -3,6 +3,7 @@ import { Box, Typography, Button, Container, IconButton } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { styled } from '@mui/material/styles';
 
+
 // Styled components
 const HeroContainer = styled(Box)(({ theme }) => ({
   height: '100vh',
@@ -11,9 +12,9 @@ const HeroContainer = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   alignItems: 'center',
   position: 'relative',
-  backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), url("/images/hero-background.jpg")',
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
+  backgroundImage: theme.palette.mode === 'dark'
+    ? 'linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%)'
+    : 'linear-gradient(135deg, #1976d2 0%, #2196f3 50%, #42a5f5 100%)',
   color: '#ffffff',
   textAlign: 'center',
   padding: theme.spacing(2),
@@ -24,19 +25,42 @@ const HeroContainer = styled(Box)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    background: theme.palette.mode === 'dark' 
-      ? 'linear-gradient(to bottom, rgba(18, 18, 18, 0.8), rgba(18, 18, 18, 0.6))'
-      : 'linear-gradient(to bottom, rgba(25, 118, 210, 0.7), rgba(21, 101, 192, 0.5))',
+    background: 'url("/images/pattern-overlay.png")', // Optional texture overlay
+    opacity: 0.1,
     zIndex: -1,
   },
+  // height: '100vh',
+  // display: 'flex',
+  // flexDirection: 'column',
+  // justifyContent: 'center',
+  // alignItems: 'center',
+  // position: 'relative',
+  // backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), url("/images/hero-background.jpg")',
+  // backgroundSize: 'cover',
+  // backgroundPosition: 'center',
+  // color: '#ffffff',
+  // textAlign: 'center',
+  // padding: theme.spacing(2),
+  // '&::before': {
+  //   content: '""',
+  //   position: 'absolute',
+  //   top: 0,
+  //   left: 0,
+  //   right: 0,
+  //   bottom: 0,
+  //   background: theme.palette.mode === 'dark' 
+  //     ? 'linear-gradient(to bottom, rgba(18, 18, 18, 0.8), rgba(18, 18, 18, 0.6))'
+  //     : 'linear-gradient(to bottom, rgba(25, 118, 210, 0.7), rgba(21, 101, 192, 0.5))',
+  //   zIndex: -1,
+  // },
 }));
 
 const ScrollDownButton = styled(IconButton)(({ theme }) => ({
   position: 'absolute',
-  bottom: theme.spacing(6),
+  bottom: theme.spacing(-6),
   backgroundColor: 'rgba(255, 255, 255, 0.2)',
   color: '#ffffff',
-  transition: 'all 0.3s ease',
+  transition: 'all 0.2s ease',
   animation: 'bounce 2s infinite',
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.4)',
@@ -54,6 +78,9 @@ const ScrollDownButton = styled(IconButton)(({ theme }) => ({
     },
   },
 }));
+
+
+
 
 const Name = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
@@ -90,11 +117,26 @@ const ContactButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const Hero = () => {
+const Hero = (props) => {
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
     if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
+      // Get the height of the footer
+      const footer = document.querySelector('.footer');
+      const footerHeight = footer ? footer.offsetHeight : 0;
+
+      // Get the position of the section relative to the viewport
+      const sectionRect = section.getBoundingClientRect();
+
+      // Calculate the scroll position, accounting for the footer
+      // const scrollPosition = window.pageYOffset + sectionRect.top - window.innerHeight + sectionRect.height + 20 - footerHeight;      
+      const scrollPosition = sectionRect.top - window.innerHeight + sectionRect.height - footerHeight - 250;
+
+      // Scroll to position, ensuring the section is visible above the footer
+      window.scrollTo({
+        top: scrollPosition,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -120,15 +162,34 @@ const Hero = () => {
           </ContactButton>
         </Box>
       </Container>
-      
-      <ScrollDownButton
-        aria-label="Scroll Down"
-        onClick={() => scrollToSection('summary')}
-        data-aos="fade-up"
-        data-aos-delay="600"
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 200,
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
       >
-        <KeyboardArrowDownIcon sx={{ fontSize: 40 }} />
-      </ScrollDownButton>
+        {/* Text comes first */}
+        <Typography
+          variant="body2"
+          sx={{ color: '#ffffff', mb: 1, cursor: 'pointer' }} // mb (margin-bottom) pushes arrow down
+          onClick={() => scrollToSection('summary')}
+        >
+          SCROLL DOWN
+        </Typography>
+
+        <ScrollDownButton
+          aria-label="Scroll Down"
+          onClick={() => scrollToSection('summary')}
+          data-aos="fade-up"
+          data-aos-delay="100"
+        >
+          <KeyboardArrowDownIcon sx={{ fontSize: 30 }} />
+        </ScrollDownButton>        
+      </Box>
     </HeroContainer>
   );
 };

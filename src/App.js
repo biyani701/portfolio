@@ -14,10 +14,50 @@ import Recognition from './components/Recognition';
 import Contact from './components/Contact';
 import CareerTimeline from './components/CareerTimeline';
 import Footer from './components/Footer';
-
+import useScrollTrigger from '@mui/material/useScrollTrigger';
+import Fade from '@mui/material/Fade';
+import Box from '@mui/material/Box';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import Fab from '@mui/material/Fab';
 import './App.css';
 
-function App() {
+function ScrollTop(props) {
+  const { children, window } = props;
+  // Note that you normally won't need to set the window ref as useScrollTrigger
+  // will default to window.
+  // This is only being set here because the demo is in an iframe.
+  const trigger = useScrollTrigger({
+    target: window ? window() : undefined,
+    disableHysteresis: true,
+    threshold: 100,
+  });
+
+  const handleClick = (event) => {
+    const anchor = (event.target.ownerDocument || document).querySelector(
+      '#back-to-top-anchor',
+    );
+
+    if (anchor) {
+      anchor.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
+
+  return (
+    <Fade in={trigger}>
+      <Box
+        onClick={handleClick}
+        role="presentation"
+        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+      >
+        {children}
+      </Box>
+    </Fade>
+  );
+}
+
+function App(props) {
   // Initialize darkMode state based on user preference or default to false
   const [darkMode, setDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
@@ -33,7 +73,7 @@ function App() {
       easing: 'ease-in-out',
       delay: 100,
     });
-    
+
     // Refresh AOS when the theme changes
     AOS.refresh();
   }, [darkMode]); // Add darkMode as a dependency to refresh animations when theme switches
@@ -42,7 +82,7 @@ function App() {
   useEffect(() => {
     // Save preference to localStorage
     localStorage.setItem('darkMode', darkMode);
-    
+
     // Apply appropriate classes
     if (darkMode) {
       document.body.classList.add('dark-mode');
@@ -51,10 +91,10 @@ function App() {
       document.body.classList.add('light-mode');
       document.body.classList.remove('dark-mode');
     }
-    
+
     // Force update of MUI components with the new theme
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-    
+
   }, [darkMode]);
 
   // Create MUI theme based on dark mode state
@@ -118,8 +158,8 @@ function App() {
               root: {
                 boxShadow: darkMode ? '0 4px 20px rgba(0,0,0,0.5)' : '0 2px 10px rgba(0,0,0,0.1)',
                 backdropFilter: 'blur(8px)',
-                background: darkMode 
-                  ? 'rgba(30, 30, 30, 0.8)' 
+                background: darkMode
+                  ? 'rgba(30, 30, 30, 0.8)'
                   : 'rgba(255, 255, 255, 0.8)',
                 transition: 'all 0.3s ease',
               },
@@ -133,8 +173,8 @@ function App() {
               root: {
                 backgroundImage: 'none',
                 transition: 'all 0.3s ease',
-                boxShadow: darkMode 
-                  ? '0 8px 40px rgba(0,0,0,0.5)' 
+                boxShadow: darkMode
+                  ? '0 8px 40px rgba(0,0,0,0.5)'
                   : '0 4px 20px rgba(0,0,0,0.1)',
               },
             },
@@ -147,14 +187,14 @@ function App() {
                 transition: 'all 0.3s ease',
                 ':hover': {
                   transform: 'translateY(-2px)',
-                  boxShadow: darkMode 
-                    ? '0 8px 15px rgba(0,0,0,0.5)' 
+                  boxShadow: darkMode
+                    ? '0 8px 15px rgba(0,0,0,0.5)'
                     : '0 5px 15px rgba(0,0,0,0.1)',
                 },
               },
               contained: {
-                boxShadow: darkMode 
-                  ? '0 4px 10px rgba(0,0,0,0.4)' 
+                boxShadow: darkMode
+                  ? '0 4px 10px rgba(0,0,0,0.4)'
                   : '0 2px 5px rgba(0,0,0,0.1)',
               }
             },
@@ -167,8 +207,8 @@ function App() {
                 transition: 'all 0.3s ease',
                 ':hover': {
                   transform: 'translateY(-5px)',
-                  boxShadow: darkMode 
-                    ? '0 12px 30px rgba(0,0,0,0.6)' 
+                  boxShadow: darkMode
+                    ? '0 12px 30px rgba(0,0,0,0.6)'
                     : '0 10px 25px rgba(0,0,0,0.15)',
                 }
               }
@@ -179,8 +219,8 @@ function App() {
               paper: {
                 borderRight: 0,
                 width: 280,
-                background: darkMode 
-                  ? 'rgba(30, 30, 30, 0.95)' 
+                background: darkMode
+                  ? 'rgba(30, 30, 30, 0.95)'
                   : 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(10px)',
               },
@@ -259,9 +299,15 @@ function App() {
             <Recognition />
           </section>
         </main>
-        <footer id="contact" data-aos="fade-up">
+        <footer id="contact" className='footer'>
+          <Contact />
           <Footer />
         </footer>
+        <ScrollTop {...props}>
+        <Fab size="small" aria-label="scroll back to top">
+          <KeyboardArrowUpIcon />
+        </Fab>
+      </ScrollTop>
       </div>
     </ThemeProvider>
   );

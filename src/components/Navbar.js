@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import Fuse from 'fuse.js';
 import { styled, alpha } from '@mui/material/styles';
 import {
   AppBar,
@@ -29,6 +30,12 @@ import SchoolIcon from '@mui/icons-material/School';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import './Navbar.css';
+import { resumeData } from './resumeData';
+
+const fuse = new Fuse(resumeData, {
+  keys: ['section', 'content'],
+  threshold: 0.3, // lower is stricter
+});
 
 // Styled components
 const Search = styled('div')(({ theme }) => ({
@@ -100,6 +107,9 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
   const [resumeAnchorEl, setResumeAnchorEl] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [query, setQuery] = useState('');
+  const results = fuse.search(query);
+  const matches = query ? results.map(r => r.item) : [];
 
   // Set data attribute on the AppBar when dark mode changes
   useEffect(() => {
@@ -203,6 +213,7 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
   );
 
   return (
+    <>
     <StyledAppBar 
       position="fixed" 
       color="primary" 
@@ -282,6 +293,9 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
             <StyledInputBase
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
+              value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            sx={{ color: 'inherit', ml: 1, flex: 1 }}
             />
           </Search>
 
@@ -329,6 +343,21 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
         {drawer}
       </Drawer>
     </StyledAppBar>
+    {query && (
+      <Box sx={{ backgroundColor: 'white', color: 'black', p: 2 }}>
+        {matches.length ? (
+          matches.map((item, index) => (
+            <Box key={index} sx={{ mb: 2 }}>
+              <Typography variant="h6">{item.section}</Typography>
+              <Typography>{item.content}</Typography>
+            </Box>
+          ))
+        ) : (
+          <Typography>No results found</Typography>
+        )}
+      </Box>
+    )}
+    </>
   );
 };
 
