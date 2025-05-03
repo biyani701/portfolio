@@ -15,6 +15,7 @@
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="stylesheet" href="%PUBLIC_URL%/klaro.css" />
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -29,6 +30,7 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <div id="klaro"></div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -39,5 +41,66 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script>
+      window.klaroConfig = {
+        version: 1,
+        elementID: 'klaro',
+        storageMethod: 'cookie',
+        cookieName: 'klaro',
+        privacyPolicy: '/privacy-policy.html',
+        default: false,
+        mustConsent: false,
+        acceptAll: true,
+        hideDeclineAll: false,
+        services: [
+          {
+            name: 'tally',
+            title: 'Tally Contact Form',
+            purposes: ['contact'],
+            cookies: [],
+            required: true,
+            optOut: false,
+            onlyOnce: true,
+          },
+        ],
+        translations: {
+          en: {
+            consentModal: {
+              title: 'Cookie & Privacy Preferences',
+              description: 'This site uses third-party services like Tally to process contact forms.',
+            },
+            purposes: {
+              contact: 'Contact Form',
+            },
+          },
+        },
+      };
+    </script>
+
+    <script src="%PUBLIC_URL%/klaro.js"></script>
+    <script>  
+      function initializeKlaro() {
+        if (window.klaro && typeof window.klaro.run === 'function') {
+          try {
+            window.klaro.run(window.klaroConfig);
+            // Verify that show method is available
+            if (typeof window.klaro.show !== 'function') {
+              console.error('Klaro initialized but show method is not available');
+            }
+          } catch (error) {
+            console.error('Error initializing Klaro:', error);
+          }
+        } else {
+          console.error('Klaro script not loaded properly');
+        }
+      }
+
+      // Wait for the script to load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeKlaro);
+      } else {
+        initializeKlaro();
+      }
+    </script>
   </body>
 </html>

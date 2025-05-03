@@ -4,6 +4,7 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SvgIcon from '@mui/material/SvgIcon';
 import './Footer.css'; // Renamed from Contact.css
+import PrivacyPreferencesButton from './PrivacyPreferencesButton'; // Importing the PrivacyPreferencesButton component
 
 const Footer = () => {
   const theme = useTheme();
@@ -36,6 +37,7 @@ const Footer = () => {
         }}>
           {/* Left section */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <PrivacyPreferencesButton />
             {/* <Typography variant="body2" component="span" sx={{ color: 'white' }}>
               <a href="mailto:support@biyani.xyz" className="footer-link">                
                 Support Team
