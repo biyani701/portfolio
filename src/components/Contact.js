@@ -1,30 +1,83 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Typography, Box, Container, useTheme } from '@mui/material';
 
 const Contact = () => {
   const formRef = useRef(null);
   const theme = useTheme();
+  const [consentGiven, setConsentGiven] = useState(false);
+
 
   useEffect(() => {
-    // Load the Tally script
+    const checkConsent = () => {
+      try {
+        const manager = window.klaro?.getManager?.();
+        const consents = manager?.consents;
+    
+        console.log('Klaro consents:', consents);
+    
+        const tallyConsent = consents?.tally === true;
+        const nortonConsent = consents?.norton === true;
+    
+        setConsentGiven(tallyConsent && nortonConsent);
+      } catch (error) {
+        console.warn('Consent check failed:', error);
+        setConsentGiven(false);
+      }
+    };
+
+    
+    checkConsent();
+
+    window.addEventListener('klaroConsentNoticeDismissed', checkConsent);
+    window.addEventListener('klaroConsentModalClosed', checkConsent);
+
+    return () => {
+      window.removeEventListener('klaroConsentNoticeDismissed', checkConsent);
+      window.removeEventListener('klaroConsentModalClosed', checkConsent);
+    };
+  }, []);
+
+
+  // useEffect(() => {
+  //   // Load the Tally script
+  //   const script = document.createElement('script');
+  //   script.src = 'https://tally.so/widgets/embed.js';
+  //   script.async = true;
+  //   script.onload = () => {
+  //     // Once the script is loaded, initialize Tally
+  //     if (window.Tally) {
+  //       window.Tally.loadEmbeds();
+  //     }
+  //   };
+  //   document.body.appendChild(script);
+
+  //   // Clean up
+  //   return () => {
+  //     if (script.parentNode) {
+  //       document.body.removeChild(script);
+  //     }
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    if (!consentGiven) return;
+
     const script = document.createElement('script');
     script.src = 'https://tally.so/widgets/embed.js';
     script.async = true;
     script.onload = () => {
-      // Once the script is loaded, initialize Tally
       if (window.Tally) {
         window.Tally.loadEmbeds();
       }
     };
     document.body.appendChild(script);
 
-    // Clean up
     return () => {
       if (script.parentNode) {
         document.body.removeChild(script);
       }
     };
-  }, []);
+  }, [consentGiven]);
 
   return (
     <Box 
@@ -48,29 +101,32 @@ const Contact = () => {
         >
           Get in Touch
         </Typography>
-        <Box 
-          ref={formRef}
-          sx={{
-            width: '100%',
-            minHeight: '300px',
-            mb: 4,
-            boxShadow: 3,
-            borderRadius: 2,
-            overflow: 'hidden',
-            backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : 'white',
-          }}
-        >
-          <iframe 
-            data-tally-src="https://tally.so/embed/mB6PPe?hideTitle=1&transparentBackground=1&dynamicHeight=1" 
-            width="100%" 
-            height="276" 
-            frameBorder="0" 
-            marginHeight="0" 
-            marginWidth="0" 
-            title="Contact Me"
-            style={{ border: 'none' }}
-          />
-        </Box>
+        {consentGiven ? (
+          <Box 
+            ref={formRef}
+            sx={{
+              width: '100%',
+              minHeight: '300px',
+              mb: 4,
+              boxShadow: 3,
+              borderRadius: 2,
+              overflow: 'hidden',
+              backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : 'white',
+            }}
+          >
+            <iframe 
+              data-tally-src="https://tally.so/embed/mB6PPe?hideTitle=1&transparentBackground=1&dynamicHeight=1" 
+              width="100%" 
+              height="276"             
+              title="Contact Me"
+              style={{ border: 'none' }}
+            />
+          </Box>
+        ) : (
+          <Typography align="center" color="textSecondary">
+            Please accept the required cookies to view and use the contact form.
+          </Typography>
+        )}
       </Container>
     </Box>
   );

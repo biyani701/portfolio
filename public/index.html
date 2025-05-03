@@ -1,22 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <link rel="stylesheet" href="%PUBLIC_URL%/klaro.css" />
-    <!--
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <link rel="stylesheet" href="%PUBLIC_URL%/klaro.css" />
+  <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
       Only files inside the `public` folder can be referenced from the HTML.
@@ -25,13 +23,14 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <div id="klaro"></div>
-    <!--
+  <title>React App</title>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <div id="klaro"></div>
+  <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
 
@@ -41,66 +40,144 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-    <script>
-      window.klaroConfig = {
-        version: 1,
-        elementID: 'klaro',
-        storageMethod: 'cookie',
-        cookieName: 'klaro',
-        privacyPolicy: '/privacy-policy.html',
-        default: false,
-        mustConsent: false,
-        acceptAll: true,
-        hideDeclineAll: false,
-        services: [
-          {
-            name: 'tally',
-            title: 'Tally Contact Form',
-            purposes: ['contact'],
-            cookies: [],
-            required: true,
-            optOut: false,
-            onlyOnce: true,
+  <script>
+    window.klaroConfig = {
+      version: 2,
+      elementID: 'klaro',
+      storageMethod: 'cookie',
+      cookieName: 'klaro-i18n',
+      privacyPolicy: '/privacy-policy.html',
+      default: false,
+      noNotice: false,
+      mustConsent: false,
+      acceptAll: true,
+      hideDeclineAll: false,
+      poweredBy: 'https://github.com/KIProtect/klaro/blob/master/dist/configs/i18n.js',
+      services: [
+        {
+          name: 'tally',
+          title: 'Tally Contact Form',
+          purposes: ['functional'],
+          cookies: [],
+          required: false,
+          optOut: false,
+          onlyOnce: true,
+        },
+        {
+          name: 'norton',
+          title: 'Norton Form Protection',
+          purposes: ['functional'],
+          default: true,
+          required: false,
+          cookies: [],
+        },
+      ],
+      translations: {
+        en: {
+          consentModal: {
+            title: 'Privacy Preferences',
+            description: 'We use a privacy-friendly form service (Tally) to collect contact information. Form submissions are securely processed by Norton. You can manage your preferences below.',
           },
-        ],
-        translations: {
-          en: {
-            consentModal: {
-              title: 'Cookie & Privacy Preferences',
-              description: 'This site uses third-party services like Tally to process contact forms.',
+          purposes: {
+            functional: 'Essential Services',
+          },
+          services: {
+            tally: {
+              description: 'Handles form submissions. No tracking cookies are used.',
             },
-            purposes: {
-              contact: 'Contact Form',
+            norton: {
+              description: 'Processes form data securely for spam protection and integrity.',
             },
           },
         },
-      };
-    </script>
+        es: {
+          consentModal: {
+            title: 'Preferencias de privacidad',
+            description: 'Usamos Tally para recopilar información de contacto de manera respetuosa con la privacidad. Norton procesa los formularios de forma segura. Puedes gestionar tus preferencias a continuación.',
+          },
+          purposes: {
+            functional: 'Servicios esenciales',
+          },
+          services: {
+            tally: {
+              description: 'Gestiona envíos de formularios. No se utilizan cookies de seguimiento.',
+            },
+            norton: {
+              description: 'Procesa datos de formularios de forma segura para proteger contra spam.',
+            },
+          },
+        },
+        hi: {
+          consentModal: {
+            title: 'गोपनीयता प्राथमिकताएं',
+            description: 'हम संपर्क जानकारी एकत्र करने के लिए Tally का उपयोग करते हैं। Norton आपके फ़ॉर्म डेटा को सुरक्षित रूप से प्रोसेस करता है। आप नीचे अपनी प्राथमिकताएं प्रबंधित कर सकते हैं।',
+          },
+          purposes: {
+            functional: 'आवश्यक सेवाएं',
+          },
+          services: {
+            tally: {
+              description: 'फ़ॉर्म सबमिशन संभालता है। कोई ट्रैकिंग कुकीज़ उपयोग नहीं की जातीं।',
+            },
+            norton: {
+              description: 'स्पैम सुरक्षा के लिए फ़ॉर्म डेटा को सुरक्षित रूप से प्रोसेस करता है।',
+            },
+          },
+        },
+      },
+    };
+  </script>
 
-    <script src="%PUBLIC_URL%/klaro.js"></script>
-    <script>  
-      function initializeKlaro() {
-        if (window.klaro && typeof window.klaro.run === 'function') {
-          try {
-            window.klaro.run(window.klaroConfig);
-            // Verify that show method is available
-            if (typeof window.klaro.show !== 'function') {
-              console.error('Klaro initialized but show method is not available');
-            }
-          } catch (error) {
-            console.error('Error initializing Klaro:', error);
+  
+  <script>
+    function initializeKlaro() {
+      if (window.klaro && typeof window.klaro.run === 'function') {
+        try {
+          window.klaro.run(window.klaroConfig);
+          // Verify that show method is available
+          if (typeof window.klaro.show !== 'function') {
+            console.error('Klaro initialized but show method is not available');
           }
-        } else {
-          console.error('Klaro script not loaded properly');
+          console.log('Klaro initialized successfully');
+        } catch (error) {
+          console.error('Error initializing Klaro:', error);
         }
-      }
-
-      // Wait for the script to load
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeKlaro);
       } else {
-        initializeKlaro();
+        console.error('Klaro script not loaded properly');
       }
-    </script>
-  </body>
+    }
+     // Load Klaro script with proper error handling
+     document.addEventListener('DOMContentLoaded', function() {
+      const klaroScript = document.createElement('script');
+      klaroScript.src = "%PUBLIC_URL%/klaro.js";
+      klaroScript.onload = initializeKlaro;
+      klaroScript.onerror = function() {
+        console.error('Failed to load Klaro script');
+      };
+      document.body.appendChild(klaroScript);
+    });
+
+    // Wait for the script to load
+    // if (document.readyState === 'loading') {
+    //   document.addEventListener('DOMContentLoaded', initializeKlaro);
+    // } else {
+    //   initializeKlaro();
+    // }
+  </script>
+
+<!-- <script 
+src="%PUBLIC_URL%/klaro.js"
+onload="initializeKlaro()" 
+></script> -->
+
+<script>
+  window.addEventListener('klaro-consents-updated', () => {
+  // Optional delay to allow UI updates to complete
+  setTimeout(() => {
+    location.reload();
+  }, 100);
+});
+</script>
+</body>
+
 </html>
