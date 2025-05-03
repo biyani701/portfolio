@@ -151,7 +151,7 @@
       const klaroScript = document.createElement('script');
       klaroScript.src = "%PUBLIC_URL%/klaro.js";
       klaroScript.onload = initializeKlaro;
-      klaroScript.onerror = function() {
+      klaroScript.onerror = function() {  
         console.error('Failed to load Klaro script');
       };
       document.body.appendChild(klaroScript);
@@ -171,13 +171,44 @@ onload="initializeKlaro()"
 ></script> -->
 
 <script>
-  window.addEventListener('klaro-consents-updated', () => {
-  // Optional delay to allow UI updates to complete
-  setTimeout(() => {
-    location.reload();
-  }, 100);
-});
+  // Add multiple event listeners to catch various Klaro events
+  function setupKlaroEventListeners() {
+    // Main consent updated event
+    document.addEventListener('klaro-consent-changed', function(e) {
+      console.log('Klaro consent changed, reloading page...');
+      setTimeout(() => { location.reload(); }, 200);
+    });
+    
+    // Alternative event name (for different Klaro versions)
+    document.addEventListener('klaro-preferences-saved', function(e) {
+      console.log('Klaro preferences saved, reloading page...');
+      setTimeout(() => { location.reload(); }, 200);
+    });
+    
+    // Your original event
+    window.addEventListener('klaro-consents-updated', function(e) {
+      console.log('Klaro consents updated, reloading page...');
+      setTimeout(() => { location.reload(); }, 200);
+    });
+    
+    // Listen for clicks on the save button directly
+    document.addEventListener('click', function(e) {
+      if (e.target && (
+        e.target.classList.contains('cm-btn-success') || 
+        e.target.closest('.cm-btn-success'))
+      ) {
+        console.log('Consent save button clicked, reloading page shortly...');
+        setTimeout(() => { location.reload(); }, 500);
+      }
+    });
+  }
+  
+  // Set up listeners after a short delay to ensure Klaro is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(setupKlaroEventListeners, 1000);
+  });
 </script>
+
 </body>
 
 </html>
