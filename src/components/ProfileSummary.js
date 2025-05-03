@@ -103,7 +103,7 @@ const ProfileSummary = () => {
   ];
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 4 }, backgroundColor: theme => theme.palette.background.default }}>
+    <Box id="summary" sx={{ p: { xs: 2, sm: 4 }, backgroundColor: theme => theme.palette.background.default }}>
       <Box maxWidth="lg" mx="auto">
         <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, mb: 4, background: theme => theme.palette.mode === 'light' ? 'linear-gradient(to right, #f5f7fa, #e4e8ed)' : 'linear-gradient(to right, #1e1e1e, #2a2a2a)' }} data-aos="fade-up">
           <Box sx={{ display: 'flex', alignItems: 'flex-start', flexWrap: 'wrap' }}>

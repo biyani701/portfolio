@@ -15,8 +15,7 @@ import {
   Menu,
   MenuItem,
   Button,
-  useTheme,
-  useMediaQuery
+  useTheme
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import InputBase from '@mui/material/InputBase';
@@ -79,6 +78,48 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+const SearchResultsDropdown = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '100%',
+  left: 0,
+  right: 0,
+  marginTop: theme.spacing(1),
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[4],
+  maxHeight: '300px',
+  overflowY: 'auto',
+  zIndex: 1000,
+  '& .MuiListItem-root': {
+    padding: theme.spacing(1, 2),
+    '&:hover': {
+      backgroundColor: theme.palette.action.hover,
+    },
+  },
+}));
+
+const SearchResultItem = styled(ListItem)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: theme.spacing(0.5),
+}));
+
+const SearchResultSection = styled(Typography)(({ theme }) => ({
+  color: theme.palette.primary.main,
+  fontWeight: 600,
+  fontSize: '0.875rem',
+}));
+
+const SearchResultContent = styled(Typography)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  fontSize: '0.75rem',
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+}));
+
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   transition: theme.transitions.create(['background-color', 'box-shadow'], {
     duration: theme.transitions.duration.standard,
@@ -105,8 +146,9 @@ const ResumeButton = styled(Button)(({ theme }) => ({
 const NavigationBar = ({ darkMode, toggleDarkMode }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resumeAnchorEl, setResumeAnchorEl] = useState(null);
+  const [searchAnchorEl, setSearchAnchorEl] = useState(null);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  // const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [query, setQuery] = useState('');
   const results = fuse.search(query);
   const matches = query ? results.map(r => r.item) : [];
@@ -129,6 +171,25 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
 
   const handleResumeMenuClose = () => {
     setResumeAnchorEl(null);
+  };
+
+  const handleSearchChange = (event) => {
+    setQuery(event.target.value);
+    if (event.target.value) {
+      setSearchAnchorEl(event.currentTarget);
+    } else {
+      setSearchAnchorEl(null);
+    }
+  };
+
+  const handleSearchClose = () => {
+    setSearchAnchorEl(null);
+    setQuery('');
+  };
+
+  const handleSearchResultClick = (section) => {
+    handleSearchClose();
+    scrollToSection(section.toLowerCase());
   };
 
   const scrollToSection = (id) => {
@@ -240,6 +301,45 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
           alignItems: 'center',
           gap: 1
         }}>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Search…"
+              inputProps={{ 'aria-label': 'search' }}
+              value={query}
+              onChange={handleSearchChange}
+              onFocus={(e) => e.target.value && setSearchAnchorEl(e.currentTarget)}
+            />
+            {Boolean(searchAnchorEl) && (
+              <SearchResultsDropdown>
+                {matches.length > 0 ? (
+                  matches.map((item, index) => (
+                    <SearchResultItem
+                      key={index}
+                      button
+                      onClick={() => handleSearchResultClick(item.section)}
+                    >
+                      <SearchResultSection>
+                        {item.section}
+                      </SearchResultSection>
+                      <SearchResultContent>
+                        {item.content}
+                      </SearchResultContent>
+                    </SearchResultItem>
+                  ))
+                ) : (
+                  <ListItem>
+                    <Typography color="text.secondary">
+                      No results found
+                    </Typography>
+                  </ListItem>
+                )}
+              </SearchResultsDropdown>
+            )}
+          </Search>
+
           <ResumeButton 
             color="inherit" 
             onClick={handleResumeMenuOpen}
@@ -286,25 +386,7 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
           >
             Contact
           </Button>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-              value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            sx={{ color: 'inherit', ml: 1, flex: 1 }}
-            />
-          </Search>
-
-          <IconButton 
-            color="inherit" 
-            onClick={toggleDarkMode} 
-            sx={{ ml: 1 }}
-            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-          >
+          <IconButton color="inherit" onClick={toggleDarkMode}>
             {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>
         </Box>
@@ -343,20 +425,6 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
         {drawer}
       </Drawer>
     </StyledAppBar>
-    {query && (
-      <Box sx={{ backgroundColor: 'white', color: 'black', p: 2 }}>
-        {matches.length ? (
-          matches.map((item, index) => (
-            <Box key={index} sx={{ mb: 2 }}>
-              <Typography variant="h6">{item.section}</Typography>
-              <Typography>{item.content}</Typography>
-            </Box>
-          ))
-        ) : (
-          <Typography>No results found</Typography>
-        )}
-      </Box>
-    )}
     </>
   );
 };

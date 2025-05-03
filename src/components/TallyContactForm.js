@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Typography, Box, Container, useTheme } from '@mui/material';
+import { Box, Typography, Container } from '@mui/material';
 
-const Contact = () => {
+const TallyContactForm = () => {
   const formRef = useRef(null);
-  const theme = useTheme();
 
   useEffect(() => {
     // Load the Tally script
@@ -20,44 +19,28 @@ const Contact = () => {
 
     // Clean up
     return () => {
-      if (script.parentNode) {
-        document.body.removeChild(script);
-      }
+      document.body.removeChild(script);
     };
   }, []);
 
   return (
-    <Box 
-      id="contact" 
-      sx={{ 
-        py: 8, 
-        backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#f5f5f5',
-        mb: '80px', // Add bottom margin to account for the fixed footer
-      }}
-    >
+    <Box id="contact" sx={{ py: 8, backgroundColor: 'background.paper' }}>
       <Container maxWidth="md">
         <Typography 
           variant="h3" 
           component="h2" 
           align="center" 
           gutterBottom
-          sx={{ 
-            mb: 4,
-            color: theme.palette.mode === 'dark' ? 'white' : 'primary.main'
-          }}
+          sx={{ mb: 4 }}
         >
-          Get in Touch
+          Contact Me
         </Typography>
         <Box 
           ref={formRef}
           sx={{
             width: '100%',
             minHeight: '300px',
-            mb: 4,
-            boxShadow: 3,
-            borderRadius: 2,
-            overflow: 'hidden',
-            backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : 'white',
+            mb: 4
           }}
         >
           <iframe 
@@ -76,4 +59,4 @@ const Contact = () => {
   );
 };
 
-export default Contact;
+export default TallyContactForm;

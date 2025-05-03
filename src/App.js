@@ -11,9 +11,10 @@ import ExperienceTimeline from './components/Experience';
 import Certifications from './components/Certifications';
 import Education from './components/Education';
 import Recognition from './components/Recognition';
-import Contact from './components/Contact';
 import CareerTimeline from './components/CareerTimeline';
+import Contact from './components/Contact';
 import Footer from './components/Footer';
+
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 import Fade from '@mui/material/Fade';
 import Box from '@mui/material/Box';
@@ -23,9 +24,6 @@ import './App.css';
 
 function ScrollTop(props) {
   const { children, window } = props;
-  // Note that you normally won't need to set the window ref as useScrollTrigger
-  // will default to window.
-  // This is only being set here because the demo is in an iframe.
   const trigger = useScrollTrigger({
     target: window ? window() : undefined,
     disableHysteresis: true,
@@ -33,12 +31,16 @@ function ScrollTop(props) {
   });
 
   const handleClick = (event) => {
+    // Prevent default behavior
+    event.preventDefault();
+    
     const anchor = (event.target.ownerDocument || document).querySelector(
       '#back-to-top-anchor',
     );
 
     if (anchor) {
       anchor.scrollIntoView({
+        behavior: 'smooth',
         block: 'center',
       });
     }
@@ -49,7 +51,12 @@ function ScrollTop(props) {
       <Box
         onClick={handleClick}
         role="presentation"
-        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        sx={{ 
+          position: 'fixed', 
+          bottom: 76, // Adjusted to appear above footer
+          right: 16,
+          zIndex: 1600 // Higher than footer's z-index (1500)
+        }}
       >
         {children}
       </Box>
@@ -271,44 +278,45 @@ function App(props) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div className={`App ${darkMode ? 'dark-theme' : 'light-theme'}`}>
-        <NavigationBar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-        <main>
-          <section id="home" data-aos="fade-up">
-            <Hero />
-          </section>
-          <section id="summary" data-aos="fade-up">
-            <ProfileSummary />
-          </section>
-          <section id="timeline" data-aos="fade-up">
-            <CareerTimeline />
-          </section>
-          <section id="skills" data-aos="fade-up">
-            <Skills />
-          </section>
-          <section id="experience" data-aos="fade-up">
-            <ExperienceTimeline />
-          </section>
-          <section id="certifications" data-aos="fade-up">
-            <Certifications />
-          </section>
-          <section id="education" data-aos="fade-up">
-            <Education />
-          </section>
-          <section id="recognition" data-aos="fade-up">
-            <Recognition />
-          </section>
-        </main>
-        <footer id="contact" className='footer'>
-          <Contact />
-          <Footer />
-        </footer>
-        <ScrollTop {...props}>
-        <Fab size="small" aria-label="scroll back to top">
+      <div id="back-to-top-anchor" />
+      <NavigationBar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+      <Box 
+        component="main" 
+        sx={{ 
+          flexGrow: 1,
+          // Add padding at the bottom to account for the fixed footer
+          paddingBottom: '70px'
+        }}
+      >
+        <Hero />
+        <ProfileSummary />
+        <CareerTimeline />
+        <Skills />
+        <ExperienceTimeline />
+        <Certifications />
+        <Education />
+        <Recognition />        
+        <Contact />
+      </Box>
+      <Footer />
+      <ScrollTop {...props}>
+        <Fab 
+          size="small" 
+          aria-label="scroll back to top"
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
+            '&:hover': {
+              backgroundColor: theme.palette.primary.dark,
+              transform: 'scale(1.1)', // Add a slight scale effect on hover
+            },
+            // Ensure the button is clickable
+            cursor: 'pointer',
+          }}
+        >
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>
-      </div>
     </ThemeProvider>
   );
 }
