@@ -116,7 +116,7 @@ const EnhancedSkillsUpdated = () => {
           Technical Skills
         </Typography>
 
-        {/* Icon Grid View */}
+        {/* Periodic Table Style Skills Overview */}
         <Paper
           elevation={3}
           sx={{
@@ -126,79 +126,232 @@ const EnhancedSkillsUpdated = () => {
           }}
         >
           <Typography variant="h6" component="h3" gutterBottom>
-            Skills Overview
+            Skills Overview - Periodic Table Style
           </Typography>
-          <Grid container spacing={2} justifyContent="center">
-            {Object.entries(skillSections).flatMap(([category, skills]) =>
-              skills.map((skill) => (
-                <Grid item key={skill.name}>
+          
+          <Box sx={{ overflowX: 'auto' }}>
+            {/* Create a periodic table-like grid */}
+            <Box 
+              sx={{ 
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: 'repeat(auto-fill, minmax(80px, 1fr))',
+                  sm: 'repeat(8, 80px)',
+                  md: 'repeat(12, 80px)',
+                  lg: 'repeat(15, 80px)',
+                },
+                gridGap: 1.5,
+                justifyContent: 'center',
+                mx: 'auto'
+              }}
+            >
+              {/* Create a flat array of all skills */}
+              {Object.entries(skillSections).reduce((allSkills, [category, skills]) => {
+                skills.forEach(skill => {
+                  allSkills.push({
+                    ...skill,
+                    category: category
+                  });
+                });
+                return allSkills;
+              }, []).map((skill, index) => {
+                // Calculate skill level based on years
+                const level = calculateSkillLevel(skill.years);
+                // Get color based on skill level
+                const color = getColorByYears(skill.years, theme);
+                
+                // Element symbol - first 2 letters or first letter + next consonant
+                let symbol = skill.name.substring(0, 2);
+                if (skill.name.length > 2) {
+                  const firstLetter = skill.name.charAt(0);
+                  let secondChar = '';
+                  for (let i = 1; i < skill.name.length; i++) {
+                    const char = skill.name.charAt(i);
+                    if (!'aeiou'.includes(char.toLowerCase())) {
+                      secondChar = char;
+                      break;
+                    }
+                  }
+                  // If no consonant found, use the second letter
+                  if (!secondChar) secondChar = skill.name.charAt(1);
+                  symbol = firstLetter + secondChar;
+                }
+                
+                // Use sequential numbering (1, 2, 3...) for atomic number
+                const atomicNumber = index + 1;
+                
+                return (
                   <Tooltip
+                    key={skill.name}
                     title={
                       <React.Fragment>
                         <Typography color="inherit">{skill.name}</Typography>
                         <Typography variant="body2">{skill.years}+ years experience</Typography>
-                        <Typography variant="body2">Level: {calculateSkillLevel(skill.years)}</Typography>
+                        <Typography variant="body2">Level: {level}</Typography>
+                        <Typography variant="body2">Category: {skill.category}</Typography>
                       </React.Fragment>
                     }
                     arrow
                   >
                     <Paper
-                      elevation={2}
+                      elevation={3}
                       sx={{
-                        width: 64,
-                        height: 64,
+                        width: 80,
+                        height: 80,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        position: 'relative',
+                        border: `2px solid ${color}`,
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          transform: 'translateY(-5px)',
+                          transform: 'translateY(-5px) scale(1.05)',
                           boxShadow: theme.shadows[8],
-                          backgroundColor: theme.palette.mode === 'dark'
-                            ? theme.palette.grey[700]
-                            : theme.palette.grey[100]
-                        }
+                          zIndex: 1
+                        },
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? `${color}22` // Add transparency in dark mode
+                          : `${color}11`  // More subtle in light mode
                       }}
                     >
-                      {getSkillIcon(skill.name) ? (
+                      {/* Atomic number */}
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          position: 'absolute',
+                          top: 2,
+                          left: 4,
+                          fontSize: '0.6rem',
+                          opacity: 0.8
+                        }}
+                      >
+                        {atomicNumber}
+                      </Typography>
+                      
+                      {/* Experience years */}
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          position: 'absolute',
+                          top: 2,
+                          right: 4,
+                          fontSize: '0.6rem',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {skill.years}y
+                      </Typography>
+                      
+                      {/* Element Symbol */}
+                      <Typography 
+                        variant="h5" 
+                        sx={{ 
+                          fontWeight: 'bold',
+                          lineHeight: 1,
+                          mb: 0.5
+                        }}
+                      >
+                        {symbol.toUpperCase()}
+                      </Typography>
+                      
+                      {/* Skill Name */}
+                      <Typography
+                        variant="caption"
+                        align="center"
+                        sx={{ 
+                          fontSize: '0.6rem',
+                          lineHeight: 1,
+                          px: 0.5,
+                          width: '100%',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {skill.name}
+                      </Typography>
+                      
+                      {/* Mini icon in bottom right */}
+                      {getSkillIcon(skill.name) && (
                         <Box
                           component="img"
                           src={getSkillIcon(skill.name)}
                           sx={{
-                            width: 40,
-                            height: 40,
-                            mb: 0.5,
+                            position: 'absolute',
+                            bottom: 2,
+                            right: 2,
+                            width: 16,
+                            height: 16,
+                            opacity: 0.7,
                             filter: theme.palette.mode === 'dark' ? 'brightness(1.2)' : 'none'
                           }}
                           alt={skill.name}
                         />
-                      ) : (
-                        <Avatar
-                          sx={{
-                            bgcolor: getColorByYears(skill.years, theme),
-                            width: 40,
-                            height: 40,
-                            mb: 0.5
-                          }}
-                        >
-                          <CodeIcon />
-                        </Avatar>
                       )}
-                      <Typography
-                        variant="caption"
-                        align="center"
-                        sx={{ fontSize: '0.6rem', lineHeight: 1 }}
-                      >
-                        {skill.name}
-                      </Typography>
                     </Paper>
                   </Tooltip>
-                </Grid>
-              ))
-            )}
-          </Grid>
+                );
+              })}
+            </Box>
+          </Box>
+
+          {/* Legend */}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: 2,
+              mt: 3 
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box 
+                sx={{ 
+                  width: 16, 
+                  height: 16, 
+                  backgroundColor: theme.palette.primary.main,
+                  mr: 1
+                }} 
+              />
+              <Typography variant="caption">Expert (10+ years)</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box 
+                sx={{ 
+                  width: 16, 
+                  height: 16, 
+                  backgroundColor: theme.palette.secondary.main,
+                  mr: 1
+                }} 
+              />
+              <Typography variant="caption">Advanced (7-9 years)</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box 
+                sx={{ 
+                  width: 16, 
+                  height: 16, 
+                  backgroundColor: theme.palette.success.main,
+                  mr: 1
+                }} 
+              />
+              <Typography variant="caption">Intermediate (4-6 years)</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box 
+                sx={{ 
+                  width: 16, 
+                  height: 16, 
+                  backgroundColor: theme.palette.info.main,
+                  mr: 1
+                }} 
+              />
+              <Typography variant="caption">Beginner (1-3 years)</Typography>
+            </Box>
+          </Box>
         </Paper>
 
         {/* Detailed Skills by Category - REFACTORED SECTION */}
@@ -234,7 +387,7 @@ const EnhancedSkillsUpdated = () => {
                 {/* Set up Grid with 4 icons per row maximum */}
                 <Grid container spacing={1}>
                   {skills.map((skill) => (
-                    <Grid item xs={6} sm={6} md={4} key={skill.name}>
+                    <Grid item xs={6} sm={6} md={3} key={skill.name}>
                       <Tooltip
                         title={`${skill.years}+ years | ${calculateSkillLevel(skill.years)}`}
                         arrow

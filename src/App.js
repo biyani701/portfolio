@@ -9,6 +9,7 @@ import ProfileSummary from './components/ProfileSummary';
 import Skills from './components/Skills';
 import EnhancedSkills from './components/EnhancedSkills';
 import EnhancedSkillsUpdated from './components/EnhancedSkillsUpdated';
+import EnhancedSkillsWithTabs from './components/EnhancedSkillsWithTabs';
 import ExperienceTimeline from './components/Experience';
 import Certifications from './components/Certifications';
 import Education from './components/Education';
@@ -297,6 +298,7 @@ function App(props) {
         {/* <Skills />
         <EnhancedSkills /> */}
         <EnhancedSkillsUpdated/>
+        <EnhancedSkillsWithTabs/>
         <ExperienceTimeline />
         <Certifications />
         <Education />
