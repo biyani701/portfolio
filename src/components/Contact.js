@@ -6,7 +6,6 @@ const Contact = () => {
   const theme = useTheme();
   const [consentGiven, setConsentGiven] = useState(false);
 
-
   useEffect(() => {
     const checkConsent = () => {
       try {
@@ -25,18 +24,30 @@ const Contact = () => {
       }
     };
 
-    
+    // Initial check
     checkConsent();
 
-    window.addEventListener('klaroConsentNoticeDismissed', checkConsent);
-    window.addEventListener('klaroConsentModalClosed', checkConsent);
+    // Listen for all relevant Klaro events
+    const events = [
+      'klaro-consent-changed',
+      'klaro-preferences-saved',
+      'klaro-consents-updated'
+    ];
+
+    events.forEach(event => {
+      document.addEventListener(event, checkConsent);
+    });
+
+    // Also check periodically in case events are missed
+    const interval = setInterval(checkConsent, 1000);
 
     return () => {
-      window.removeEventListener('klaroConsentNoticeDismissed', checkConsent);
-      window.removeEventListener('klaroConsentModalClosed', checkConsent);
+      events.forEach(event => {
+        document.removeEventListener(event, checkConsent);
+      });
+      clearInterval(interval);
     };
   }, []);
-
 
   // useEffect(() => {
   //   // Load the Tally script

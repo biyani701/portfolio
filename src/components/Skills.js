@@ -30,6 +30,19 @@ const skillSections = {
     { name: "PostgreSQL", years: 3 },
     { name: "MS SQL", years: 4 }
   ],
+  "libraries": [
+    { name: "React.js", years: 1 },
+    { name: "dash", years: 5 },
+    { name: "css3", years: 4 },
+    { name: "Tailwind CSS", years: 2 },
+  ],
+  "repositories": [
+    { name: "Git", years: 5 },
+    { name: "SVN", years: 5 },
+    { name: "GitHub", years: 5 },
+    { name: "Bitbucket", years: 5 },
+    { name: "GitLab", years: 5 }
+  ],
   "Data Visualization": [
     { name: "Plotly", years: 5 }
   ],

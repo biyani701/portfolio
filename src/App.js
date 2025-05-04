@@ -7,6 +7,8 @@ import NavigationBar from './components/Navbar';
 import Hero from './components/Hero';
 import ProfileSummary from './components/ProfileSummary';
 import Skills from './components/Skills';
+import EnhancedSkills from './components/EnhancedSkills';
+import EnhancedSkillsUpdated from './components/EnhancedSkillsUpdated';
 import ExperienceTimeline from './components/Experience';
 import Certifications from './components/Certifications';
 import Education from './components/Education';
@@ -14,6 +16,7 @@ import Recognition from './components/Recognition';
 import CareerTimeline from './components/CareerTimeline';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+
 
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 import Fade from '@mui/material/Fade';
@@ -291,7 +294,9 @@ function App(props) {
         <Hero />
         <ProfileSummary />
         <CareerTimeline />
-        <Skills />
+        {/* <Skills />
+        <EnhancedSkills /> */}
+        <EnhancedSkillsUpdated/>
         <ExperienceTimeline />
         <Certifications />
         <Education />
