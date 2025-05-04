@@ -29,32 +29,80 @@ const getSkillIcon = (skillName) => {
     "Python": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
     "SQL": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
     "Unix C/C++": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg",
+    "JavaScript": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
+    "HTML5": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
+    "CSS3": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg",
+    "Java": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
 
-    // Libraries
+    // Libraries & Frameworks
     "React.js": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
     "dash": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-plain.svg",
-    "css3": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg",
+    "Bootstrap": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg",
     "Tailwind CSS": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg",
+    "Sass": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg",
+    "Flask": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg",
+    "Node.js": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
 
     // Databases
     "Oracle": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/oracle/oracle-original.svg",
     "PostgreSQL": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
     "MS SQL": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoftsqlserver/microsoftsqlserver-plain.svg",
+    "MySQL": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
+    "MongoDB": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",
 
-    // Repositories
+    // IDEs & Editors
+    "PyCharm": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pycharm/pycharm-original.svg",
+    "VS Code": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg",
+    "IntelliJ": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/intellij/intellij-original.svg",
+    "Eclipse": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/eclipse/eclipse-original.svg",
+
+    // Version Control & CI/CD
     "Git": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
     "SVN": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/subversion/subversion-original.svg",
     "GitHub": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
     "GitLab": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/gitlab/gitlab-original.svg",
     "Bitbucket": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg",
+    "Jenkins": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jenkins/jenkins-original.svg",
+    "Bitbucket Pipelines": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg",
+    "GitHub Actions": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
 
-    // Tools
+    // Project Management
     "Jira": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg",
-    "Confluence": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/confluence/confluence-original.svg",
     "MS Project": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg",
+    "Asana": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/asana/asana-original.svg",
+    "Trello": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg",
 
-    // Data Visualization
-    "Plotly": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+    // Documentation & Collaboration
+    "Confluence": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/confluence/confluence-original.svg",
+    "SharePoint": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoft/microsoft-original.svg",
+    "Notion": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/notion/notion-original.svg",
+    "Google Docs": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg",
+
+    // Testing & QA
+    "Selenium": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/selenium/selenium-original.svg",
+    "Pytest": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+    "Postman": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg",
+    "SonarQube": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sonarqube/sonarqube-original.svg",
+    "Allure": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/allure/allure-original.svg",
+
+    // Data Visualization & Analytics
+    "Plotly Dash": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+    "Excel": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoft/microsoft-original.svg",
+    "Pandas": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg",
+    "Power BI": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/powerbi/powerbi-original.svg",
+    "Tableau": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tableau/tableau-original.svg",
+    "Matplotlib": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+    "Seaborn": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+
+    // Cloud & DevOps
+    "AWS": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg",
+    "Azure": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg",
+    "Docker": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg",
+    "Terraform": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/terraform/terraform-original.svg",
+
+    // Package Managers
+    "pip": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+    "npm": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg"
   };
 
   return iconMap[skillName] || null;
@@ -146,6 +194,53 @@ function a11yProps(index) {
   };
 }
 
+// Periodic Table Layout
+const periodicTableLayout = {
+  row1: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+  row2: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+  row3: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+  row4: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+  row5: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+  row6: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+  row7: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+};
+
+// Function to organize skills into periodic table layout
+const organizeSkillsIntoPeriodicTable = (skills) => {
+  const organizedSkills = { ...periodicTableLayout };
+  let currentRow = 1;
+  let skillIndex = 0;
+  const uniqueSkills = [...new Set(skills.map(skill => skill.name))].map(name => 
+    skills.find(skill => skill.name === name)
+  );
+
+  // First row (2 elements)
+  if (uniqueSkills.length > 0) organizedSkills.row1[0] = uniqueSkills[0];
+  if (uniqueSkills.length > 1) organizedSkills.row1[17] = uniqueSkills[1];
+  currentRow++;
+  skillIndex = 2;
+
+  // Next two rows (2 elements on left, 6 on right)
+  for (let i = 0; i < 2 && currentRow <= 3; i++) {
+    if (skillIndex < uniqueSkills.length) organizedSkills[`row${currentRow}`][0] = uniqueSkills[skillIndex++];
+    if (skillIndex < uniqueSkills.length) organizedSkills[`row${currentRow}`][1] = uniqueSkills[skillIndex++];
+    for (let j = 12; j < 18 && skillIndex < uniqueSkills.length; j++) {
+      organizedSkills[`row${currentRow}`][j] = uniqueSkills[skillIndex++];
+    }
+    currentRow++;
+  }
+
+  // Remaining rows (18 elements each)
+  while (currentRow <= 7 && skillIndex < uniqueSkills.length) {
+    for (let i = 0; i < 18 && skillIndex < uniqueSkills.length; i++) {
+      organizedSkills[`row${currentRow}`][i] = uniqueSkills[skillIndex++];
+    }
+    currentRow++;
+  }
+
+  return organizedSkills;
+};
+
 const EnhancedSkillsWithTabs = () => {
   const theme = useTheme();
   // State to track active tab
@@ -198,13 +293,26 @@ const EnhancedSkillsWithTabs = () => {
         <TabPanel value={tabValue} index={0}>
           {/* Detailed Skills by Category */}
           <Grid container spacing={4}>
-            {Object.entries(skillSections).map(([category, skills]) => (
-              <Grid item xs={12} md={6} key={category}>
+            {Object.entries(skillSections).map(([category, skills]) => {
+              // Calculate optimal number of columns based on screen size
+              const getOptimalColumns = () => {
+                if (window.innerWidth >= 1200) return 6; // xl
+                if (window.innerWidth >= 900) return 4;  // md
+                if (window.innerWidth >= 600) return 3;  // sm
+                return 2; // xs
+              };
+
+              const optimalColumns = getOptimalColumns();
+              const itemsPerRow = optimalColumns;
+              const totalItems = Math.ceil(skills.length / itemsPerRow) * itemsPerRow;
+              const dummyItems = Array(totalItems - skills.length).fill(null);
+
+              return (
+                <Grid item xs={12} key={category}>
                 <Paper
                   elevation={3}
                   sx={{
                     p: 3,
-                    height: '100%',
                     backgroundColor: theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50',
                     transition: 'transform 0.3s ease',
                     '&:hover': {
@@ -221,10 +329,97 @@ const EnhancedSkillsWithTabs = () => {
                     </Typography>
                   </Box>
                   
-                  {/* Set up Grid with 4 icons per row maximum */}
-                  <Grid container spacing={1}>
-                    {skills.map((skill) => (
-                      <Grid item xs={6} sm={6} md={3} key={skill.name}>
+                    <Grid container spacing={2}>
+                      {[...skills, ...dummyItems].map((skill, index) => (
+                        <Grid 
+                          item 
+                          xs={12 / itemsPerRow} 
+                          key={skill ? skill.name : `dummy-${index}`}
+                        >
+                          {skill ? (
+                            <Tooltip
+                              title={`${skill.years}+ years | ${calculateSkillLevel(skill.years)}`}
+                              arrow
+                            >
+                              <Paper
+                                elevation={1}
+                                sx={{
+                                  p: 2,
+                                  height: 120,
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s ease',
+                                  border: `2px solid ${getColorByYears(skill.years, theme)}`,
+                                  '&:hover': {
+                                    backgroundColor: theme.palette.mode === 'dark'
+                                      ? theme.palette.grey[700]
+                                      : theme.palette.grey[100]
+                                  }
+                                }}
+                              >
+                                <Box
+                                  component="img"
+                                  src={getSkillIcon(skill.name)}
+                                  alt={skill.name}
+                                  sx={{
+                                    width: 40,
+                                    height: 40,
+                                    mb: 1,
+                                    objectFit: 'contain'
+                                  }}
+                                />
+                                <Typography
+                                  variant="body2"
+                                  align="center"
+                                  sx={{
+                                    fontWeight: 'medium',
+                                    lineHeight: 1.2,
+                                    maxWidth: '100%',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    mb: 0.5
+                                  }}
+                                >
+                                  {skill.name}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: getColorByYears(skill.years, theme),
+                                    fontWeight: 'bold'
+                                  }}
+                                >
+                                  {skill.years}+ years
+                                </Typography>
+                              </Paper>
+                            </Tooltip>
+                          ) : (
+                            <Box sx={{ height: 120 }} />
+                          )}
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Paper>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={1}>
+          <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
+            <Grid container spacing={1} sx={{ width: 'fit-content', margin: '0 auto' }}>
+              {Object.entries(organizeSkillsIntoPeriodicTable(Object.values(skillSections).flat())).map(([row, skills]) => (
+                <Grid container item key={row} spacing={1} sx={{ width: 'fit-content' }}>
+                  {skills.map((skill, index) => (
+                    <Grid item key={`${row}-${index}`}>
+                      {skill ? (
                         <Tooltip
                           title={`${skill.years}+ years | ${calculateSkillLevel(skill.years)}`}
                           arrow
@@ -232,12 +427,13 @@ const EnhancedSkillsWithTabs = () => {
                           <Paper
                             elevation={1}
                             sx={{
-                              p: 1.5,
+                              p: 1,
+                              width: 60,
+                              height: 60,
                               display: 'flex',
                               flexDirection: 'column',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              height: '100%',
                               cursor: 'pointer',
                               transition: 'all 0.2s ease',
                               border: `2px solid ${getColorByYears(skill.years, theme)}`,
@@ -248,280 +444,25 @@ const EnhancedSkillsWithTabs = () => {
                               }
                             }}
                           >
-                            {getSkillIcon(skill.name) ? (
-                              <Box
-                                component="img"
+                            <img
                                 src={getSkillIcon(skill.name)}
-                                sx={{
-                                  width: 30,
-                                  height: 30,
-                                  mb: 1,
-                                  filter: theme.palette.mode === 'dark' ? 'brightness(1.2)' : 'none'
-                                }}
                                 alt={skill.name}
-                              />
-                            ) : (
-                              <Avatar
-                                sx={{
-                                  width: 30,
-                                  height: 30,
-                                  bgcolor: getColorByYears(skill.years, theme),
-                                  mb: 1
-                                }}
-                              >
-                                <CodeIcon />
-                              </Avatar>
-                            )}
-                            <Typography variant="body2" align="center" sx={{ fontWeight: 'bold' }}>
+                              style={{ width: 24, height: 24 }}
+                            />
+                            <Typography variant="caption" sx={{ mt: 0.5 }}>
                               {skill.name}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {skill.years}+ years
                             </Typography>
                           </Paper>
                         </Tooltip>
+                      ) : (
+                        <Box sx={{ width: 60, height: 60 }} />
+                      )}
                       </Grid>
                     ))}
-                  </Grid>
-                </Paper>
               </Grid>
             ))}
           </Grid>
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={1}>
-          {/* Periodic Table Style Skills Overview */}
-          <Paper
-            elevation={3}
-            sx={{
-              p: 3,
-              backgroundColor: theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50'
-            }}
-          >
-            <Box sx={{ overflowX: 'auto' }}>
-              {/* Create a periodic table-like grid */}
-              <Box 
-                sx={{ 
-                  display: 'grid',
-                  gridTemplateColumns: {
-                    xs: 'repeat(auto-fill, minmax(80px, 1fr))',
-                    sm: 'repeat(8, 80px)',
-                    md: 'repeat(12, 80px)',
-                    lg: 'repeat(15, 80px)',
-                  },
-                  gridGap: 1.5,
-                  justifyContent: 'center',
-                  mx: 'auto'
-                }}
-              >
-                {/* Create a flat array of all skills */}
-                {Object.entries(skillSections).reduce((allSkills, [category, skills]) => {
-                  skills.forEach(skill => {
-                    allSkills.push({
-                      ...skill,
-                      category: category
-                    });
-                  });
-                  return allSkills;
-                }, []).map((skill, index) => {
-                  // Calculate skill level based on years
-                  const level = calculateSkillLevel(skill.years);
-                  // Get color based on skill level
-                  const color = getColorByYears(skill.years, theme);
-                  
-                  // Element symbol - first 2 letters or first letter + next consonant
-                  let symbol = skill.name.substring(0, 2);
-                  if (skill.name.length > 2) {
-                    const firstLetter = skill.name.charAt(0);
-                    let secondChar = '';
-                    for (let i = 1; i < skill.name.length; i++) {
-                      const char = skill.name.charAt(i);
-                      if (!'aeiou'.includes(char.toLowerCase())) {
-                        secondChar = char;
-                        break;
-                      }
-                    }
-                    // If no consonant found, use the second letter
-                    if (!secondChar) secondChar = skill.name.charAt(1);
-                    symbol = firstLetter + secondChar;
-                  }
-                  
-                  // Use sequential numbering (1, 2, 3...) for atomic number
-                  const atomicNumber = index + 1;
-                  
-                  return (
-                    <Tooltip
-                      key={skill.name}
-                      title={
-                        <React.Fragment>
-                          <Typography color="inherit">{skill.name}</Typography>
-                          <Typography variant="body2">{skill.years}+ years experience</Typography>
-                          <Typography variant="body2">Level: {level}</Typography>
-                          <Typography variant="body2">Category: {skill.category}</Typography>
-                        </React.Fragment>
-                      }
-                      arrow
-                    >
-                      <Paper
-                        elevation={3}
-                        sx={{
-                          width: 80,
-                          height: 80,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          position: 'relative',
-                          border: `2px solid ${color}`,
-                          cursor: 'pointer',
-                          transition: 'all 0.3s ease',
-                          '&:hover': {
-                            transform: 'translateY(-5px) scale(1.05)',
-                            boxShadow: theme.shadows[8],
-                            zIndex: 1
-                          },
-                          backgroundColor: theme.palette.mode === 'dark' 
-                            ? `${color}22` // Add transparency in dark mode
-                            : `${color}11`  // More subtle in light mode
-                        }}
-                      >
-                        {/* Atomic number */}
-                        <Typography 
-                          variant="caption" 
-                          sx={{ 
-                            position: 'absolute',
-                            top: 2,
-                            left: 4,
-                            fontSize: '0.6rem',
-                            opacity: 0.8
-                          }}
-                        >
-                          {atomicNumber}
-                        </Typography>
-                        
-                        {/* Experience years */}
-                        <Typography 
-                          variant="caption" 
-                          sx={{ 
-                            position: 'absolute',
-                            top: 2,
-                            right: 4,
-                            fontSize: '0.6rem',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          {skill.years}y
-                        </Typography>
-                        
-                        {/* Element Symbol */}
-                        <Typography 
-                          variant="h5" 
-                          sx={{ 
-                            fontWeight: 'bold',
-                            lineHeight: 1,
-                            mb: 0.5
-                          }}
-                        >
-                          {symbol.toUpperCase()}
-                        </Typography>
-                        
-                        {/* Skill Name */}
-                        <Typography
-                          variant="caption"
-                          align="center"
-                          sx={{ 
-                            fontSize: '0.6rem',
-                            lineHeight: 1,
-                            px: 0.5,
-                            width: '100%',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          {skill.name}
-                        </Typography>
-                        
-                        {/* Mini icon in bottom right */}
-                        {getSkillIcon(skill.name) && (
-                          <Box
-                            component="img"
-                            src={getSkillIcon(skill.name)}
-                            sx={{
-                              position: 'absolute',
-                              bottom: 2,
-                              right: 2,
-                              width: 16,
-                              height: 16,
-                              opacity: 0.7,
-                              filter: theme.palette.mode === 'dark' ? 'brightness(1.2)' : 'none'
-                            }}
-                            alt={skill.name}
-                          />
-                        )}
-                      </Paper>
-                    </Tooltip>
-                  );
-                })}
-              </Box>
             </Box>
-
-            {/* Legend */}
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                gap: 2,
-                mt: 3 
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box 
-                  sx={{ 
-                    width: 16, 
-                    height: 16, 
-                    backgroundColor: theme.palette.primary.main,
-                    mr: 1
-                  }} 
-                />
-                <Typography variant="caption">Expert (10+ years)</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box 
-                  sx={{ 
-                    width: 16, 
-                    height: 16, 
-                    backgroundColor: theme.palette.secondary.main,
-                    mr: 1
-                  }} 
-                />
-                <Typography variant="caption">Advanced (7-9 years)</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box 
-                  sx={{ 
-                    width: 16, 
-                    height: 16, 
-                    backgroundColor: theme.palette.success.main,
-                    mr: 1
-                  }} 
-                />
-                <Typography variant="caption">Intermediate (4-6 years)</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box 
-                  sx={{ 
-                    width: 16, 
-                    height: 16, 
-                    backgroundColor: theme.palette.info.main,
-                    mr: 1
-                  }} 
-                />
-                <Typography variant="caption">Beginner (1-3 years)</Typography>
-              </Box>
-            </Box>
-          </Paper>
         </TabPanel>
       </div>
     </section>
