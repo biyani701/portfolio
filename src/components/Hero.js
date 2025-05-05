@@ -1,39 +1,39 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
 import { Box, Typography, Button, Container, IconButton } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { styled } from '@mui/material/styles';
-import WorkIcon from '@mui/icons-material/Work'; 
+// import WorkIcon from '@mui/icons-material/Work'; 
 
 
-function useAnimateOnScroll() {
-  const ref = useRef();
-  const [shouldAnimate, setShouldAnimate] = useState(false);
+// function useAnimateOnScroll() {
+//   const ref = useRef();
+//   const [shouldAnimate, setShouldAnimate] = useState(false);
 
-  useEffect(() => {
-    let hasScrolled = false;
-    const handleScroll = () => { hasScrolled = true; };
-    window.addEventListener('scroll', handleScroll, { once: true });
+//   useEffect(() => {
+//     let hasScrolled = false;
+//     const handleScroll = () => { hasScrolled = true; };
+//     window.addEventListener('scroll', handleScroll, { once: true });
 
-    const node = ref.current; // <--- Copy ref.current to a local variable
+//     const node = ref.current; // <--- Copy ref.current to a local variable
 
-    const observer = new window.IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && hasScrolled) {
-          setShouldAnimate(true);
-        }
-      },
-      { threshold: 0.2 }
-    );
-    if (node) observer.observe(node);
+//     const observer = new window.IntersectionObserver(
+//       ([entry]) => {
+//         if (entry.isIntersecting && hasScrolled) {
+//           setShouldAnimate(true);
+//         }
+//       },
+//       { threshold: 0.2 }
+//     );
+//     if (node) observer.observe(node);
 
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (node) observer.unobserve(node); // <--- Use the local variable here
-    };
-  }, []);
+//     return () => {
+//       window.removeEventListener('scroll', handleScroll);
+//       if (node) observer.unobserve(node); // <--- Use the local variable here
+//     };
+//   }, []);
 
-  return [ref, shouldAnimate];
-}
+//   return [ref, shouldAnimate];
+// }
 
 // Styled components
 const HeroContainer = styled(Box)(({ theme }) => ({
@@ -122,50 +122,50 @@ const ContactButton = styled(Button)(({ theme }) => ({
 }));
 
 // New styled component for catchline items
-const CatchlineItem = styled(Box)(({ theme }) => ({
+// const CatchlineItem = styled(Box)(({ theme }) => ({
   
-  padding: theme.spacing(2),
-  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  backdropFilter: 'blur(5px)',
-  color: '#ffffff',
-  borderRadius: '8px',
-  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-  maxWidth: '250px',
-  width: 350,
-  height: 120,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  textAlign: 'center',
-  transition: 'all 0.3s ease',
-  border: '4px solid rgba(255, 255, 255, 0.7)',
-  position: 'absolute',
-  zIndex: 10,
-  '&:hover': {
-    transform: 'scale(1.05)',
-    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-  },
-  [theme.breakpoints.down('sm')]: {
-    width: 140,
-    height: 100,
-    padding: theme.spacing(1),
-  },
-}));
+//   padding: theme.spacing(2),
+//   backgroundColor: 'rgba(255, 255, 255, 0.15)',
+//   backdropFilter: 'blur(5px)',
+//   color: '#ffffff',
+//   borderRadius: '8px',
+//   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+//   maxWidth: '250px',
+//   width: 350,
+//   height: 120,
+//   display: 'flex',
+//   alignItems: 'center',
+//   justifyContent: 'center',
+//   textAlign: 'center',
+//   transition: 'all 0.3s ease',
+//   border: '4px solid rgba(255, 255, 255, 0.7)',
+//   position: 'absolute',
+//   zIndex: 10,
+//   '&:hover': {
+//     transform: 'scale(1.05)',
+//     boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
+//     backgroundColor: 'rgba(255, 255, 255, 0.25)',
+//   },
+//   [theme.breakpoints.down('sm')]: {
+//     width: 140,
+//     height: 100,
+//     padding: theme.spacing(1),
+//   },
+// }));
 
-const CatchlineText = styled(Typography)(({ theme }) => ({
-  fontWeight: 600,
-  fontSize: '0.95rem',
-  textShadow: '1px 1px 2px rgba(0, 0, 0, 0.3)',
-  lineHeight: 1.4,
-  [theme.breakpoints.down('sm')]: {
-    fontSize: '0.8rem',
-  },
-}));
+// const CatchlineText = styled(Typography)(({ theme }) => ({
+//   fontWeight: 600,
+//   fontSize: '0.95rem',
+//   textShadow: '1px 1px 2px rgba(0, 0, 0, 0.3)',
+//   lineHeight: 1.4,
+//   [theme.breakpoints.down('sm')]: {
+//     fontSize: '0.8rem',
+//   },
+// }));
 
 
 const Hero = (props) => {
-  const [ref, shouldAnimate] = useAnimateOnScroll();
+  // const [ref, shouldAnimate] = useAnimateOnScroll();
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -181,12 +181,12 @@ const Hero = (props) => {
   };
 
   // Catchline data
-  const catchlines = [
-    "Experienced Technical Program Manager, Delivery Manager, Agilist",
-    "Domain knowledge in Payments & Cards, Market Reference Data",
-    "Developed visual dashboard using Python, Plotly Dash for data analysis",
-    "Vibe coding using React.js"
-  ];
+  // const catchlines = [
+  //   "Experienced Technical Program Manager, Delivery Manager, Agilist",
+  //   "Domain knowledge in Payments & Cards, Market Reference Data",
+  //   "Developed visual dashboard using Python, Plotly Dash for data analysis",
+  //   "Vibe coding using React.js"
+  // ];
 
   return (
     <HeroContainer>
