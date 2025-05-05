@@ -1,9 +1,16 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+
+import useScrollTrigger from '@mui/material/useScrollTrigger';
+import Fade from '@mui/material/Fade';
+import Box from '@mui/material/Box';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import Fab from '@mui/material/Fab';
+
 import NavigationBar from './components/Navbar';
 import Hero from './components/Hero';
 import ProfileSummary from './components/ProfileSummary';
@@ -20,13 +27,11 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import About from './components/About';
 import Works from './components/Works';
+import Blogs from './components/Blogs'
 
-import useScrollTrigger from '@mui/material/useScrollTrigger';
-import Fade from '@mui/material/Fade';
-import Box from '@mui/material/Box';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import Fab from '@mui/material/Fab';
+
 import './App.css';
+import { getTheme } from './theme';
 
 function ScrollTop(props) {
   const { children, window } = props;
@@ -39,7 +44,7 @@ function ScrollTop(props) {
   const handleClick = (event) => {
     // Prevent default behavior
     event.preventDefault();
-    
+
     const anchor = (event.target.ownerDocument || document).querySelector(
       '#back-to-top-anchor',
     );
@@ -57,8 +62,8 @@ function ScrollTop(props) {
       <Box
         onClick={handleClick}
         role="presentation"
-        sx={{ 
-          position: 'fixed', 
+        sx={{
+          position: 'fixed',
           bottom: 76, // Adjusted to appear above footer
           right: 16,
           zIndex: 1600 // Higher than footer's z-index (1500)
@@ -71,11 +76,24 @@ function ScrollTop(props) {
 }
 
 function App(props) {
+  const location = useLocation();
+
   // Initialize darkMode state based on user preference or default to false
   const [darkMode, setDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
     return savedMode === 'true';
   });
+
+  useEffect(() => {
+    if (location.pathname === '/' && location.state?.scrollTo) {
+      const el = document.getElementById(location.state.scrollTo);
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }, 100); // Delay to ensure DOM is ready
+      }
+    }
+  }, [location]);
 
   // Initialize AOS with better settings
   useEffect(() => {
@@ -286,39 +304,41 @@ function App(props) {
       <CssBaseline />
       <div id="back-to-top-anchor" />
       <NavigationBar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-      <Box 
-        component="main" 
-        sx={{ 
+      <Box
+        component="main"
+        sx={{
           flexGrow: 1,
           // Add padding at the bottom to account for the fixed footer
           paddingBottom: '70px'
         }}
       >
         <Routes>
-        <Route
+          <Route
             path="/"
             element={
               <>
                 <Hero />
-                <ProfileSummary />
-                <CareerTimeline />
-                <EnhancedSkillsWithTabs />
-                <ExperienceTimeline />
-                <Certifications />
-                <Education />
-                <Recognition />
+                <div id="summary"><ProfileSummary /></div>
+                <div id="timeline"><CareerTimeline /></div>
+                <div id="skills"><EnhancedSkillsWithTabs /></div>
+                <div id="experience"><ExperienceTimeline /></div>
+                <div id="certifications"><Certifications /></div>
+                <div id="education"><Education /></div>
+                <div id="recognition"><Recognition /></div>
               </>
             }
-          />        
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/works" element={<Works />} />
+          />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />          
+          <Route path="/works" element={<Works />} />
+          <Route path="/blogs" element={<Blogs />} />
+          
         </Routes>
       </Box>
       <Footer />
       <ScrollTop {...props}>
-        <Fab 
-          size="small" 
+        <Fab
+          size="small"
           aria-label="scroll back to top"
           sx={{
             backgroundColor: theme.palette.primary.main,

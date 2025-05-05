@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import { styled, alpha } from '@mui/material/styles';
@@ -144,9 +144,12 @@ const ResumeButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+
 // Main component
 const NavigationBar = ({ darkMode, toggleDarkMode }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resumeAnchorEl, setResumeAnchorEl] = useState(null);
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
@@ -156,7 +159,21 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
   const results = fuse.search(query);
   const matches = query ? results.map(r => r.item) : [];
 
-  // Set data attribute on the AppBar when dark mode changes
+  const handleResumeItemClick = (sectionId) => {
+    handleResumeMenuClose(); // Close the dropdown
+    if (location.pathname === '/') {
+      // Already on home, just scroll
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Navigate to home and scroll after landing
+      navigate('/', { state: { scrollTo: sectionId } });
+    }
+  };
+
+    // Set data attribute on the AppBar when dark mode changes
   useEffect(() => {
     const appBar = document.querySelector('.MuiAppBar-root');
     if (appBar) {
@@ -167,6 +184,18 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  // const handleResumeClick = (sectionId) => {    
+  //   handleResumeMenuClose();
+  //   if (location.pathname === '/') {
+  //     const el = document.getElementById(sectionId);
+  //     if (el) {
+  //       el.scrollIntoView({ behavior: 'smooth' });
+  //     }
+  //   } else {
+  //     navigate('/', { state: { scrollTo: sectionId } });
+  //   }
+  // };
 
   const handleResumeMenuOpen = (event) => {
     setResumeAnchorEl(event.currentTarget);
@@ -202,10 +231,10 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
     }
   };
 
-  const handleMenuItemClick = (id) => {
-    handleResumeMenuClose();
-    scrollToSection(id);
-  };
+  // const handleMenuItemClick = (id) => {
+  //   handleResumeMenuClose();
+  //   scrollToSection(id);
+  // };
 
   // Get icon for each nav item
   const getIconForNavItem = (id) => {
@@ -308,6 +337,11 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
               color="inherit"
               component={RouterLink}
               to="/"
+              onClick={() => {
+                if (location.pathname === '/') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
             >
               Home
             </Button>
@@ -320,6 +354,7 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
             </Button>
 
             <ResumeButton
+              id="resume-button"
               color="inherit"
               onClick={handleResumeMenuOpen}
               endIcon={<KeyboardArrowDownIcon />}
@@ -330,13 +365,6 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
               Resume
             </ResumeButton>
 
-            <Button
-              color="inherit"
-              component={RouterLink}
-              to="/works"
-            >
-              My Works
-            </Button>
             <Menu
               id="resume-menu"
               anchorEl={resumeAnchorEl}
@@ -357,7 +385,7 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
               {resumeItems.map(({ id, label }) => (
                 <MenuItem
                   key={id}
-                  onClick={() => handleMenuItemClick(id)}
+                  onClick={() => handleResumeItemClick(id)}
                 >
                   <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
                     {getIconForNavItem(id)}
@@ -366,6 +394,20 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
                 </MenuItem>
               ))}
             </Menu>
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/works"
+            >
+              My Works
+            </Button>
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/blogs"
+            >
+              Blogs
+            </Button>
             <Button
               color="inherit"
               // onClick={() => scrollToSection('contact')}
