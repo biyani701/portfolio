@@ -15,8 +15,8 @@ import StorageIcon from '@mui/icons-material/Storage';
 import BuildIcon from '@mui/icons-material/Build';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import BusinessIcon from '@mui/icons-material/Business';
-import PaymentIcon from '@mui/icons-material/Payment';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+// import PaymentIcon from '@mui/icons-material/Payment';
+// import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 // Custom skill icons using devicon
 const getSkillIcon = (skillName) => {
@@ -107,7 +107,7 @@ const EnhancedSkillsUpdated = () => {
   const theme = useTheme();
 
   // Add filter based on dark/light mode for SVG icons if needed
-  const iconFilter = theme.palette.mode === 'dark' ? 'brightness(1.5)' : 'none';
+  // const iconFilter = theme.palette.mode === 'dark' ? 'brightness(1.5)' : 'none';
 
   return (
     <section id="skills" className="py-5">
