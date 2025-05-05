@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import AOS from 'aos';
@@ -8,7 +9,7 @@ import Hero from './components/Hero';
 import ProfileSummary from './components/ProfileSummary';
 // import Skills from './components/Skills';
 // import EnhancedSkills from './components/EnhancedSkills';
-import EnhancedSkillsUpdated from './components/EnhancedSkillsUpdated';
+// import EnhancedSkillsUpdated from './components/EnhancedSkillsUpdated';
 import EnhancedSkillsWithTabs from './components/EnhancedSkillsWithTabs';
 import ExperienceTimeline from './components/Experience';
 import Certifications from './components/Certifications';
@@ -17,7 +18,8 @@ import Recognition from './components/Recognition';
 import CareerTimeline from './components/CareerTimeline';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-
+import About from './components/About';
+import Works from './components/Works';
 
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 import Fade from '@mui/material/Fade';
@@ -292,18 +294,26 @@ function App(props) {
           paddingBottom: '70px'
         }}
       >
-        <Hero />
-        <ProfileSummary />
-        <CareerTimeline />
-        {/* <Skills />
-        <EnhancedSkills /> */}
-        <EnhancedSkillsUpdated/>
-        <EnhancedSkillsWithTabs/>
-        <ExperienceTimeline />
-        <Certifications />
-        <Education />
-        <Recognition />        
-        <Contact />
+        <Routes>
+        <Route
+            path="/"
+            element={
+              <>
+                <Hero />
+                <ProfileSummary />
+                <CareerTimeline />
+                <EnhancedSkillsWithTabs />
+                <ExperienceTimeline />
+                <Certifications />
+                <Education />
+                <Recognition />
+              </>
+            }
+          />        
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/works" element={<Works />} />
+        </Routes>
       </Box>
       <Footer />
       <ScrollTop {...props}>

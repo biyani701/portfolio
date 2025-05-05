@@ -10,7 +10,18 @@
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
   <link rel="stylesheet" href="%PUBLIC_URL%/klaro.css" />
-  <title>React App</title>
+  <title>Vishal's Portfolio</title>
+  <script type="text/javascript">
+    (function(location) {
+      if (location.search[1] === '/' ) {
+        var decoded = location.search.slice(1).split('&').map(function(s) {
+          return s.replace(/~and~/g, '&');
+        }).join('?');
+        window.history.replaceState(null, null, location.pathname.slice(0, -1) + decoded + location.hash);
+      }
+    })(window.location);
+  </script>
+  
 </head>
 
 <body>

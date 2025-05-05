@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import { styled, alpha } from '@mui/material/styles';
 import {
@@ -144,6 +146,7 @@ const ResumeButton = styled(Button)(({ theme }) => ({
 
 // Main component
 const NavigationBar = ({ darkMode, toggleDarkMode }) => {
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resumeAnchorEl, setResumeAnchorEl] = useState(null);
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
@@ -208,8 +211,8 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
   const getIconForNavItem = (id) => {
     switch (id) {
       case 'home': return <HomeIcon />;
-      case 'experience': 
-      case 'timeline': 
+      case 'experience':
+      case 'timeline':
       case 'skills': return <WorkIcon />;
       case 'education':
       case 'certifications': return <SchoolIcon />;
@@ -232,8 +235,8 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
     { id: "contact", label: "Contact" },
   ], []);
 
-  const resumeItems = useMemo(() => 
-    navItems.filter(item => 
+  const resumeItems = useMemo(() =>
+    navItems.filter(item =>
       ["summary", "timeline", "skills", "experience", "certifications", "education", "recognition"].includes(item.id)
     ), [navItems]);
 
@@ -249,8 +252,8 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
       </DrawerHeader>
       <List>
         {navItems.map(({ id, label }) => (
-          <ListItem 
-            key={id} 
+          <ListItem
+            key={id}
             button
             onClick={() => {
               handleDrawerToggle();
@@ -275,156 +278,179 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
 
   return (
     <>
-    <StyledAppBar 
-      position="fixed" 
-      color="primary" 
-      elevation={1} 
-      enableColorOnDark={darkMode}
-      data-color-on-dark={String(darkMode)}
-    >
-      <Toolbar>
-        <Typography 
-          variant="h6" 
-          component="div" 
-          sx={{ 
-            flexGrow: 1, 
-            fontWeight: 700,
-            letterSpacing: 0.5,
+      <StyledAppBar
+        position="fixed"
+        color="primary"
+        elevation={1}
+        enableColorOnDark={darkMode}
+        data-color-on-dark={String(darkMode)}
+      >
+        <Toolbar>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{
+              flexGrow: 1,
+              fontWeight: 700,
+              letterSpacing: 0.5,
+            }}
+          >
+            &nbsp;
+          </Typography>
+
+          {/* Desktop Menu */}
+          <Box sx={{
+            display: { xs: 'none', sm: 'flex' },
+            alignItems: 'center',
+            gap: 1
+          }}>
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/"
+            >
+              Home
+            </Button>
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/about"
+            >
+              About Me
+            </Button>
+
+            <ResumeButton
+              color="inherit"
+              onClick={handleResumeMenuOpen}
+              endIcon={<KeyboardArrowDownIcon />}
+              aria-controls="resume-menu"
+              aria-haspopup="true"
+              aria-expanded={Boolean(resumeAnchorEl) ? 'true' : undefined}
+            >
+              Resume
+            </ResumeButton>
+
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/works"
+            >
+              My Works
+            </Button>
+            <Menu
+              id="resume-menu"
+              anchorEl={resumeAnchorEl}
+              open={Boolean(resumeAnchorEl)}
+              onClose={handleResumeMenuClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              MenuListProps={{
+                'aria-labelledby': 'resume-button',
+              }}
+            >
+              {resumeItems.map(({ id, label }) => (
+                <MenuItem
+                  key={id}
+                  onClick={() => handleMenuItemClick(id)}
+                >
+                  <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
+                    {getIconForNavItem(id)}
+                  </ListItemIcon>
+                  <ListItemText>{label}</ListItemText>
+                </MenuItem>
+              ))}
+            </Menu>
+            <Button
+              color="inherit"
+              // onClick={() => scrollToSection('contact')}
+              onClick={() => navigate('/contact')}
+              startIcon={<ContactMailIcon />}
+            >
+              Contact
+            </Button>
+            <IconButton color="inherit" onClick={toggleDarkMode}>
+              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Search…"
+                inputProps={{ 'aria-label': 'search' }}
+                value={query}
+                onChange={handleSearchChange}
+                onFocus={(e) => e.target.value && setSearchAnchorEl(e.currentTarget)}
+              />
+              {Boolean(searchAnchorEl) && (
+                <SearchResultsDropdown>
+                  {matches.length > 0 ? (
+                    matches.map((item, index) => (
+                      <SearchResultItem
+                        key={index}
+                        button
+                        onClick={() => handleSearchResultClick(item.section)}
+                      >
+                        <SearchResultSection>
+                          {item.section}
+                        </SearchResultSection>
+                        <SearchResultContent>
+                          {item.content}
+                        </SearchResultContent>
+                      </SearchResultItem>
+                    ))
+                  ) : (
+                    <ListItem>
+                      <Typography color="text.secondary">
+                        No results found
+                      </Typography>
+                    </ListItem>
+                  )}
+                </SearchResultsDropdown>
+              )}
+            </Search>
+          </Box>
+
+          {/* Mobile Menu Button */}
+          <IconButton
+            color="inherit"
+            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+            edge="end"
+            onClick={handleDrawerToggle}
+            sx={{ display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+        </Toolbar>
+
+        {/* Mobile Drawer */}
+        <Drawer
+          variant="temporary"
+          anchor={theme.direction === 'rtl' ? 'left' : 'right'}
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile
+          }}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: 280,
+              backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
+              color: theme.palette.text.primary
+            },
           }}
         >
-          Vishal Biyani
-        </Typography>
-        
-        {/* Desktop Menu */}
-        <Box sx={{ 
-          display: { xs: 'none', sm: 'flex' }, 
-          alignItems: 'center',
-          gap: 1
-        }}>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-              value={query}
-              onChange={handleSearchChange}
-              onFocus={(e) => e.target.value && setSearchAnchorEl(e.currentTarget)}
-            />
-            {Boolean(searchAnchorEl) && (
-              <SearchResultsDropdown>
-                {matches.length > 0 ? (
-                  matches.map((item, index) => (
-                    <SearchResultItem
-                      key={index}
-                      button
-                      onClick={() => handleSearchResultClick(item.section)}
-                    >
-                      <SearchResultSection>
-                        {item.section}
-                      </SearchResultSection>
-                      <SearchResultContent>
-                        {item.content}
-                      </SearchResultContent>
-                    </SearchResultItem>
-                  ))
-                ) : (
-                  <ListItem>
-                    <Typography color="text.secondary">
-                      No results found
-                    </Typography>
-                  </ListItem>
-                )}
-              </SearchResultsDropdown>
-            )}
-          </Search>
-
-          <ResumeButton 
-            color="inherit" 
-            onClick={handleResumeMenuOpen}
-            endIcon={<KeyboardArrowDownIcon />}
-            aria-controls="resume-menu"
-            aria-haspopup="true"
-            aria-expanded={Boolean(resumeAnchorEl) ? 'true' : undefined}
-          >
-            Resume
-          </ResumeButton>
-          <Menu
-            id="resume-menu"
-            anchorEl={resumeAnchorEl}
-            open={Boolean(resumeAnchorEl)}
-            onClose={handleResumeMenuClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            MenuListProps={{
-              'aria-labelledby': 'resume-button',
-            }}
-          >
-            {resumeItems.map(({ id, label }) => (
-              <MenuItem 
-                key={id}
-                onClick={() => handleMenuItemClick(id)}
-              >
-                <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
-                  {getIconForNavItem(id)}
-                </ListItemIcon>
-                <ListItemText>{label}</ListItemText>
-              </MenuItem>
-            ))}
-          </Menu>
-          <Button 
-            color="inherit"
-            onClick={() => scrollToSection('contact')}
-            startIcon={<ContactMailIcon />}
-          >
-            Contact
-          </Button>
-          <IconButton color="inherit" onClick={toggleDarkMode}>
-            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
-        </Box>
-
-        {/* Mobile Menu Button */}
-        <IconButton
-          color="inherit"
-          aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
-          edge="end"
-          onClick={handleDrawerToggle}
-          sx={{ display: { sm: 'none' } }}
-        >
-          <MenuIcon />
-        </IconButton>
-      </Toolbar>
-
-      {/* Mobile Drawer */}
-      <Drawer
-        variant="temporary"
-        anchor={theme.direction === 'rtl' ? 'left' : 'right'}
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile
-        }}
-        sx={{
-          display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': { 
-            boxSizing: 'border-box', 
-            width: 280,
-            backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
-            color: theme.palette.text.primary
-          },
-        }}
-      >
-        {drawer}
-      </Drawer>
-    </StyledAppBar>
+          {drawer}
+        </Drawer>
+      </StyledAppBar>
     </>
   );
 };

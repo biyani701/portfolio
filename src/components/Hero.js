@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Container, IconButton } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { styled } from '@mui/material/styles';
@@ -121,6 +122,8 @@ const ContactButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+
+
 // New styled component for catchline items
 // const CatchlineItem = styled(Box)(({ theme }) => ({
   
@@ -166,6 +169,7 @@ const ContactButton = styled(Button)(({ theme }) => ({
 
 const Hero = (props) => {
   // const [ref, shouldAnimate] = useAnimateOnScroll();
+  const navigate = useNavigate();
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -271,7 +275,8 @@ const Hero = (props) => {
             variant="contained"
             color="primary"
             size="large"
-            onClick={() => scrollToSection('contact')}
+            // onClick={() => scrollToSection('contact')}
+            onClick={() => navigate('/contact')}
             data-aos="fade-up"
             data-aos-delay="600"
           >
