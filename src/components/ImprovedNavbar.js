@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 import Fuse from 'fuse.js';
-import { styled, alpha } from '@mui/material/styles';
+import { styled, alpha, useTheme } from '@mui/material/styles'; // Add useTheme hook
 import {
   AppBar,
   Toolbar,
@@ -17,7 +17,7 @@ import {
   Menu,
   MenuItem,
   Button,
-  useTheme
+  Divider
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import InputBase from '@mui/material/InputBase';
@@ -30,25 +30,23 @@ import WorkIcon from '@mui/icons-material/Work';
 import SchoolIcon from '@mui/icons-material/School';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import './Navbar.css';
 import { resumeData } from './resumeData';
 
+// Initialize Fuse.js for search functionality
 const fuse = new Fuse(resumeData, {
   keys: ['section', 'content'],
   threshold: 0.3, // lower is stricter
 });
 
-// Styled components - corrected for proper theme contrast
+// Styled components - using theme properly
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.mode === 'dark' 
-    ? alpha(theme.palette.common.white, 0.15)
-    : alpha(theme.palette.common.black, 0.08),
+  backgroundColor: alpha(theme.palette.common[theme.palette.mode === 'dark' ? 'white' : 'black'], 
+    theme.palette.mode === 'dark' ? 0.15 : 0.08),
   '&:hover': {
-    backgroundColor: theme.palette.mode === 'dark' 
-      ? alpha(theme.palette.common.white, 0.25)
-      : alpha(theme.palette.common.black, 0.12),
+    backgroundColor: alpha(theme.palette.common[theme.palette.mode === 'dark' ? 'white' : 'black'], 
+      theme.palette.mode === 'dark' ? 0.25 : 0.12),
   },
   marginLeft: 0,
   width: '100%',
@@ -66,11 +64,11 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.text.secondary,
+  color: theme.palette.text.secondary,
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.text.primary,
+  color: theme.palette.text.primary,
   width: '100%',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
@@ -128,56 +126,23 @@ const SearchResultContent = styled(Typography)(({ theme }) => ({
   overflow: 'hidden',
 }));
 
-// Modified StyledAppBar to respect theme colors from theme.js
-// const StyledAppBar = styled(AppBar)(({ theme }) => {
-//   // Light mode: use light theme colors
-//   if (theme.palette.mode === 'light') {
-//     return {
-//       backgroundColor: theme.palette.primary.main, 
-//       color: theme.palette.text.primary,
-//       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-//       backdropFilter: 'blur(8px)',
-//       borderBottom: `1px solid ${theme.palette.divider}`,
-//       transition: 'all 0.3s ease',
-//       '& .MuiIconButton-root': {
-//         color: theme.palette.text.primary,
-//       },
-//       '& .MuiButton-root': {
-//         color: theme.palette.text.primary,
-//       }
-//     };
-//   }
-//   // Dark mode: use dark theme colors
-//   return {
-//     backgroundColor: theme.palette.primary.main, 
-//     color: theme.palette.text.primary,
-//     boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-//     backdropFilter: 'blur(8px)',
-//     borderBottom: `1px solid ${theme.palette.divider}`,
-//     transition: 'all 0.3s ease',
-//     '& .MuiIconButton-root': {
-//       color: theme.palette.text.primary,
-//     },
-//     '& .MuiButton-root': {
-//       color: theme.palette.text.primary,
-//     }
-//   };
-// });
-
+// Use the theme directly for AppBar styling - no hardcoded colors
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
-  color: theme.palette.text.primary,
-  boxShadow: theme.palette.mode === 'light'
-    ? '0 2px 10px rgba(0,0,0,0.1)'
-    : '0 4px 20px rgba(0,0,0,0.5)',
+  // backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.background.footer,
+  // color: theme.palette.text.primary,
+  color: theme.palette.common.white,
+  boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.5)' : '0 2px 10px rgba(0,0,0,0.1)',
   backdropFilter: 'blur(8px)',
   borderBottom: `1px solid ${theme.palette.divider}`,
   transition: 'all 0.3s ease',
   '& .MuiIconButton-root': {
-    color: theme.palette.text.primary,
+    // color: theme.palette.text.primary,
+    color: theme.palette.common.white,
   },
   '& .MuiButton-root': {
-    color: theme.palette.text.primary,
+    // color: theme.palette.text.primary,
+    color: theme.palette.common.white,
   }
 }));
 
@@ -189,25 +154,68 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-start',
 }));
 
-const ResumeButton = styled(Button)(({ theme }) => ({
-  position: 'relative',
-  marginRight: theme.spacing(2),
-  color: theme.palette.text.primary,
+// const ResumeButton = styled(Button)(({ theme }) => ({
+//   position: 'relative',
+//   marginRight: theme.spacing(2),
+//   color: theme.palette.text.primary,
+//   '&:hover': {
+//     backgroundColor: alpha(theme.palette.primary.main, 0.1),
+//   },
+// }));
+
+// Add styled components for the color palette menu
+const ColorPaletteMenu = styled(Menu)(({ theme }) => ({
+  '& .MuiPaper-root': {
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: 12,
+    boxShadow: theme.shadows[4],
+    minWidth: 200,
+    '& .MuiMenuItem-root': {
+      padding: theme.spacing(1.5, 2),
+      '&:hover': {
+        backgroundColor: theme.palette.action.hover,
+      },
+      '&.Mui-selected': {
+        backgroundColor: theme.palette.action.selected,
+      },
+    },
+  },
+}));
+
+const ColorPaletteButton = styled(Button)(({ theme }) => ({
+  color: theme.palette.common.white,
   '&:hover': {
-    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+    backgroundColor: alpha(theme.palette.common.white, 0.1),
+  },
+}));
+
+const ColorPaletteItem = styled(MenuItem)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+  '&::before': {
+    content: '""',
+    width: 16,
+    height: 16,
+    borderRadius: '50%',
+    backgroundColor: 'currentColor',
+    opacity: 0.7,
   },
 }));
 
 // Main component
-const NavigationBar = ({ darkMode, toggleDarkMode }) => {
+const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, changePalette, availablePalettes }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
-
+  const theme = useTheme(); // Get the theme using the hook
+  
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resumeAnchorEl, setResumeAnchorEl] = useState(null);
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
   const [query, setQuery] = useState('');
+  // const [mode, setMode] = useState(isDarkMode ? 'dark' : 'light');
+  // const [paletteIndex, setPaletteIndex] = useState(currentPaletteIndex);
+  const [paletteAnchorEl, setPaletteAnchorEl] = useState(null);
   const results = fuse.search(query);
   const matches = query ? results.map(r => r.item) : [];
 
@@ -224,21 +232,6 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
       navigate('/', { state: { scrollTo: sectionId } });
     }
   };
-
-  // Set body class for CSS styling
-  useEffect(() => {
-    // Explicitly remove MUI AppBar styles from Navbar.css that cause conflicts
-    document.body.classList.remove('light-mode', 'dark-mode');
-    document.body.classList.add(darkMode ? 'dark-mode' : 'light-mode');
-    
-    // Remove the CSS-based color setting that's causing conflicts
-    const appBar = document.querySelector('.MuiAppBar-root');
-    if (appBar) {
-      // Override any CSS-based background color
-      appBar.style.backgroundColor = darkMode ? '#1E1E1E' : '#FFFFFF';
-      appBar.style.color = darkMode ? '#E0E0E0' : '#1A1A1A';
-    }
-  }, [darkMode]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -278,6 +271,27 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
     }
   };
 
+  const handleThemeToggle = () => {
+    toggleDarkMode(!isDarkMode);
+    // Refresh page after theme change
+    // window.location.reload();
+  };
+
+  const handlePaletteMenuOpen = (event) => {
+    setPaletteAnchorEl(event.currentTarget);
+  };
+
+  const handlePaletteMenuClose = () => {
+    setPaletteAnchorEl(null);
+  };
+
+  const handlePaletteSelect = (index) => {
+    changePalette(index);
+    handlePaletteMenuClose();
+    // Refresh the page after palette change
+    // window.location.reload();
+  };
+
   // Get icon for each nav item
   const getIconForNavItem = (id) => {
     switch (id) {
@@ -310,71 +324,32 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
     navItems.filter(item =>
       ["summary", "timeline", "skills", "experience", "certifications", "education", "recognition"].includes(item.id)
     ), [navItems]);
-
-  const drawer = (
-    <>
-      <DrawerHeader>
-        <IconButton onClick={handleDrawerToggle}>
-          <MenuIcon />
-        </IconButton>
-        <Typography variant="h6" noWrap component="div" sx={{ ml: 1 }}>
-          Menu
-        </Typography>
-      </DrawerHeader>
-      <List>
-        {navItems.map(({ id, label }) => (
-          <ListItem
-            key={id}
-            button
-            onClick={() => {
-              handleDrawerToggle();
-              scrollToSection(id);
-            }}
-          >
-            <ListItemIcon sx={{ color: theme.palette.text.primary }}>
-              {getIconForNavItem(id)}
-            </ListItemIcon>
-            <ListItemText primary={label} />
-          </ListItem>
-        ))}
-        <ListItem button onClick={toggleDarkMode}>
-          <ListItemIcon sx={{ color: theme.palette.text.primary }}>
-            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-          </ListItemIcon>
-          <ListItemText primary={darkMode ? "Light Mode" : "Dark Mode"} />
-        </ListItem>
-      </List>
-    </>
-  );
-
+  
   return (
-    <>
-      <StyledAppBar
-        position="fixed"
-        elevation={1}
-      >
+    <Box sx={{ display: 'flex' }}>
+      <StyledAppBar position="fixed">
         <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
           <Typography
             variant="h6"
+            noWrap
             component="div"
-            sx={{
-              flexGrow: 1,
-              fontWeight: 700,
-              letterSpacing: 0.5,
-              color: theme.palette.text.primary
-            }}
+            sx={{ display: { xs: 'none', sm: 'block' } }}
           >
             Portfolio
           </Typography>
-
-          {/* Desktop Menu */}
-          <Box sx={{
-            display: { xs: 'none', sm: 'flex' },
-            alignItems: 'center',
-            gap: 1
-          }}>
+          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2 }}>
+            {/* Navigation Items */}
             <Button
-              sx={{ color: theme.palette.text.primary }}
               component={RouterLink}
               to="/"
               onClick={() => {
@@ -386,16 +361,15 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
               Home
             </Button>
             <Button
-              sx={{ color: theme.palette.text.primary }}
               component={RouterLink}
               to="/about"
             >
               About Me
             </Button>
 
-            <ResumeButton
+            {/* Resume Menu */}
+            <Button
               id="resume-button"
-              sx={{ color: theme.palette.text.primary }}
               onClick={handleResumeMenuOpen}
               endIcon={<KeyboardArrowDownIcon />}
               aria-controls="resume-menu"
@@ -403,8 +377,7 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
               aria-expanded={Boolean(resumeAnchorEl) ? 'true' : undefined}
             >
               Resume
-            </ResumeButton>
-
+            </Button>
             <Menu
               id="resume-menu"
               anchorEl={resumeAnchorEl}
@@ -427,40 +400,73 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
                   key={id}
                   onClick={() => handleResumeItemClick(id)}
                 >
-                  <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
+                  <ListItemIcon sx={{ minWidth: 36 }}>
                     {getIconForNavItem(id)}
                   </ListItemIcon>
                   <ListItemText>{label}</ListItemText>
                 </MenuItem>
               ))}
             </Menu>
+
             <Button
-              sx={{ color: theme.palette.text.primary }}
               component={RouterLink}
               to="/works"
             >
               Portfolio & Case Studies
             </Button>
             <Button
-              sx={{ color: theme.palette.text.primary }}
               component={RouterLink}
               to="/blogs"
             >
               Blog & Insights
             </Button>
             <Button
-              sx={{ color: theme.palette.text.primary }}
               onClick={() => navigate('/contact')}
-              startIcon={<ContactMailIcon sx={{ color: theme.palette.text.primary }} />}
+              startIcon={<ContactMailIcon />}
             >
               Contact
             </Button>
+
+            {/* Theme Controls */}
             <IconButton 
-              onClick={toggleDarkMode}
-              sx={{ color: theme.palette.text.primary }}
+              onClick={handleThemeToggle}
+              sx={{ ml: 1 }}
             >
-              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+              {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
+
+            <ColorPaletteButton
+              onClick={handlePaletteMenuOpen}
+              endIcon={<KeyboardArrowDownIcon />}
+            >
+              {availablePalettes[currentPaletteIndex]?.name || 'Theme'}
+            </ColorPaletteButton>
+
+            <ColorPaletteMenu
+              anchorEl={paletteAnchorEl}
+              open={Boolean(paletteAnchorEl)}
+              onClose={handlePaletteMenuClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+            >
+              {availablePalettes.map((palette, index) => (
+                <ColorPaletteItem
+                  key={palette.name}
+                  onClick={() => handlePaletteSelect(index)}
+                  selected={index === currentPaletteIndex}
+                  sx={{ color: palette.primary }}
+                >
+                  {palette.name}
+                </ColorPaletteItem>
+              ))}
+            </ColorPaletteMenu>
+
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
@@ -503,40 +509,130 @@ const NavigationBar = ({ darkMode, toggleDarkMode }) => {
 
           {/* Mobile Menu Button */}
           <IconButton
-            sx={{ color: theme.palette.text.primary }}
             aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
             edge="end"
             onClick={handleDrawerToggle}
-            display={{ sm: 'none' }}
+            sx={{ display: { sm: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
         </Toolbar>
-
-        {/* Mobile Drawer */}
-        <Drawer
-          variant="temporary"
-          anchor={theme.direction === 'rtl' ? 'left' : 'right'}
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile
-          }}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: 280,
-              backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
-              color: theme.palette.text.primary
-            },
-          }}
-        >
-          {drawer}
-        </Drawer>
       </StyledAppBar>
-    </>
+
+      {/* Mobile Drawer */}
+      <Drawer
+        variant="temporary"
+        anchor="right"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          display: { xs: 'block', sm: 'none' },
+          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+        }}
+      >
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerToggle}>
+            <MenuIcon />
+          </IconButton>
+        </DrawerHeader>
+        <Divider />
+        <List>
+          {/* Navigation Items */}
+          <ListItem button component={RouterLink} to="/" onClick={handleDrawerToggle}>
+            <ListItemIcon><HomeIcon /></ListItemIcon>
+            <ListItemText primary="Home" />
+          </ListItem>
+          <ListItem button component={RouterLink} to="/about" onClick={handleDrawerToggle}>
+            <ListItemIcon><WorkIcon /></ListItemIcon>
+            <ListItemText primary="About Me" />
+          </ListItem>
+
+          {/* Resume Items */}
+          {resumeItems.map(({ id, label }) => (
+            <ListItem
+              key={id}
+              button
+              onClick={() => {
+                handleDrawerToggle();
+                handleResumeItemClick(id);
+              }}
+            >
+              <ListItemIcon>
+                {getIconForNavItem(id)}
+              </ListItemIcon>
+              <ListItemText primary={label} />
+            </ListItem>
+          ))}
+
+          <ListItem button component={RouterLink} to="/works" onClick={handleDrawerToggle}>
+            <ListItemIcon><WorkIcon /></ListItemIcon>
+            <ListItemText primary="Portfolio" />
+          </ListItem>
+          <ListItem button component={RouterLink} to="/blogs" onClick={handleDrawerToggle}>
+            <ListItemIcon><WorkIcon /></ListItemIcon>
+            <ListItemText primary="Blog" />
+          </ListItem>
+          <ListItem button component={RouterLink} to="/contact" onClick={handleDrawerToggle}>
+            <ListItemIcon><ContactMailIcon /></ListItemIcon>
+            <ListItemText primary="Contact" />
+          </ListItem>
+
+          <Divider />
+          
+          {/* Theme Controls */}
+          <ListItem button onClick={() => {
+            handleDrawerToggle();
+            handleThemeToggle();
+          }}>
+            <ListItemIcon>
+              {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+            </ListItemIcon>
+            <ListItemText primary={isDarkMode ? "Light Mode" : "Dark Mode"} />
+          </ListItem>
+
+          {/* Use theme directly from useTheme hook without referencing an undefined variable */}
+          <ListItem 
+            button 
+            onClick={handlePaletteMenuOpen}
+            sx={{
+              borderLeft: theme.palette.mode === 'dark' 
+                ? `3px solid ${theme.palette.text.primary}` 
+                : 'none',
+              paddingLeft: theme.palette.mode === 'dark' ? 1.5 : 2,
+              '&:hover': {
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.08)' 
+                  : 'rgba(0, 0, 0, 0.04)',
+              }
+            }}
+          >
+            <ListItemText 
+              primary={
+                <Typography variant="body1" sx={{ fontWeight: 500 }} color="text.primary">
+                  Color Theme
+                </Typography>
+              }
+              secondary={
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary"
+                  sx={{ 
+                    // Make secondary text a bit more visible
+                    opacity: theme.palette.mode === 'dark' ? 0.9 : 0.7 
+                  }}
+                >
+                  {availablePalettes[currentPaletteIndex]?.name}
+                </Typography>
+              }
+            />
+          </ListItem>
+        </List>
+      </Drawer>
+    </Box>
   );
 };
 
-export default React.memo(NavigationBar);
+export default NavigationBar;

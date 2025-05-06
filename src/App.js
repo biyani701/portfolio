@@ -1,6 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+// import { ThemeProvider } from '@mui/material/styles';
+import ThemeProvider from './ThemeProvider';
+
+
 import CssBaseline from '@mui/material/CssBaseline';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -11,12 +14,9 @@ import Box from '@mui/material/Box';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Fab from '@mui/material/Fab';
 
-import NavigationBar from './components/Navbar';
+import NavigationBar from './components/ImprovedNavbar';
 import Hero from './components/Hero';
 import ProfileSummary from './components/ProfileSummary';
-// import Skills from './components/Skills';
-// import EnhancedSkills from './components/EnhancedSkills';
-// import EnhancedSkillsUpdated from './components/EnhancedSkillsUpdated';
 import EnhancedSkillsWithTabs from './components/EnhancedSkillsWithTabs';
 import ExperienceTimeline from './components/Experience';
 import Certifications from './components/Certifications';
@@ -25,13 +25,14 @@ import Recognition from './components/Recognition';
 import CareerTimeline from './components/CareerTimeline';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import About from './components/About';
+import AboutMe from './components/AboutMe';
 import Works from './components/Works';
-import Blogs from './components/Blogs'
+import Blogs from './components/Blogs';
 
 
-import './App.css';
-import { getTheme } from './theme';
+// Import just the minimal non-themeable styles
+import './App.minimal.css';
+import { palettes } from './theme';
 
 function ScrollTop(props) {
   const { children, window } = props;
@@ -78,11 +79,44 @@ function ScrollTop(props) {
 function App(props) {
   const location = useLocation();
 
-  // Initialize darkMode state based on user preference or default to false
-  const [darkMode, setDarkMode] = useState(() => {
-    const savedMode = localStorage.getItem('darkMode');
-    return savedMode === 'true';
-  });
+  const [mode, setMode] = useState('light'); // Default to 'light'
+  const [paletteIndex, setPaletteIndex] = useState(0); // Default to 0
+  useEffect(() => {
+    // Now we're safely in the browser environment
+    const savedMode = localStorage.getItem('themeMode');
+    if (savedMode) {
+      setMode(savedMode);
+    }
+
+    const savedIndex = localStorage.getItem('themePaletteIndex');
+    if (savedIndex) {
+      setPaletteIndex(parseInt(savedIndex, 10));
+    }
+  }, []);
+
+  // Initialize mode state based on user preference or default to 'light'
+  // const [mode, setMode] = useState(() => {    
+
+  //   if (typeof window !== 'undefined' && localStorage.getItem('themeMode')) {
+  //     return localStorage.getItem('themeMode');
+  //   }
+  //   else {
+
+  //   return 'light';
+
+  //   }
+
+  // });
+
+  // Initialize palette index state or default to 0
+  // const [paletteIndex, setPaletteIndex] = useState(() => {    
+  //   if (typeof window !== 'undefined' && localStorage.getItem('themePaletteIndex')) {
+  //     return parseInt(localStorage.getItem('themePaletteIndex'), 10);
+  //   }
+  //   return 0;
+  // });
+
+
 
   useEffect(() => {
     if (location.pathname === '/' && location.state?.scrollTo) {
@@ -90,7 +124,7 @@ function App(props) {
       if (el) {
         setTimeout(() => {
           el.scrollIntoView({ behavior: 'smooth' });
-        }, 100); // Delay to ensure DOM is ready
+        }, 100);
       }
     }
   }, [location]);
@@ -99,7 +133,7 @@ function App(props) {
   useEffect(() => {
     AOS.init({
       duration: 800,
-      once: false, // Changed to false to allow animations to occur every time an element scrolls into view
+      once: false,
       offset: 100,
       easing: 'ease-in-out',
       delay: 100,
@@ -107,253 +141,82 @@ function App(props) {
 
     // Refresh AOS when the theme changes
     AOS.refresh();
-  }, [darkMode]); // Add darkMode as a dependency to refresh animations when theme switches
+  }, [mode]);
 
-  // Apply dark/light mode classes when darkMode state changes
+  // Save theme preferences to localStorage
   useEffect(() => {
-    // Save preference to localStorage
-    localStorage.setItem('darkMode', darkMode);
+    localStorage.setItem('themeMode', mode);
+    localStorage.setItem('themePaletteIndex', paletteIndex);
 
-    // Apply appropriate classes
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-      document.body.classList.remove('light-mode');
-    } else {
-      document.body.classList.add('light-mode');
-      document.body.classList.remove('dark-mode');
+    // Apply data-theme attribute for any components that might need it
+    document.documentElement.setAttribute('data-theme', mode);
+  }, [mode, paletteIndex]);
+
+  // Create MUI theme based on mode and palette index
+  // const theme = useMemo(() => getTheme(mode, paletteIndex), [mode, paletteIndex]);
+
+  const toggleThemeMode = (isDark) => {
+    setMode(isDark ? 'dark' : 'light');
+  };
+
+  const changeThemePalette = (index) => {
+    if (index >= 0 && index < palettes[mode].length) {
+      setPaletteIndex(index);
     }
-
-    // Force update of MUI components with the new theme
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-
-  }, [darkMode]);
-
-  // Create MUI theme based on dark mode state
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: darkMode ? 'dark' : 'light',
-          primary: {
-            main: darkMode ? '#90caf9' : '#1a237e', // Lighter blue in dark mode
-          },
-          secondary: {
-            main: darkMode ? '#f48fb1' : '#f50057', // Different secondary colors for each mode
-          },
-          background: {
-            default: darkMode ? '#121212' : '#f5f5f7',
-            paper: darkMode ? '#1e1e1e' : '#ffffff',
-          },
-          text: {
-            primary: darkMode ? '#ffffff' : '#121212',
-            secondary: darkMode ? '#b0b0b0' : '#6b6b6b',
-          }
-        },
-        typography: {
-          fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-          h1: {
-            fontWeight: 700,
-            fontSize: '2.8rem',
-            '@media (max-width:600px)': {
-              fontSize: '2.3rem',
-            },
-          },
-          h2: {
-            fontWeight: 600,
-            fontSize: '2.4rem',
-            '@media (max-width:600px)': {
-              fontSize: '2rem',
-            },
-          },
-          h3: {
-            fontWeight: 600,
-            fontSize: '2rem',
-            '@media (max-width:600px)': {
-              fontSize: '1.8rem',
-            },
-          },
-          h6: {
-            fontWeight: 600,
-          },
-          button: {
-            textTransform: 'none',
-            fontWeight: 500,
-          },
-        },
-        shape: {
-          borderRadius: 8,
-        },
-        components: {
-          MuiAppBar: {
-            styleOverrides: {
-              root: {
-                boxShadow: darkMode ? '0 4px 20px rgba(0,0,0,0.5)' : '0 2px 10px rgba(0,0,0,0.1)',
-                backdropFilter: 'blur(8px)',
-                background: darkMode
-                  ? 'rgba(30, 30, 30, 0.8)'
-                  : 'rgba(255, 255, 255, 0.8)',
-                transition: 'all 0.3s ease',
-              },
-            },
-            defaultProps: {
-              enableColorOnDark: true, // This will keep AppBar color in dark mode
-            },
-          },
-          MuiPaper: {
-            styleOverrides: {
-              root: {
-                backgroundImage: 'none',
-                transition: 'all 0.3s ease',
-                boxShadow: darkMode
-                  ? '0 8px 40px rgba(0,0,0,0.5)'
-                  : '0 4px 20px rgba(0,0,0,0.1)',
-              },
-            },
-          },
-          MuiButton: {
-            styleOverrides: {
-              root: {
-                borderRadius: 8,
-                textTransform: 'none',
-                transition: 'all 0.3s ease',
-                ':hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: darkMode
-                    ? '0 8px 15px rgba(0,0,0,0.5)'
-                    : '0 5px 15px rgba(0,0,0,0.1)',
-                },
-              },
-              contained: {
-                boxShadow: darkMode
-                  ? '0 4px 10px rgba(0,0,0,0.4)'
-                  : '0 2px 5px rgba(0,0,0,0.1)',
-              }
-            },
-          },
-          MuiCard: {
-            styleOverrides: {
-              root: {
-                borderRadius: 12,
-                overflow: 'hidden',
-                transition: 'all 0.3s ease',
-                ':hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: darkMode
-                    ? '0 12px 30px rgba(0,0,0,0.6)'
-                    : '0 10px 25px rgba(0,0,0,0.15)',
-                }
-              }
-            }
-          },
-          MuiDrawer: {
-            styleOverrides: {
-              paper: {
-                borderRight: 0,
-                width: 280,
-                background: darkMode
-                  ? 'rgba(30, 30, 30, 0.95)'
-                  : 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(10px)',
-              },
-            },
-          },
-          MuiListItem: {
-            styleOverrides: {
-              root: {
-                transition: 'background-color 0.2s ease',
-                borderRadius: 6,
-                margin: '4px 0',
-              },
-            },
-          },
-          MuiMenuItem: {
-            styleOverrides: {
-              root: {
-                transition: 'background-color 0.2s ease',
-              },
-            },
-          },
-          MuiChip: {
-            styleOverrides: {
-              root: {
-                borderRadius: 8,
-                fontWeight: 500,
-              }
-            }
-          },
-          MuiDivider: {
-            styleOverrides: {
-              root: {
-                margin: '16px 0',
-                opacity: darkMode ? 0.2 : 0.15,
-              }
-            }
-          }
-        },
-      }),
-    [darkMode]
-  );
-
-  // Toggle function
-  const toggleDarkMode = () => {
-    setDarkMode(prevMode => !prevMode);
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider mode={mode} paletteIndex={paletteIndex}>
       <CssBaseline />
       <div id="back-to-top-anchor" />
-      <NavigationBar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+      <NavigationBar
+        isDarkMode={mode === 'dark'}
+        toggleDarkMode={toggleThemeMode}
+        currentPaletteIndex={paletteIndex}
+        changePalette={changeThemePalette}
+        availablePalettes={palettes[mode]}
+      />
       <Box
-        component="main"
+        component="div"
+        className="App"
         sx={{
-          flexGrow: 1,
-          // Add padding at the bottom to account for the fixed footer
-          paddingBottom: '70px'
+          display: 'flex',
+          flexDirection: 'column',
+          textAlign: 'center',
+          minHeight: '100vh',
+          position: 'relative',
+          paddingBottom: '60px',
+          bgcolor: 'background.default',
+          color: 'text.primary',
         }}
       >
         <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <Hero />
-                <div id="summary"><ProfileSummary /></div>
-                <div id="timeline"><CareerTimeline /></div>
-                <div id="skills"><EnhancedSkillsWithTabs /></div>
-                <div id="experience"><ExperienceTimeline /></div>
-                <div id="certifications"><Certifications /></div>
-                <div id="education"><Education /></div>
-                <div id="recognition"><Recognition /></div>
-              </>
-            }
-          />
+          <Route path="/" element={
+            <>
+              <Hero />
+              <ProfileSummary />
+              <EnhancedSkillsWithTabs />
+              <ExperienceTimeline />
+              <Certifications />
+              <Education />
+              <Recognition />
+              <CareerTimeline />
+            </>
+          } />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />          
+          <Route path="/about" element={<AboutMe />} />
           <Route path="/works" element={<Works />} />
           <Route path="/blogs" element={<Blogs />} />
-          
+
+          <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>
+        <Footer />
+        <ScrollTop {...props}>
+          <Fab color="primary" size="small" aria-label="scroll back to top">
+            <KeyboardArrowUpIcon />
+          </Fab>
+        </ScrollTop>
       </Box>
-      <Footer />
-      <ScrollTop {...props}>
-        <Fab
-          size="small"
-          aria-label="scroll back to top"
-          sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            '&:hover': {
-              backgroundColor: theme.palette.primary.dark,
-              transform: 'scale(1.1)', // Add a slight scale effect on hover
-            },
-            // Ensure the button is clickable
-            cursor: 'pointer',
-          }}
-        >
-          <KeyboardArrowUpIcon />
-        </Fab>
-      </ScrollTop>
     </ThemeProvider>
   );
 }

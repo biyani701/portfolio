@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Button, Container, IconButton } from '@mui/material';
+import { Box, Typography, Button, Container, IconButton, useTheme } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { styled } from '@mui/material/styles';
+import { styled, alpha } from '@mui/material/styles';
 // import WorkIcon from '@mui/icons-material/Work'; 
 
 
@@ -45,11 +45,12 @@ const HeroContainer = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   position: 'relative',
   backgroundImage: theme.palette.mode === 'dark'
-    ? 'linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%)'
-    : 'linear-gradient(135deg, #1976d2 0%, #2196f3 50%, #42a5f5 100%)',
-  color: '#ffffff',
+    ? 'linear-gradient(135deg, #121212 0%, #1E1E1E 50%, #2C2C2C 100%)'
+    : 'linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 50%, #F5F5F5 100%)',
+  color: theme.palette.text.primary,
   textAlign: 'center',
   padding: theme.spacing(2),
+  overflow: 'hidden',
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -57,21 +58,24 @@ const HeroContainer = styled(Box)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'url("/images/pattern-overlay.png")', // Optional texture overlay
-    opacity: 0.1,
-    zIndex: -1,
+    background: theme.palette.mode === 'dark'
+      ? 'radial-gradient(circle at center, rgba(144, 202, 249, 0.1) 0%, transparent 70%)'
+      : 'radial-gradient(circle at center, rgba(74, 74, 74, 0.05) 0%, transparent 70%)',
+    zIndex: 0,
   },
 }));
 
 const ScrollDownButton = styled(IconButton)(({ theme }) => ({
   position: 'absolute',
   bottom: theme.spacing(8),
-  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  color: '#ffffff',
-  transition: 'all 0.3s ease',
+  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+  color: theme.palette.primary.main,
+  transition: theme.transitions.create(['background-color', 'transform'], {
+    duration: theme.transitions.duration.standard,
+  }),
   animation: 'bounce 2s infinite',
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: alpha(theme.palette.primary.main, 0.2),
     transform: 'translateY(5px)',
   },
   '@keyframes bounce': {
@@ -92,7 +96,11 @@ const Name = styled(Typography)(({ theme }) => ({
   letterSpacing: '2px',
   marginBottom: theme.spacing(1),
   fontSize: '3.5rem',
-  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+  background: theme.palette.mode === 'dark'
+    ? 'linear-gradient(45deg, #90CAF9 30%, #3949AB 90%)'
+    : 'linear-gradient(45deg, #4A4A4A 30%, #1A1A1A 90%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
   [theme.breakpoints.down('sm')]: {
     fontSize: '2.5rem',
   },
@@ -102,8 +110,7 @@ const Title = styled(Typography)(({ theme }) => ({
   fontWeight: 400,
   marginBottom: theme.spacing(4),
   fontSize: '1.5rem',
-  opacity: 0.9,
-  textShadow: '1px 1px 2px rgba(0, 0, 0, 0.3)',
+  color: theme.palette.text.secondary,
   [theme.breakpoints.down('sm')]: {
     fontSize: '1.2rem',
   },
@@ -114,11 +121,16 @@ const ContactButton = styled(Button)(({ theme }) => ({
   padding: '10px 25px',
   fontSize: '1rem',
   fontWeight: 600,
-  boxShadow: '0 4px 10px rgba(0, 0, 0, 0.15)',
-  transition: 'all 0.3s ease',
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
+  boxShadow: theme.shadows[4],
+  transition: theme.transitions.create(['transform', 'box-shadow'], {
+    duration: theme.transitions.duration.standard,
+  }),
   '&:hover': {
     transform: 'translateY(-3px)',
-    boxShadow: '0 7px 15px rgba(0, 0, 0, 0.2)',
+    boxShadow: theme.shadows[8],
+    backgroundColor: theme.palette.primary.dark,
   },
 }));
 
@@ -126,7 +138,7 @@ const ContactButton = styled(Button)(({ theme }) => ({
 
 // New styled component for catchline items
 // const CatchlineItem = styled(Box)(({ theme }) => ({
-  
+
 //   padding: theme.spacing(2),
 //   backgroundColor: 'rgba(255, 255, 255, 0.15)',
 //   backdropFilter: 'blur(5px)',
@@ -167,16 +179,17 @@ const ContactButton = styled(Button)(({ theme }) => ({
 // }));
 
 
-const Hero = (props) => {
+const Hero = () => {
   // const [ref, shouldAnimate] = useAnimateOnScroll();
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
     if (section) {
       const navbarHeight = document.querySelector('.MuiAppBar-root')?.offsetHeight || 0;
       const sectionTop = section.offsetTop;
-      
+
       window.scrollTo({
         top: sectionTop - navbarHeight,
         behavior: 'smooth'
@@ -261,73 +274,54 @@ const Hero = (props) => {
       >
         <CatchlineText>{catchlines[3]}</CatchlineText>
       </CatchlineItem> */}
-      
+
       <Container maxWidth="md">
-        <Box data-aos="fade-up" data-aos-delay="200">
-          <Name variant="h1">
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
+          <Name variant="h1" data-aos="fade-down" data-aos-duration="1000">
             Vishal Biyani
           </Name>
-          <Title variant="h2">
-            Principal Project Analyst | Technical Program Manager
+          <Title variant="h2" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+            Technical Program Manager & Full Stack Developer
           </Title>
-          
-          <ContactButton
-            variant="contained"
-            color="primary"
-            size="large"
-            // onClick={() => scrollToSection('contact')}
-            onClick={() => navigate('/contact')}
-            data-aos="fade-up"
-            data-aos-delay="600"
-          >
-            Get in Touch
-          </ContactButton>
+          <Box sx={{ mt: 4 }} data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400">
+            <ContactButton
+              variant="contained"
+              onClick={() => navigate('/contact')}
+              sx={{
+                mr: 2,
+                mb: { xs: 2, sm: 0 },
+              }}
+            >
+              Contact Me
+            </ContactButton>
+            <ContactButton
+  variant="outlined"
+  onClick={() => scrollToSection('summary')}
+  sx={{
+    // In dark mode, use filled style; in light mode, use outlined style
+    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.text.primary : 'transparent',
+    borderColor: theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.primary.main,
+    // Invert text colors based on mode
+    color: theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.primary.main,
+    '&:hover': {
+      backgroundColor: theme.palette.mode === 'dark' 
+        ? alpha(theme.palette.text.primary, 0.8)  // Slightly transparent version of text.primary
+        : alpha(theme.palette.primary.main, 0.1), // Slightly visible primary color
+      borderColor: theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.primary.main,
+    },
+  }}
+>
+  Learn More
+</ContactButton>
+          </Box>
         </Box>
       </Container>
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: theme => theme.spacing(16),
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          cursor: 'pointer',
-          '&:hover': {
-            '& .scroll-text': {
-              opacity: 0.8,
-            },
-            '& .scroll-button': {
-              transform: 'translateY(5px)',
-            }
-          }
-        }}
+      <ScrollDownButton
         onClick={() => scrollToSection('summary')}
+        aria-label="scroll down"
       >
-        <Typography
-          variant="body2"
-          className="scroll-text"
-          sx={{ 
-            color: '#ffffff', 
-            mb: 1,
-            opacity: 0.6,
-            transition: 'opacity 0.3s ease',
-            textTransform: 'uppercase',
-            letterSpacing: '2px',
-            fontSize: '0.75rem'
-          }}
-        >
-          Scroll Down
-        </Typography>
-        <ScrollDownButton
-          aria-label="Scroll Down"
-          className="scroll-button"
-          data-aos="fade-up"
-          data-aos-delay="100"
-        >
-          <KeyboardArrowDownIcon sx={{ fontSize: 30 }} />
-        </ScrollDownButton>        
-      </Box>
+        <KeyboardArrowDownIcon />
+      </ScrollDownButton>
     </HeroContainer>
   );
 };

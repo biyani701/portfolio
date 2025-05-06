@@ -5,6 +5,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import SvgIcon from '@mui/material/SvgIcon';
 import './Footer.css'; // Renamed from Contact.css
 import PrivacyPreferencesButton from './PrivacyPreferencesButton'; // Importing the PrivacyPreferencesButton component
+import { alpha } from '@mui/material/styles';
 
 const Footer = () => {
   const theme = useTheme();
@@ -15,15 +16,19 @@ const Footer = () => {
       component="footer" 
       className="footer"
       sx={{
-        backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#1a237e',
-        color: 'white',
+        backgroundColor: theme.palette.background.footer,
+        color: theme.palette.common.white,
         py: 1,
         position: 'fixed',
         bottom: 0,
         left: 0,
         right: 0,
         zIndex: 1000,
-        borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+        borderTop: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
+        backdropFilter: 'blur(8px)',
+        transition: theme.transitions.create(['background-color', 'border-color'], {
+          duration: theme.transitions.duration.standard,
+        }),
       }}
     >
       <Container maxWidth="lg">
@@ -37,7 +42,7 @@ const Footer = () => {
         }}>
           {/* Left section */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <PrivacyPreferencesButton />
+            <PrivacyPreferencesButton />
             {/* <Typography variant="body2" component="span" sx={{ color: 'white' }}>
               <a href="mailto:support@biyani.xyz" className="footer-link">                
                 Support Team
@@ -59,7 +64,16 @@ const Footer = () => {
               rel="noopener noreferrer"
               className="social-link"
               size="small"
-              sx={{ color: 'white' }}
+              sx={{ 
+                color: theme.palette.common.white,
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.common.white, 0.1),
+                  transform: 'translateY(-2px)',
+                },
+                transition: theme.transitions.create(['background-color', 'transform'], {
+                  duration: theme.transitions.duration.shorter,
+                }),
+              }}
             >
               <LinkedInIcon fontSize="small" />
             </IconButton>
@@ -70,7 +84,16 @@ const Footer = () => {
               rel="noopener noreferrer"
               className="social-link"
               size="small"
-              sx={{ color: 'white' }}
+              sx={{ 
+                color: theme.palette.common.white,
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.common.white, 0.1),
+                  transform: 'translateY(-2px)',
+                },
+                transition: theme.transitions.create(['background-color', 'transform'], {
+                  duration: theme.transitions.duration.shorter,
+                }),
+              }}
             >
               <GitHubIcon fontSize="small" />
             </IconButton>
@@ -80,7 +103,16 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
               size="small"
-              sx={{ color: 'white' }}
+              sx={{ 
+                color: theme.palette.common.white,
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.common.white, 0.1),
+                  transform: 'translateY(-2px)',
+                },
+                transition: theme.transitions.create(['background-color', 'transform'], {
+                  duration: theme.transitions.duration.shorter,
+                }),
+              }}
             >
               <SvgIcon fontSize="small">
                 {/* Bitbucket SVG path */}
@@ -90,7 +122,15 @@ const Footer = () => {
           </Box>
           
           {/* Copyright section */}
-          <Typography variant="body2" sx={{ color: 'white', opacity: 0.9 }}>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: alpha(theme.palette.common.white, 0.9),
+              transition: theme.transitions.create('color', {
+                duration: theme.transitions.duration.standard,
+              }),
+            }}
+          >
             © {currentYear} Vishal Biyani
           </Typography>
         </Box>
