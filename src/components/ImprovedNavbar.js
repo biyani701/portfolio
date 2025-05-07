@@ -328,7 +328,7 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
   return (
     <Box sx={{ display: 'flex' }}>
       <StyledAppBar position="fixed">
-        <Toolbar>
+        <Toolbar sx={{ minHeight: (theme) => theme.mixins.toolbar.minHeight }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -360,6 +360,14 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
             >
               Home
             </Button>
+
+            <Button
+                          component={RouterLink}
+                          to="/privacy"
+                        >
+                          Privacy Policy
+                        </Button>
+                        
             <Button
               component={RouterLink}
               to="/about"

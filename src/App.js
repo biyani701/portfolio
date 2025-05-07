@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
 // import { ThemeProvider } from '@mui/material/styles';
 import ThemeProvider from './ThemeProvider';
 
@@ -17,7 +19,8 @@ import Fab from '@mui/material/Fab';
 import NavigationBar from './components/ImprovedNavbar';
 import Hero from './components/Hero';
 import ProfileSummary from './components/ProfileSummary';
-import EnhancedSkillsWithTabs from './components/EnhancedSkillsWithTabs';
+// import EnhancedSkillsWithTabs from './components/EnhancedSkillsWithTabs';
+import Skills from './components/Skills';
 import ExperienceTimeline from './components/Experience';
 import Certifications from './components/Certifications';
 import Education from './components/Education';
@@ -28,6 +31,7 @@ import Footer from './components/Footer';
 import AboutMe from './components/AboutMe';
 import Works from './components/Works';
 import Blogs from './components/Blogs';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 
 // Import just the minimal non-themeable styles
@@ -194,8 +198,8 @@ function App(props) {
           <Route path="/" element={
             <>
               <Hero />
-              <ProfileSummary />
-              <EnhancedSkillsWithTabs />
+              <ProfileSummary />              
+              <Skills />
               <ExperienceTimeline />
               <Certifications />
               <Education />
@@ -207,6 +211,7 @@ function App(props) {
           <Route path="/about" element={<AboutMe />} />
           <Route path="/works" element={<Works />} />
           <Route path="/blogs" element={<Blogs />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
 
           <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>
@@ -220,5 +225,9 @@ function App(props) {
     </ThemeProvider>
   );
 }
+ScrollTop.propTypes = {
+  children: PropTypes.node,
+  window: PropTypes.func,
+};
 
 export default App;

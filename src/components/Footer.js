@@ -1,30 +1,37 @@
 import React from 'react';
-import { Typography, Box, useTheme, IconButton, Container } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import { Typography, Box, useTheme, useMediaQuery, IconButton, Container, Button } from '@mui/material';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SvgIcon from '@mui/material/SvgIcon';
-import './Footer.css'; // Renamed from Contact.css
 import PrivacyPreferencesButton from './PrivacyPreferencesButton'; // Importing the PrivacyPreferencesButton component
 import { alpha } from '@mui/material/styles';
 
 const Footer = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const currentYear = new Date().getFullYear();
 
   return (
     <Box 
-      component="footer" 
-      className="footer"
+      component="footer"       
       sx={{
-        backgroundColor: theme.palette.background.footer,
-        color: theme.palette.common.white,
-        py: 1,
+        width: '100%',
         position: 'fixed',
         bottom: 0,
         left: 0,
-        right: 0,
         zIndex: 1000,
-        borderTop: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
+        backgroundColor: theme.palette.background.footer,
+        color: theme.palette.common.white,       
+        // borderTop: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
+        borderTop: `1px solid ${theme.palette.divider}`,
+        px: 3,
+        py: isMobile ? 1 : 2,        
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: isMobile ? 1 : 0,        
         backdropFilter: 'blur(8px)',
         transition: theme.transitions.create(['background-color', 'border-color'], {
           duration: theme.transitions.duration.standard,
@@ -42,19 +49,24 @@ const Footer = () => {
         }}>
           {/* Left section */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <PrivacyPreferencesButton />
-            {/* <Typography variant="body2" component="span" sx={{ color: 'white' }}>
-              <a href="mailto:support@biyani.xyz" className="footer-link">                
-                Support Team
-              </a>
-            </Typography>
-            <Typography variant="body2" component="span" sx={{ color: 'white' }}>
-              <a href="/user-guide" className="footer-link">
-                User Guide
-              </a>
-            </Typography> */}
+            <PrivacyPreferencesButton />            
           </Box>
-          
+          <Button
+        size="medium"
+        component={RouterLink}
+        to="/privacy"
+        variant="text"
+        sx={{
+          color: theme.palette.common.white,
+          '&:hover': {
+            textDecoration: 'underline',
+            backgroundColor: 'transparent',
+          },
+          fontSize: '0.875rem',
+        }}
+      >
+        Privacy Policy
+      </Button>
           {/* Social links section */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <IconButton 

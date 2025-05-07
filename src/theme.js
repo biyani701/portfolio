@@ -67,19 +67,54 @@ export const getTheme = (mode, paletteIndex = 0) => {
   // Get the selected palette or fallback to the first one if index is invalid
   const selectedPalettes = palettes[mode] || palettes.light;
   const selectedPalette = selectedPalettes[paletteIndex] || selectedPalettes[0];
-  
+
   return createTheme({
+    // Start Newly Added Theme Properties
+    breakpoints: {
+      values: {
+        xs: 0,
+        sm: 600,
+        md: 900,
+        lg: 1200,
+        xl: 1536,
+      },
+    },
+    spacing: 8, // 8px grid, so theme.spacing(2) = 16px
+    mixins: {
+      toolbar: {
+        minHeight: 64, // Match your navbar height
+        '@media (max-width:600px)': {
+          minHeight: 56,
+        },
+      },
+    },
+    customLayout: {
+      headerHeight: 64,
+      footerHeight: 56,
+      mobileHeaderHeight: 56,
+    },
+    zIndex: {
+      appBar: 1100,
+      drawer: 1200,
+      footer: 1050,
+    },
+    // End Newly Added Theme Properties
     palette: {
       mode,
       primary: { main: selectedPalette.primary },
       secondary: { main: selectedPalette.secondary },
-      background: { 
+      success: { main: '#4caf50' }, // Add these color options
+      info: { main: '#2196f3' },
+      warning: { main: '#ff9800' },
+      error: { main: '#f44336' },
+      default: { main: '#f44336' },
+      background: {
         default: selectedPalette.background.default,
         paper: selectedPalette.background.paper,
         header: selectedPalette.background.header,
         footer: selectedPalette.background.footer
       },
-      text: { 
+      text: {
         primary: selectedPalette.text.primary,
         secondary: selectedPalette.text.secondary
       },
@@ -148,11 +183,32 @@ export const getTheme = (mode, paletteIndex = 0) => {
       subtitle2: {
         fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
       },
+      // Start Newly Added Typography Styles
+      allVariants: {
+        lineHeight: 1.5,
+      },
+      htmlFontSize: 16,
+      fontSize: 14,
+      // End Newly Added Typography Styles      
     },
     shape: {
       borderRadius: 8,
     },
     components: {
+      // Start Newly Added Component Styles
+      MuiContainer: {
+        styleOverrides: {
+          root: {
+            paddingLeft: '1rem',
+            paddingRight: '1rem',
+            '@media (min-width:600px)': {
+              paddingLeft: '2rem',
+              paddingRight: '2rem',
+            },
+          },
+        },
+      },
+      // End Newly Added Component Styles
       MuiAppBar: {
         defaultProps: {
           elevation: 0,
@@ -235,6 +291,13 @@ export const getTheme = (mode, paletteIndex = 0) => {
           paper: ({ theme }) => ({
             backgroundColor: theme.palette.background.paper,
             borderRight: `1px solid ${theme.palette.divider}`,
+            // Newly Added Styles
+            width: '80vw',
+            maxWidth: 300,
+            [theme.breakpoints.up('sm')]: {
+              width: 240,
+            },
+            // End Newly Added Styles
           }),
         }
       },
