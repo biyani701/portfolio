@@ -1,40 +1,51 @@
-// Define Klaro configuration under a custom global variable
-// This will be referenced by the Klaro script via the data-klaro-config attribute
-window.myKlaroConfig = {
+// Define Klaro configuration under the global klaroConfig variable
+window.klaroConfig = {
     version: 2, // Klaro config version (always set this to 2 for current Klaro releases)
-  
+
     // ID of the DOM element Klaro should attach to (usually an empty <div id="klaro"></div>)
     elementID: 'klaro',
-  
+
     // Klaro will use cookies to store consent information
     storageMethod: 'cookie',
-  
+
     // Name of the cookie used to store user consent
     cookieName: 'klaro-i18n',
-  
+
     // Optional: Link to your privacy policy
-    privacyPolicy: '/privacy-policy.html',
-  
+    privacyPolicy: '/privacy',
+
     // Default consent value (true = all services enabled unless user opts out)
     default: false, // Default to false: no services are enabled unless user consents
-  
+
     // Whether to suppress the consent notice entirely (not recommended)
     noNotice: false,
-  
+
     // If true, user must consent before services can run
     mustConsent: false,
-  
+
     // Shows an "Accept All" button
     acceptAll: true,
-  
+
     // Hides the "Decline All" button (set to false to show it)
     hideDeclineAll: false,
-  
+
     // Optional footer text in the modal
     poweredBy: 'https://github.com/KIProtect/klaro/blob/master/dist/configs/i18n.js',
-  
+
     // Services that Klaro manages consent for
     services: [
+      {
+        name: 'essentialCookies',
+        title: 'Essential Cookies',
+        purposes: ['essential'],
+        description: 'These cookies are necessary for the website to function properly, including remembering your theme preferences.',
+        default: true,
+        required: true,
+        cookies: [
+          'themeMode',
+          'themePaletteIndex'
+        ],
+      },
       {
         name: 'tally', // Internal identifier
         title: 'Tally Contact Form', // Display name
@@ -51,11 +62,11 @@ window.myKlaroConfig = {
         default: true, // Pre-enabled on first load
         required: false,
         cookies: [], // No cookies listed
-      },      
-      
+      },
+
     ],
-    
-  
+
+
     // Translations: Customize modal and service text in different languages
     translations: {
       en: {
@@ -65,9 +76,13 @@ window.myKlaroConfig = {
             'We use a privacy-friendly form service (Tally) to collect contact information. Form submissions are securely processed by Norton. You can manage your preferences below.',
         },
         purposes: {
-          functional: 'Essential Services',
+          essential: 'Essential Cookies',
+          functional: 'Functional Services',
         },
         services: {
+          essentialCookies: {
+            description: 'These cookies remember your theme preferences and are necessary for the website to function properly.',
+          },
           tally: {
             description: 'Handles form submissions. No tracking cookies are used.',
           },
@@ -125,4 +140,3 @@ window.myKlaroConfig = {
         );
     },
   };
-  

@@ -8,19 +8,14 @@ import { useTheme } from "@mui/material/styles";
 // Styled IconButton for cookie preferences
 const CookieIconButton = styled(IconButton)(({ theme }) => ({
   position: "fixed",
-  bottom: 2,
+  bottom: 16,
   left: 16,
-  // backgroundColor: '#1d563f',
-  // color: '#ffffff',
-  backgroundColor: theme.palette.mode === "dark" ? "#2e7d59" : "#1d563f",
-  color: theme.palette.getContrastText(
-    theme.palette.mode === "dark" ? "#2e7d59" : "#1d563f"
-  ),
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.getContrastText(theme.palette.primary.main),
   width: "50px",
   height: "50px",
   "&:hover": {
-    // backgroundColor: '#1a4b36',
-    backgroundColor: theme.palette.mode === "dark" ? "#26694d" : "#1a4b36",
+    backgroundColor: theme.palette.primary.dark,
     transform: "scale(1.05)",
     boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
   },

@@ -375,19 +375,6 @@ const NavigationBar = ({
     <Box sx={{ display: "flex" }}>
       <StyledAppBar position="fixed">
         <Toolbar sx={{ minHeight: (theme) => theme.mixins.toolbar.minHeight }}>
-          {/* Only show the left hamburger on mobile in portrait */}
-          {isMobile && !isLandscape && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Portfolio
           </Typography>
@@ -405,10 +392,6 @@ const NavigationBar = ({
                 }}
               >
                 Home
-              </Button>
-
-              <Button component={RouterLink} to="/privacy">
-                Privacy Policy
               </Button>
 
               <Button component={RouterLink} to="/about">
@@ -557,7 +540,13 @@ const NavigationBar = ({
                     sx={{ width: 32, height: 32 }}
                   />
                 ) : (
-                  <Tooltip title={isAuthenticated ? "User Menu" : "Login with GitHub (Anonymous User)"}>
+                  <Tooltip
+                    title={
+                      isAuthenticated
+                        ? "User Menu"
+                        : "Login with GitHub (Anonymous User)"
+                    }
+                  >
                     <PersonIcon />
                   </Tooltip>
                 )}
@@ -589,11 +578,24 @@ const NavigationBar = ({
                     </MenuItem>
                   </>
                 ) : (
-                  <MenuItem onClick={() => {
-                    handleMenuClose();
-                    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
-                    window.location.href = githubAuthUrl;
-                  }}>
+                  <MenuItem
+                    onClick={() => {
+                      console.log("Login clicked. Value o config.github is");
+                      console.log(config.github);
+                      // const returnTo = encodeURIComponent(
+                      //   "http://localhost:3000/callback"
+                      // );
+                      // const redirectUri = `https://vishal.biyani.xyz/api/github/callback?return_to=${returnTo}`;
+
+                      handleMenuClose();
+                      setTimeout(() => {
+                        const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
+                          // const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
+                        console.log(githubAuthUrl);
+                          window.location.href = githubAuthUrl;
+                      }, 10000);
+                    }}
+                  >
                     <GitHubIcon style={{ marginRight: 8 }} />
                     Login with GitHub
                   </MenuItem>

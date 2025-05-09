@@ -13,8 +13,8 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <Box 
-      component="footer"       
+    <Box
+      component="footer"
       sx={{
         width: '100%',
         position: 'fixed',
@@ -22,16 +22,16 @@ const Footer = () => {
         left: 0,
         zIndex: 1000,
         backgroundColor: theme.palette.background.footer,
-        color: theme.palette.common.white,       
+        color: theme.palette.common.white,
         // borderTop: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
         borderTop: `1px solid ${theme.palette.divider}`,
         px: 3,
-        py: isMobile ? 1 : 2,        
+        py: isMobile ? 1 : 2,
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: isMobile ? 1 : 0,        
+        gap: isMobile ? 1 : 0,
         backdropFilter: 'blur(8px)',
         transition: theme.transitions.create(['background-color', 'border-color'], {
           duration: theme.transitions.duration.standard,
@@ -39,9 +39,9 @@ const Footer = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: 2,
@@ -49,34 +49,52 @@ const Footer = () => {
         }}>
           {/* Left section */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <PrivacyPreferencesButton />            
+            <PrivacyPreferencesButton />
           </Box>
-          <Button
-        size="medium"
-        component={RouterLink}
-        to="/privacy"
-        variant="text"
-        sx={{
-          color: theme.palette.common.white,
-          '&:hover': {
-            textDecoration: 'underline',
-            backgroundColor: 'transparent',
-          },
-          fontSize: '0.875rem',
-        }}
-      >
-        Privacy Policy
-      </Button>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button
+              size="medium"
+              component={RouterLink}
+              to="/privacy"
+              variant="text"
+              sx={{
+                color: theme.palette.common.white,
+                '&:hover': {
+                  textDecoration: 'underline',
+                  backgroundColor: 'transparent',
+                },
+                fontSize: '0.875rem',
+              }}
+            >
+              Privacy Policy
+            </Button>
+            <Button
+              size="medium"
+              component={RouterLink}
+              to="/terms"
+              variant="text"
+              sx={{
+                color: theme.palette.common.white,
+                '&:hover': {
+                  textDecoration: 'underline',
+                  backgroundColor: 'transparent',
+                },
+                fontSize: '0.875rem',
+              }}
+            >
+              Terms of Use
+            </Button>
+          </Box>
           {/* Social links section */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton 
-              component="a" 
-              href="https://www.linkedin.com/in/vishalbiyani2/" 
+            <IconButton
+              component="a"
+              href="https://www.linkedin.com/in/vishalbiyani2/"
               target="_blank"
               rel="noopener noreferrer"
               className="social-link"
               size="small"
-              sx={{ 
+              sx={{
                 color: theme.palette.common.white,
                 '&:hover': {
                   backgroundColor: alpha(theme.palette.common.white, 0.1),
@@ -89,14 +107,14 @@ const Footer = () => {
             >
               <LinkedInIcon fontSize="small" />
             </IconButton>
-            <IconButton 
-              component="a" 
-              href="https://github.com/biyani701" 
+            <IconButton
+              component="a"
+              href="https://github.com/biyani701"
               target="_blank"
               rel="noopener noreferrer"
               className="social-link"
               size="small"
-              sx={{ 
+              sx={{
                 color: theme.palette.common.white,
                 '&:hover': {
                   backgroundColor: alpha(theme.palette.common.white, 0.1),
@@ -115,7 +133,7 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
               size="small"
-              sx={{ 
+              sx={{
                 color: theme.palette.common.white,
                 '&:hover': {
                   backgroundColor: alpha(theme.palette.common.white, 0.1),
@@ -132,11 +150,11 @@ const Footer = () => {
               </SvgIcon>
             </IconButton>
           </Box>
-          
+
           {/* Copyright section */}
-          <Typography 
-            variant="body2" 
-            sx={{ 
+          <Typography
+            variant="body2"
+            sx={{
               color: alpha(theme.palette.common.white, 0.9),
               transition: theme.transitions.create('color', {
                 duration: theme.transitions.duration.standard,
