@@ -1,12 +1,13 @@
 // src/components/auth/GitHubCallback.js
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Box, Typography, CircularProgress } from '@mui/v7/material';
+import { Box, Typography, CircularProgress } from '@mui/material';
 
-// Important: Since GitHub Pages is static hosting, we need a proxy server 
+// Important: Since GitHub Pages is static hosting, we need a proxy server
 // to exchange the code for an access token (to keep client_secret secure)
 const TOKEN_PROXY_URL = 'https://github-oauth-proxy-dad46y34u-vishals-projects-d59fa5fe.vercel.app/api/github-token.js';
 // Or if using custom domain: 'https://auth.vishal.biyani.xyz/api/github-token.js'
+// https://github-oauth-proxy.vercel.app/api/github-token.js
 
 
 const GitHubCallback = () => {
@@ -19,7 +20,7 @@ const GitHubCallback = () => {
     const exchangeCodeForToken = async () => {
       if (!code) {
         setStatus('No authorization code found');
-        setTimeout(() => navigate('/'), 3000);
+        setTimeout(() => navigate('/'), 5000);
         return;
       }
 
@@ -38,32 +39,36 @@ const GitHubCallback = () => {
         }
 
         const data = await response.json();
-        
+
         // Store the token securely (using sessionStorage for demo purposes)
         // In production, consider more secure options or short-lived tokens
         sessionStorage.setItem('github_token', data.access_token);
-        
+
         // Get user info with the token
         const userResponse = await fetch('https://api.github.com/user', {
           headers: {
             Authorization: `token ${data.access_token}`,
           },
         });
-        
+
         if (!userResponse.ok) {
           throw new Error('Failed to fetch user information');
         }
-        
+
         const userInfo = await userResponse.json();
         sessionStorage.setItem('github_user', JSON.stringify(userInfo));
-        
-        // Redirect back to home page
+
+        // Check if there's a redirect URL stored from a protected route
+        const redirectPath = sessionStorage.getItem('auth_redirect') || '/';
+        sessionStorage.removeItem('auth_redirect'); // Clear it after use
+
+        // Redirect to the stored path or home page
         setStatus('Login successful! Redirecting...');
-        setTimeout(() => navigate('/'), 1500);
+        setTimeout(() => navigate(redirectPath), 1500);
       } catch (error) {
         console.error('Authentication error:', error);
-        setStatus(`Authentication failed: ${error.message}`);
-        setTimeout(() => navigate('/'), 3000);
+        setStatus(`Authentication failed: ${error.message}. Redirecting to home page in 5 seconds.`);
+        setTimeout(() => navigate('/'), 5000);
       }
     };
 
@@ -71,11 +76,11 @@ const GitHubCallback = () => {
   }, [code, navigate]);
 
   return (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
         justifyContent: 'center',
         minHeight: '50vh'
       }}

@@ -1,184 +1,218 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="stylesheet" href="%PUBLIC_URL%/klaro.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-<head>
-  <meta charset="utf-8" />
-  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Web site created using create-react-app" />
-  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <link rel="stylesheet" href="%PUBLIC_URL%/klaro.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-  <title>Vishal's Portfolio</title>
-  <script type="text/javascript">
-    (function(location) {
-      if (location.search[1] === '/' ) {
-        var decoded = location.search.slice(1).split('&').map(function(s) {
-          return s.replace(/~and~/g, '&');
-        }).join('?');
-        window.history.replaceState(null, null, location.pathname.slice(0, -1) + decoded + location.hash);
-      }
-    })(window.location);
-  </script>
-  
-</head>
-
-<body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="root"></div>
-  <div id="klaro"></div>
-
-  <script>
-    // Define Klaro configuration globally
-    window.klaroConfig = {
-      version: 2,
-      elementID: 'klaro',
-      storageMethod: 'cookie',
-      cookieName: 'klaro-i18n',
-      privacyPolicy: '/privacy',
-      default: false,
-      noNotice: false,
-      mustConsent: false,
-      acceptAll: true,
-      hideDeclineAll: false,
-      poweredBy: 'https://github.com/KIProtect/klaro/blob/master/dist/configs/i18n.js',
-      services: [
-        {
-          name: 'tally',
-          title: 'Tally Contact Form',
-          purposes: ['functional'],
-          cookies: [],
-          required: false,
-          optOut: false,
-          onlyOnce: true,
-        },
-        {
-          name: 'norton',
-          title: 'Norton Form Protection',
-          purposes: ['functional'],
-          default: true,
-          required: false,
-          cookies: [],
-        },
-      ],
-      translations: {
-        en: {
-          consentModal: {
-            title: 'Privacy Preferences',
-            description: 'We use a privacy-friendly form service (Tally) to collect contact information. Form submissions are securely processed by Norton. You can manage your preferences below.',
-          },
-          purposes: {
-            functional: 'Essential Services',
-          },
-          services: {
-            tally: {
-              description: 'Handles form submissions. No tracking cookies are used.',
-            },
-            norton: {
-              description: 'Processes form data securely for spam protection and integrity.',
-            },
-          },
-        },
-        es: {
-          consentModal: {
-            title: 'Preferencias de privacidad',
-            description: 'Usamos Tally para recopilar información de contacto de manera respetuosa con la privacidad. Norton procesa los formularios de forma segura. Puedes gestionar tus preferencias a continuación.',
-          },
-          purposes: {
-            functional: 'Servicios esenciales',
-          },
-          services: {
-            tally: {
-              description: 'Gestiona envíos de formularios. No se utilizan cookies de seguimiento.',
-            },
-            norton: {
-              description: 'Procesa datos de formularios de forma segura para proteger contra spam.',
-            },
-          },
-        },
-        hi: {
-          consentModal: {
-            title: 'गोपनीयता प्राथमिकताएं',
-            description: 'हम संपर्क जानकारी एकत्र करने के लिए Tally का उपयोग करते हैं। Norton आपके फ़ॉर्म डेटा को सुरक्षित रूप से प्रोसेस करता है। आप नीचे अपनी प्राथमिकताएं प्रबंधित कर सकते हैं।',
-          },
-          purposes: {
-            functional: 'आवश्यक सेवाएं',
-          },
-          services: {
-            tally: {
-              description: 'फ़ॉर्म सबमिशन संभालता है। कोई ट्रैकिंग कुकीज़ उपयोग नहीं की जातीं।',
-            },
-            norton: {
-              description: 'स्पैम सुरक्षा के लिए फ़ॉर्म डेटा को सुरक्षित रूप से प्रोसेस करता है।',
-            },
-          },
-        },
-      },
-    };
-
-    // Function to safely initialize Klaro
-    function initializeKlaro() {
-      console.log('Attempting to initialize Klaro...');
-      
-      if (typeof window.klaro === 'undefined') {
-        console.error('Klaro not available yet');
-        return;
-      }
-
-      if (typeof window.klaro.run !== 'function') {
-        console.error('Klaro.run is not a function');
-        return;
-      }
-
-      try {
-        console.log('Initializing Klaro with config');
-        window.klaro.run(window.klaroConfig);
-        console.log('Klaro initialized successfully');
-      } catch (error) {
-        console.error('Error initializing Klaro:', error);
-      }
-    }
-
-    // Load Klaro script with proper error handling
-    function loadKlaroScript() {
-      console.log('Loading Klaro script...');
-      const klaroScript = document.createElement('script');
-      klaroScript.src = "%PUBLIC_URL%/klaro.js";
-      // klaroScript.async = true;
-      klaroScript.defer = true; 
-      // klaroScript.data-klaro-config(JSON.stringify(window.klaroConfig));
-
-      console.log('Klaro script created:', klaroScript);
-      
-      // Check if Klaro script is already loaded      
-      klaroScript.onload = function() {
-        console.log('Klaro script loaded successfully');
-        // Wait for both script load and DOM ready
-        if (document.readyState === 'complete') {
-          initializeKlaro();
-        } else {
-          window.addEventListener('load', initializeKlaro);
+    <title>Personal Portfolio VB</title>
+    <script type="text/javascript">
+      (function (location) {
+        if (location.search[1] === "/") {
+          var decoded = location.search
+            .slice(1)
+            .split("&")
+            .map(function (s) {
+              return s.replace(/~and~/g, "&");
+            })
+            .join("?");
+          window.history.replaceState(
+            null,
+            null,
+            location.pathname.slice(0, -1) + decoded + location.hash
+          );
         }
-      };
-      
-      klaroScript.onerror = function() {  
-        console.error('Failed to load Klaro script');
-      };
-      
-      document.head.appendChild(klaroScript);
-    }
+      })(window.location);
+    </script>
+  </head>
 
-    // Start the process when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', loadKlaroScript);
-    } else {
-      loadKlaroScript();
-    }
-  </script>
-</body>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <div id="klaro"></div>
 
+    <script>
+      // Define Klaro configuration globally
+      window.klaroConfig = {
+        version: 2,
+        elementID: "klaro",
+        storageMethod: "cookie",
+        cookieName: "klaro-i18n",
+        privacyPolicy: "/privacy",
+        default: false,
+        noNotice: false,
+        mustConsent: false,
+        acceptAll: true,
+        hideDeclineAll: false,
+        poweredBy:
+          "https://github.com/KIProtect/klaro/blob/master/dist/configs/i18n.js",
+        services: [
+          {
+            name: "tally",
+            title: "Tally Contact Form",
+            purposes: ["functional"],
+            cookies: [],
+            required: false,
+            optOut: false,
+            onlyOnce: true,
+          },
+          {
+            name: "norton",
+            title: "Norton Form Protection",
+            purposes: ["functional"],
+            default: true,
+            required: false,
+            cookies: [],
+          },
+        ],
+        translations: {
+          en: {
+            consentModal: {
+              title: "Privacy Preferences",
+              description:
+                "We use a privacy-friendly form service (Tally) to collect contact information. Form submissions are securely processed by Norton. You can manage your preferences below.",
+            },
+            purposes: {
+              functional: "Essential Services",
+            },
+            services: {
+              tally: {
+                description:
+                  "Handles form submissions. No tracking cookies are used.",
+              },
+              norton: {
+                description:
+                  "Processes form data securely for spam protection and integrity.",
+              },
+            },
+          },
+          es: {
+            consentModal: {
+              title: "Preferencias de privacidad",
+              description:
+                "Usamos Tally para recopilar información de contacto de manera respetuosa con la privacidad. Norton procesa los formularios de forma segura. Puedes gestionar tus preferencias a continuación.",
+            },
+            purposes: {
+              functional: "Servicios esenciales",
+            },
+            services: {
+              tally: {
+                description:
+                  "Gestiona envíos de formularios. No se utilizan cookies de seguimiento.",
+              },
+              norton: {
+                description:
+                  "Procesa datos de formularios de forma segura para proteger contra spam.",
+              },
+            },
+          },
+          hi: {
+            consentModal: {
+              title: "गोपनीयता प्राथमिकताएं",
+              description:
+                "हम संपर्क जानकारी एकत्र करने के लिए Tally का उपयोग करते हैं। Norton आपके फ़ॉर्म डेटा को सुरक्षित रूप से प्रोसेस करता है। आप नीचे अपनी प्राथमिकताएं प्रबंधित कर सकते हैं।",
+            },
+            purposes: {
+              functional: "आवश्यक सेवाएं",
+            },
+            services: {
+              tally: {
+                description:
+                  "फ़ॉर्म सबमिशन संभालता है। कोई ट्रैकिंग कुकीज़ उपयोग नहीं की जातीं।",
+              },
+              norton: {
+                description:
+                  "स्पैम सुरक्षा के लिए फ़ॉर्म डेटा को सुरक्षित रूप से प्रोसेस करता है।",
+              },
+            },
+          },
+        },
+      };
+
+      // Function to safely initialize Klaro
+      function initializeKlaro() {
+        console.log("Attempting to initialize Klaro...");
+
+        if (typeof window.klaro === "undefined") {
+          console.error("Klaro not available yet");
+          return;
+        }
+
+        if (typeof window.klaro.run !== "function") {
+          console.error("Klaro.run is not a function");
+          return;
+        }
+
+        try {
+          console.log("Initializing Klaro with config");
+          window.klaro.run(window.klaroConfig);
+          console.log("Klaro initialized successfully");
+        } catch (error) {
+          console.error("Error initializing Klaro:", error);
+        }
+      }
+
+      // Load Klaro script with proper error handling
+      function loadKlaroScript() {
+        console.log("Loading Klaro script...");
+        const klaroScript = document.createElement("script");
+        klaroScript.src = "%PUBLIC_URL%/klaro.js";
+        // klaroScript.async = true;
+        klaroScript.defer = true;
+        // klaroScript.data-klaro-config(JSON.stringify(window.klaroConfig));
+
+        console.log("Klaro script created:", klaroScript);
+
+        // Check if Klaro script is already loaded
+        klaroScript.onload = function () {
+          console.log("Klaro script loaded successfully");
+          // Wait for both script load and DOM ready
+          if (document.readyState === "complete") {
+            initializeKlaro();
+          } else {
+            window.addEventListener("load", initializeKlaro);
+          }
+        };
+
+        klaroScript.onerror = function () {
+          console.error("Failed to load Klaro script");
+        };
+
+        document.head.appendChild(klaroScript);
+      }
+
+      // Start the process when DOM is ready
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", loadKlaroScript);
+      } else {
+        loadKlaroScript();
+      }
+    </script>
+  </body>
 </html>

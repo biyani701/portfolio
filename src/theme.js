@@ -311,7 +311,7 @@ export const getTheme = (mode, paletteIndex = 0) => {
     typography: {
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
       h1: {
-        fontFamily: '"Rajdhani", "Roboto", "Helvetica", sans-serif',
+        fontFamily: '"Orbitron", "Teko", "Rajdhani", "Roboto", "Helvetica", sans-serif',
         fontWeight: 700,
         fontSize: '2.8rem',
         '@media (max-width:600px)': {
@@ -319,7 +319,7 @@ export const getTheme = (mode, paletteIndex = 0) => {
         },
       },
       h2: {
-        fontFamily: '"Rajdhani", "Roboto", "Helvetica", sans-serif',
+        fontFamily: '"Orbitron", "Teko", "Rajdhani", "Roboto", "Helvetica", sans-serif',
         fontWeight: 600,
         fontSize: '2.4rem',
         '@media (max-width:600px)': {
@@ -327,7 +327,7 @@ export const getTheme = (mode, paletteIndex = 0) => {
         },
       },
       h3: {
-        fontFamily: '"Rajdhani", "Roboto", "Helvetica", sans-serif',
+        fontFamily: '"Orbitron", "Teko", "Rajdhani", "Roboto", "Helvetica", sans-serif',
         fontWeight: 600,
         fontSize: '2rem',
         '@media (max-width:600px)': {
@@ -335,15 +335,15 @@ export const getTheme = (mode, paletteIndex = 0) => {
         },
       },
       h4: {
-        fontFamily: '"Rajdhani", "Roboto", "Helvetica", sans-serif',
+        fontFamily: '"Orbitron", "Teko", "Rajdhani", "Roboto", "Helvetica", sans-serif',
         fontWeight: 600,
       },
       h5: {
-        fontFamily: '"Rajdhani", "Roboto", "Helvetica", sans-serif',
+        fontFamily: '"Orbitron", "Teko", "Rajdhani", "Roboto", "Helvetica", sans-serif',
         fontWeight: 600,
       },
       h6: {
-        fontFamily: '"Rajdhani", "Roboto", "Helvetica", sans-serif',
+        fontFamily: '"Orbitron", "Teko", "Rajdhani", "Roboto", "Helvetica", sans-serif',
         fontWeight: 600,
       },
       body1: {

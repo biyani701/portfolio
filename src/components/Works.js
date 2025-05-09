@@ -8,7 +8,6 @@ const Works = () => (
         </p>
       </div>
     </section>
-  );
-  
+  );  
   export default Works;
   

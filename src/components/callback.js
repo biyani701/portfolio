@@ -44,6 +44,7 @@ const GitHubCallback = () => {
         });
 
         const data = await response.json();
+        console.log('Response from server:', data);
 
         if (data.access_token) {
           setStatus('Authentication successful!');

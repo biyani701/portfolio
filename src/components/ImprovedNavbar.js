@@ -1,11 +1,12 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import React, { useState, useMemo } from "react";
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Link as RouterLink } from 'react-router-dom';
-import Fuse from 'fuse.js';
-import { styled, alpha, useTheme } from '@mui/material/styles';
+import { useNavigate, useLocation } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import Fuse from "fuse.js";
+import { styled, alpha, useTheme } from "@mui/material/styles";
 import {
   AppBar,
+  Avatar,
   Toolbar,
   Typography,
   IconButton,
@@ -19,151 +20,165 @@ import {
   MenuItem,
   Button,
   Divider,
-  useMediaQuery
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import InputBase from '@mui/material/InputBase';
-import SearchIcon from '@mui/icons-material/Search';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import HomeIcon from '@mui/icons-material/Home';
-import WorkIcon from '@mui/icons-material/Work';
-import SchoolIcon from '@mui/icons-material/School';
-import ContactMailIcon from '@mui/icons-material/ContactMail';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import { resumeData } from './resumeData';
+  useMediaQuery,
+  Tooltip,
+} from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
+import MenuIcon from "@mui/icons-material/Menu";
+import InputBase from "@mui/material/InputBase";
+import SearchIcon from "@mui/icons-material/Search";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import HomeIcon from "@mui/icons-material/Home";
+import WorkIcon from "@mui/icons-material/Work";
+import SchoolIcon from "@mui/icons-material/School";
+import ContactMailIcon from "@mui/icons-material/ContactMail";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import { resumeData } from "./resumeData";
+
+import { useAuth } from "../context/AuthContext";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import config from "../config";
 
 // Initialize Fuse.js for search functionality
 const fuse = new Fuse(resumeData, {
-  keys: ['section', 'content'],
+  keys: ["section", "content"],
   threshold: 0.3, // lower is stricter
 });
 
 // Styled components - using theme properly
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common[theme.palette.mode === 'dark' ? 'white' : 'black'], 
-    theme.palette.mode === 'dark' ? 0.15 : 0.08),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common[theme.palette.mode === 'dark' ? 'white' : 'black'], 
-      theme.palette.mode === 'dark' ? 0.25 : 0.12),
+  backgroundColor: alpha(
+    theme.palette.common[theme.palette.mode === "dark" ? "white" : "black"],
+    theme.palette.mode === "dark" ? 0.15 : 0.08
+  ),
+  "&:hover": {
+    backgroundColor: alpha(
+      theme.palette.common[theme.palette.mode === "dark" ? "white" : "black"],
+      theme.palette.mode === "dark" ? 0.25 : 0.12
+    ),
   },
   marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
     marginLeft: theme.spacing(1),
-    width: 'auto',
+    width: "auto",
   },
 }));
 
-const SearchIconWrapper = styled('div')(({ theme }) => ({
+const SearchIconWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   color: theme.palette.text.secondary,
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: theme.palette.text.primary,
-  width: '100%',
-  '& .MuiInputBase-input': {
+  width: "100%",
+  "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0),
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    [theme.breakpoints.up('sm')]: {
-      width: '12ch',
-      '&:focus': {
-        width: '20ch',
+    transition: theme.transitions.create("width"),
+    [theme.breakpoints.up("sm")]: {
+      width: "12ch",
+      "&:focus": {
+        width: "20ch",
       },
     },
   },
 }));
 
 const SearchResultsDropdown = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: '100%',
+  position: "absolute",
+  top: "100%",
   left: 0,
   right: 0,
   marginTop: theme.spacing(1),
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   boxShadow: theme.shadows[4],
-  maxHeight: '300px',
-  overflowY: 'auto',
+  maxHeight: "300px",
+  overflowY: "auto",
   zIndex: 1000,
   border: `1px solid ${theme.palette.divider}`,
-  '& .MuiListItem-root': {
+  "& .MuiListItem-root": {
     padding: theme.spacing(1, 2),
-    '&:hover': {
+    "&:hover": {
       backgroundColor: theme.palette.action.hover,
     },
   },
 }));
 
 const SearchResultItem = styled(ListItem)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-start',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
   gap: theme.spacing(0.5),
 }));
 
 const SearchResultSection = styled(Typography)(({ theme }) => ({
   color: theme.palette.primary.main,
   fontWeight: 600,
-  fontSize: '0.875rem',
+  fontSize: "0.875rem",
 }));
 
 const SearchResultContent = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.secondary,
-  fontSize: '0.75rem',
-  display: '-webkit-box',
+  fontSize: "0.75rem",
+  display: "-webkit-box",
   WebkitLineClamp: 2,
-  WebkitBoxOrient: 'vertical',
-  overflow: 'hidden',
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
 }));
 
 // Use the theme directly for AppBar styling - no hardcoded colors
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.background.footer,
   color: theme.palette.common.white,
-  boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.5)' : '0 2px 10px rgba(0,0,0,0.1)',
-  backdropFilter: 'blur(8px)',
+  boxShadow:
+    theme.palette.mode === "dark"
+      ? "0 4px 20px rgba(0,0,0,0.5)"
+      : "0 2px 10px rgba(0,0,0,0.1)",
+  backdropFilter: "blur(8px)",
   borderBottom: `1px solid ${theme.palette.divider}`,
-  transition: 'all 0.3s ease',
-  '& .MuiIconButton-root': {
+  transition: "all 0.3s ease",
+  "& .MuiIconButton-root": {
     color: theme.palette.common.white,
   },
-  '& .MuiButton-root': {
+  "& .MuiButton-root": {
     color: theme.palette.common.white,
-  }
+  },
 }));
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
-  justifyContent: 'flex-start',
+  justifyContent: "flex-start",
 }));
 
 const ColorPaletteMenu = styled(Menu)(({ theme }) => ({
-  '& .MuiPaper-root': {
+  "& .MuiPaper-root": {
     backgroundColor: theme.palette.background.paper,
     borderRadius: 12,
     boxShadow: theme.shadows[4],
     minWidth: 200,
-    '& .MuiMenuItem-root': {
+    "& .MuiMenuItem-root": {
       padding: theme.spacing(1.5, 2),
-      '&:hover': {
+      "&:hover": {
         backgroundColor: theme.palette.action.hover,
       },
-      '&.Mui-selected': {
+      "&.Mui-selected": {
         backgroundColor: theme.palette.action.selected,
       },
     },
@@ -172,55 +187,76 @@ const ColorPaletteMenu = styled(Menu)(({ theme }) => ({
 
 const ColorPaletteButton = styled(Button)(({ theme }) => ({
   color: theme.palette.common.white,
-  '&:hover': {
+  "&:hover": {
     backgroundColor: alpha(theme.palette.common.white, 0.1),
   },
 }));
 
 const ColorPaletteItem = styled(MenuItem)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
   gap: theme.spacing(1),
-  '&::before': {
+  "&::before": {
     content: '""',
     width: 16,
     height: 16,
-    borderRadius: '50%',
-    backgroundColor: 'currentColor',
+    borderRadius: "50%",
+    backgroundColor: "currentColor",
     opacity: 0.7,
   },
 }));
 
 // Main component
-const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, changePalette, availablePalettes }) => {
+const NavigationBar = ({
+  isDarkMode,
+  toggleDarkMode,
+  currentPaletteIndex,
+  changePalette,
+  availablePalettes,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
-  
+
   // Add media queries for responsive behavior
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isLandscape = useMediaQuery('(orientation: landscape)');
-  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isLandscape = useMediaQuery("(orientation: landscape)");
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resumeAnchorEl, setResumeAnchorEl] = useState(null);
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [paletteAnchorEl, setPaletteAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const results = fuse.search(query);
-  const matches = query ? results.map(r => r.item) : [];
+  const matches = query ? results.map((r) => r.item) : [];
+
+  const { user, isAuthenticated, logout } = useAuth();
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleMenuClose();
+  };
 
   const handleResumeItemClick = (sectionId) => {
     handleResumeMenuClose(); // Close the dropdown
-    if (location.pathname === '/') {
+    if (location.pathname === "/") {
       // Already on home, just scroll
       const el = document.getElementById(sectionId);
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+        el.scrollIntoView({ behavior: "smooth" });
       }
     } else {
       // Navigate to home and scroll after landing
-      navigate('/', { state: { scrollTo: sectionId } });
+      navigate("/", { state: { scrollTo: sectionId } });
     }
   };
 
@@ -247,7 +283,7 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
 
   const handleSearchClose = () => {
     setSearchAnchorEl(null);
-    setQuery('');
+    setQuery("");
   };
 
   const handleSearchResultClick = (section) => {
@@ -258,7 +294,7 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -282,41 +318,61 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
   // Get icon for each nav item
   const getIconForNavItem = (id) => {
     switch (id) {
-      case 'home': return <HomeIcon />;
-      case 'experience':
-      case 'timeline':
-      case 'skills': return <WorkIcon />;
-      case 'education':
-      case 'certifications': return <SchoolIcon />;
-      case 'recognition': return <EmojiEventsIcon />;
-      case 'contact': return <ContactMailIcon />;
-      default: return null;
+      case "home":
+        return <HomeIcon />;
+      case "experience":
+      case "timeline":
+      case "skills":
+        return <WorkIcon />;
+      case "education":
+      case "certifications":
+        return <SchoolIcon />;
+      case "recognition":
+        return <EmojiEventsIcon />;
+      case "contact":
+        return <ContactMailIcon />;
+      default:
+        return null;
     }
   };
 
   // Memoized nav items to prevent unnecessary re-renders
-  const navItems = useMemo(() => [
-    { id: "home", label: "Home" },
-    { id: "summary", label: "Summary" },
-    { id: "timeline", label: "Career Timeline" },
-    { id: "skills", label: "Skills" },
-    { id: "experience", label: "Experience" },
-    { id: "certifications", label: "Certifications" },
-    { id: "education", label: "Education" },
-    { id: "recognition", label: "Awards" },
-    { id: "contact", label: "Contact" },
-  ], []);
+  const navItems = useMemo(
+    () => [
+      { id: "home", label: "Home" },
+      { id: "summary", label: "Summary" },
+      { id: "timeline", label: "Career Timeline" },
+      { id: "skills", label: "Skills" },
+      { id: "experience", label: "Experience" },
+      { id: "certifications", label: "Certifications" },
+      { id: "education", label: "Education" },
+      { id: "recognition", label: "Awards" },
+      { id: "contact", label: "Contact" },
+    ],
+    []
+  );
 
-  const resumeItems = useMemo(() =>
-    navItems.filter(item =>
-      ["summary", "timeline", "skills", "experience", "certifications", "education", "recognition"].includes(item.id)
-    ), [navItems]);
-  
+  const resumeItems = useMemo(
+    () =>
+      navItems.filter((item) =>
+        [
+          "summary",
+          "timeline",
+          "skills",
+          "experience",
+          "certifications",
+          "education",
+          "recognition",
+        ].includes(item.id)
+      ),
+    [navItems]
+  );
+
   // Determine when to show desktop navigation vs mobile navigation
   const showDesktopNav = !isMobile || (isLandscape && !isMobile) || isTablet;
-  
+
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <StyledAppBar position="fixed">
         <Toolbar sx={{ minHeight: (theme) => theme.mixins.toolbar.minHeight }}>
           {/* Only show the left hamburger on mobile in portrait */}
@@ -331,42 +387,31 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
               <MenuIcon />
             </IconButton>
           )}
-          
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ flexGrow: 1 }}
-          >
+
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Portfolio
           </Typography>
-          
+
           {/* Desktop and Landscape Navigation */}
           {showDesktopNav && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Button
                 component={RouterLink}
                 to="/"
                 onClick={() => {
-                  if (location.pathname === '/') {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  if (location.pathname === "/") {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
                   }
                 }}
               >
                 Home
               </Button>
 
-              <Button
-                component={RouterLink}
-                to="/privacy"
-              >
+              <Button component={RouterLink} to="/privacy">
                 Privacy Policy
               </Button>
-              
-              <Button
-                component={RouterLink}
-                to="/about"
-              >
+
+              <Button component={RouterLink} to="/about">
                 About Me
               </Button>
 
@@ -377,7 +422,7 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
                 endIcon={<KeyboardArrowDownIcon />}
                 aria-controls="resume-menu"
                 aria-haspopup="true"
-                aria-expanded={Boolean(resumeAnchorEl) ? 'true' : undefined}
+                aria-expanded={Boolean(resumeAnchorEl) ? "true" : undefined}
               >
                 Resume
               </Button>
@@ -387,22 +432,19 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
                 open={Boolean(resumeAnchorEl)}
                 onClose={handleResumeMenuClose}
                 anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
+                  vertical: "bottom",
+                  horizontal: "right",
                 }}
                 transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+                  vertical: "top",
+                  horizontal: "right",
                 }}
                 MenuListProps={{
-                  'aria-labelledby': 'resume-button',
+                  "aria-labelledby": "resume-button",
                 }}
               >
                 {resumeItems.map(({ id, label }) => (
-                  <MenuItem
-                    key={id}
-                    onClick={() => handleResumeItemClick(id)}
-                  >
+                  <MenuItem key={id} onClick={() => handleResumeItemClick(id)}>
                     <ListItemIcon sx={{ minWidth: 36 }}>
                       {getIconForNavItem(id)}
                     </ListItemIcon>
@@ -411,30 +453,21 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
                 ))}
               </Menu>
 
-              <Button
-                component={RouterLink}
-                to="/works"
-              >
+              <Button component={RouterLink} to="/works">
                 Portfolio
               </Button>
-              <Button
-                component={RouterLink}
-                to="/blogs"
-              >
+              <Button component={RouterLink} to="/blogs">
                 Blog
               </Button>
               <Button
-                onClick={() => navigate('/contact')}
+                onClick={() => navigate("/contact")}
                 startIcon={<ContactMailIcon />}
               >
                 Contact
               </Button>
 
               {/* Theme Controls */}
-              <IconButton 
-                onClick={handleThemeToggle}
-                sx={{ ml: 1 }}
-              >
+              <IconButton onClick={handleThemeToggle} sx={{ ml: 1 }}>
                 {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
 
@@ -442,7 +475,7 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
                 onClick={handlePaletteMenuOpen}
                 endIcon={<KeyboardArrowDownIcon />}
               >
-                {availablePalettes[currentPaletteIndex]?.name || 'Theme'}
+                {availablePalettes[currentPaletteIndex]?.name || "Theme"}
               </ColorPaletteButton>
 
               <ColorPaletteMenu
@@ -450,12 +483,12 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
                 open={Boolean(paletteAnchorEl)}
                 onClose={handlePaletteMenuClose}
                 anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
+                  vertical: "bottom",
+                  horizontal: "right",
                 }}
                 transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+                  vertical: "top",
+                  horizontal: "right",
                 }}
               >
                 {availablePalettes.map((palette, index) => (
@@ -476,10 +509,12 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
                 </SearchIconWrapper>
                 <StyledInputBase
                   placeholder="Search…"
-                  inputProps={{ 'aria-label': 'search' }}
+                  inputProps={{ "aria-label": "search" }}
                   value={query}
                   onChange={handleSearchChange}
-                  onFocus={(e) => e.target.value && setSearchAnchorEl(e.currentTarget)}
+                  onFocus={(e) =>
+                    e.target.value && setSearchAnchorEl(e.currentTarget)
+                  }
                 />
                 {Boolean(searchAnchorEl) && (
                   <SearchResultsDropdown>
@@ -508,16 +543,74 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
                   </SearchResultsDropdown>
                 )}
               </Search>
+
+              <IconButton
+                onClick={handleMenuOpen}
+                color="inherit"
+                aria-label="user menu"
+                title={isAuthenticated ? "User Menu" : "Login with GitHub"}
+              >
+                {isAuthenticated && user?.avatar_url ? (
+                  <Avatar
+                    src={user.avatar_url}
+                    alt={user.login}
+                    sx={{ width: 32, height: 32 }}
+                  />
+                ) : (
+                  <Tooltip title={isAuthenticated ? "User Menu" : "Login with GitHub (Anonymous User)"}>
+                    <PersonIcon />
+                  </Tooltip>
+                )}
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                {isAuthenticated ? (
+                  <>
+                    <MenuItem
+                      component={RouterLink}
+                      to="/profile"
+                      onClick={handleMenuClose}
+                    >
+                      Profile
+                    </MenuItem>
+                    <MenuItem
+                      component={RouterLink}
+                      to="/dashboard"
+                      onClick={handleMenuClose}
+                    >
+                      Dashboard
+                    </MenuItem>
+                    <MenuItem onClick={handleLogout}>
+                      <LogoutIcon size={16} style={{ marginRight: 8 }} />
+                      Logout
+                    </MenuItem>
+                  </>
+                ) : (
+                  <MenuItem onClick={() => {
+                    handleMenuClose();
+                    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
+                    window.location.href = githubAuthUrl;
+                  }}>
+                    <GitHubIcon style={{ marginRight: 8 }} />
+                    Login with GitHub
+                  </MenuItem>
+                )}
+              </Menu>
             </Box>
           )}
 
           {/* Only show the right hamburger on mobile and handle tablet in landscape */}
           {(isMobile || (isLandscape && !showDesktopNav)) && (
             <IconButton
-              aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-label={
+                mobileOpen ? "Close navigation menu" : "Open navigation menu"
+              }
               edge="end"
               onClick={handleDrawerToggle}
-              sx={{ ml: 'auto' }}
+              sx={{ ml: "auto" }}
             >
               <MenuIcon />
             </IconButton>
@@ -535,7 +628,7 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
           keepMounted: true,
         }}
         sx={{
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+          "& .MuiDrawer-paper": { boxSizing: "border-box", width: 240 },
         }}
       >
         <DrawerHeader>
@@ -546,12 +639,26 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
         <Divider />
         <List>
           {/* Navigation Items */}
-          <ListItem button component={RouterLink} to="/" onClick={handleDrawerToggle}>
-            <ListItemIcon><HomeIcon /></ListItemIcon>
+          <ListItem
+            button
+            component={RouterLink}
+            to="/"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon>
+              <HomeIcon />
+            </ListItemIcon>
             <ListItemText primary="Home" />
           </ListItem>
-          <ListItem button component={RouterLink} to="/about" onClick={handleDrawerToggle}>
-            <ListItemIcon><WorkIcon /></ListItemIcon>
+          <ListItem
+            button
+            component={RouterLink}
+            to="/about"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon>
+              <WorkIcon />
+            </ListItemIcon>
             <ListItemText primary="About Me" />
           </ListItem>
 
@@ -565,66 +672,94 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
                 handleResumeItemClick(id);
               }}
             >
-              <ListItemIcon>
-                {getIconForNavItem(id)}
-              </ListItemIcon>
+              <ListItemIcon>{getIconForNavItem(id)}</ListItemIcon>
               <ListItemText primary={label} />
             </ListItem>
           ))}
 
-          <ListItem button component={RouterLink} to="/works" onClick={handleDrawerToggle}>
-            <ListItemIcon><WorkIcon /></ListItemIcon>
+          <ListItem
+            button
+            component={RouterLink}
+            to="/works"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon>
+              <WorkIcon />
+            </ListItemIcon>
             <ListItemText primary="Portfolio" />
           </ListItem>
-          <ListItem button component={RouterLink} to="/blogs" onClick={handleDrawerToggle}>
-            <ListItemIcon><WorkIcon /></ListItemIcon>
+          <ListItem
+            button
+            component={RouterLink}
+            to="/blogs"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon>
+              <WorkIcon />
+            </ListItemIcon>
             <ListItemText primary="Blog" />
           </ListItem>
-          <ListItem button component={RouterLink} to="/contact" onClick={handleDrawerToggle}>
-            <ListItemIcon><ContactMailIcon /></ListItemIcon>
+          <ListItem
+            button
+            component={RouterLink}
+            to="/contact"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon>
+              <ContactMailIcon />
+            </ListItemIcon>
             <ListItemText primary="Contact" />
           </ListItem>
 
           <Divider />
-          
+
           {/* Theme Controls */}
-          <ListItem button onClick={() => {
-            handleDrawerToggle();
-            handleThemeToggle();
-          }}>
+          <ListItem
+            button
+            onClick={() => {
+              handleDrawerToggle();
+              handleThemeToggle();
+            }}
+          >
             <ListItemIcon>
               {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
             </ListItemIcon>
             <ListItemText primary={isDarkMode ? "Light Mode" : "Dark Mode"} />
           </ListItem>
 
-          <ListItem 
-            button 
+          <ListItem
+            button
             onClick={handlePaletteMenuOpen}
             sx={{
-              borderLeft: theme.palette.mode === 'dark' 
-                ? `3px solid ${theme.palette.text.primary}` 
-                : 'none',
-              paddingLeft: theme.palette.mode === 'dark' ? 1.5 : 2,
-              '&:hover': {
-                backgroundColor: theme.palette.mode === 'dark' 
-                  ? 'rgba(255, 255, 255, 0.08)' 
-                  : 'rgba(0, 0, 0, 0.04)',
-              }
+              borderLeft:
+                theme.palette.mode === "dark"
+                  ? `3px solid ${theme.palette.text.primary}`
+                  : "none",
+              paddingLeft: theme.palette.mode === "dark" ? 1.5 : 2,
+              "&:hover": {
+                backgroundColor:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255, 255, 255, 0.08)"
+                    : "rgba(0, 0, 0, 0.04)",
+              },
             }}
           >
-            <ListItemText 
+            <ListItemText
               primary={
-                <Typography variant="body1" sx={{ fontWeight: 500 }} color="text.primary">
+                <Typography
+                  variant="body1"
+                  sx={{ fontWeight: 500 }}
+                  color="text.primary"
+                >
                   Color Theme
                 </Typography>
               }
               secondary={
-                <Typography 
-                  variant="body2" 
+                <Typography
+                  variant="body2"
                   color="text.secondary"
-                  sx={{ 
-                    opacity: theme.palette.mode === 'dark' ? 0.9 : 0.7 
+                  sx={{
+                    opacity: theme.palette.mode === "dark" ? 0.9 : 0.7,
                   }}
                 >
                   {availablePalettes[currentPaletteIndex]?.name}
@@ -632,6 +767,59 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
               }
             />
           </ListItem>
+
+          <Divider />
+
+          {/* Login/User Profile */}
+          {isAuthenticated ? (
+            <>
+              <ListItem
+                button
+                component={RouterLink}
+                to="/profile"
+                onClick={handleDrawerToggle}
+              >
+                <ListItemIcon>
+                  {user?.avatar_url ? (
+                    <Avatar
+                      src={user.avatar_url}
+                      alt={user.login}
+                      sx={{ width: 24, height: 24 }}
+                    />
+                  ) : (
+                    <PersonIcon />
+                  )}
+                </ListItemIcon>
+                <ListItemText primary="Profile" />
+              </ListItem>
+              <ListItem
+                button
+                onClick={() => {
+                  handleDrawerToggle();
+                  logout();
+                }}
+              >
+                <ListItemIcon>
+                  <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText primary="Logout" />
+              </ListItem>
+            </>
+          ) : (
+            <ListItem
+              button
+              onClick={() => {
+                handleDrawerToggle();
+                const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
+                window.location.href = githubAuthUrl;
+              }}
+            >
+              <ListItemIcon>
+                <GitHubIcon />
+              </ListItemIcon>
+              <ListItemText primary="Login with GitHub" />
+            </ListItem>
+          )}
         </List>
       </Drawer>
     </Box>
@@ -643,10 +831,12 @@ NavigationBar.propTypes = {
   toggleDarkMode: PropTypes.func.isRequired,
   currentPaletteIndex: PropTypes.number.isRequired,
   changePalette: PropTypes.func.isRequired,
-  availablePalettes: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    primary: PropTypes.string.isRequired,
-    secondary: PropTypes.string.isRequired,
-  })).isRequired,
+  availablePalettes: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      primary: PropTypes.string.isRequired,
+      secondary: PropTypes.string.isRequired,
+    })
+  ).isRequired,
 };
 export default NavigationBar;
