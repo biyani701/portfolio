@@ -34,8 +34,17 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
+import { FaDatabase } from 'react-icons/fa';
 
 // Import the getSkillIcon function
+const DatabaseIcon = () => (
+    <img
+      src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/postgresql.svg"
+      alt="Database"
+      style={{ width: 20, height: 20, verticalAlign: 'middle' }}
+    />
+  );
+
 const getSkillIcon = (skillName) => {
     const iconMap = {
         // Programming
@@ -121,15 +130,31 @@ const getSkillIcon = (skillName) => {
 // Colors for periodic table view
 const getSkillColor = (category) => {
     const colors = {
-        "Tools": "success",
-        "Programming": "primary",
-        "Databases": "secondary",
-        "Libraries": "info",
-        "Repositories": "warning",
-        "Data Visualization": "error",
-        "Domain Knowledge": "default"
+        // "Tools": "success",
+        // "Programming": "primary",
+        // "Databases": "secondary",
+        // "Libraries": "info",
+        // "Repositories": "warning",
+        // "Data Visualization": "error",
+        // "Domain Knowledge": "default"
+        "Programming": "alpha",
+        "Frontend": "beta",
+        "Database": "secondary",
+        "SCM": "theta",
+        "Cloud & DevOps": "epsilon",
+        "Project Management": "alpha",
+        "Collaboration Tools": "beta",
+        "Testing": "gamma",
+        "Visualization": "theta",
+        "Dev Tools": "epsilon",
     };
-    return colors[category] || "default";
+    const key = colors[category] || "knowledge";
+
+  // Debug: make sure this is a string
+  console.log('[getSkillColor]', { category, key });
+
+    // return colors[category] || "default";
+    return key;
 };
 
 // Enhanced skill data with usage and project experience
@@ -151,7 +176,7 @@ const skillSections = {
         { name: "Bootstrap", years: 4, usage: "current", projectUse: true },
         { "name": "Flask", "years": 3, usage: "current", projectUse: true },
     ],
-    
+
     "Database": [
         { name: "Oracle", years: 9, usage: "past", projectUse: true },
         { name: "Sybase", years: 5, usage: "past", projectUse: true },
@@ -205,22 +230,10 @@ const skillSections = {
     ]
 };
 
-// Icons for different categories
-// const categoryIcons = {
-//     "Tools": <BuildIcon />,
-//     "Programming": <CodeIcon />,
-//     "Databases": <StorageIcon />,
-//     "Libraries": <LayersIcon />,
-//     "Repositories": <CloudIcon />,
-//     "Data Visualization": <AssessmentIcon />,
-//     "Domain Knowledge": <BusinessIcon />
-// };
-
 const categoryIcons = {
     "Programming": <CodeIcon />,
     "Frontend": <WebIcon />,
-    // "Backend & API Development": <DnsIcon />,
-    "Database": <StorageIcon />,
+    "Database": <FaDatabase size={20} />,
     "SCM": <CloudIcon />,
     "Cloud & DevOps": <CloudQueueIcon />,
     "Project Management": <AssignmentIcon />,
@@ -311,7 +324,7 @@ const Skills = () => {
                 if (b.years !== a.years) return b.years - a.years;
                 if (a.projectUse !== b.projectUse) return a.projectUse ? -1 : 1;
                 return a.name.localeCompare(b.name);
-              });
+            });
         });
 
         return result;
@@ -475,7 +488,7 @@ const Skills = () => {
                                         height: '100%',
                                         width: '100%',
                                         display: 'flex',
-                                        flexDirection: 'column',                                        
+                                        flexDirection: 'column',
                                         backgroundColor: theme.palette.mode === 'dark'
                                             ? theme.palette.background.paper
                                             : theme.palette.grey[50],
@@ -630,7 +643,7 @@ const Skills = () => {
                                                                         transform: 'translateY(-4px)',
                                                                         boxShadow: theme => theme.shadows[8]
                                                                     },
-                                                                    border: theme => `1px solid ${theme.palette[getSkillColor(skill.category)].main}20`
+                                                                    border: theme => `5px solid ${theme.palette[getSkillColor(skill.category)].main}20`
                                                                 }}
                                                             >
                                                                 <CardContent sx={{ p: 1, flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -652,15 +665,31 @@ const Skills = () => {
                                                                     {/* Years Badge */}
                                                                     <Typography
                                                                         variant="caption"
-                                                                        sx={{
-                                                                            fontWeight: 'bold',
-                                                                            bgcolor: theme => `${theme.palette[getSkillColor(skill.category)].main}20`,
-                                                                            color: theme => theme.palette[getSkillColor(skill.category)].main,
-                                                                            px: 1,
-                                                                            py: 0.25,
-                                                                            borderRadius: theme => theme.shape.borderRadius,
-                                                                            fontSize: '0.65rem'
-                                                                        }}
+                                                                        sx={(theme) => {
+                                                                            const key = getSkillColor(skill.category);
+                                                                            console.log(`[sx debug key] ${skill.category} → ${key}`);
+                                                                            const color = theme.palette[key]?.main;
+                                                                            console.log(`[sx debug color] ${skill.category} → ${color}`);
+                                                                            console.log(`[sx debug] ${skill.category} → ${key} → ${color}`);
+                                                                            return {
+                                                                              fontWeight: 'bold',
+                                                                              bgcolor: `${color}20`,
+                                                                              color,
+                                                                              px: 1,
+                                                                              py: 0.25,
+                                                                              borderRadius: theme.shape.borderRadius,
+                                                                              fontSize: '0.65rem',
+                                                                            };
+                                                                          }}
+                                                                        // sx={{
+                                                                        //     fontWeight: 'bold',
+                                                                        //     bgcolor: theme => `${theme.palette[getSkillColor(skill.category)].main}20`,
+                                                                        //     color: theme => theme.palette[getSkillColor(skill.category)].main,
+                                                                        //     px: 1,
+                                                                        //     py: 0.25,
+                                                                        //     borderRadius: theme => theme.shape.borderRadius,
+                                                                        //     fontSize: '0.65rem'
+                                                                        // }}
                                                                     >
                                                                         {skill.years}yr
                                                                     </Typography>

@@ -32,7 +32,8 @@ import AboutMe from './components/AboutMe';
 import Works from './components/Works';
 import Blogs from './components/Blogs';
 import PrivacyPolicy from './components/PrivacyPolicy';
-
+import BlogEditor from './components/BlogEditor';
+import GitHubCallback from './components/callback';
 
 // Import just the minimal non-themeable styles
 import './App.minimal.css';
@@ -212,6 +213,12 @@ function App(props) {
           <Route path="/works" element={<Works />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          {/* Blog Routes */}
+          {/* <Route path="/blogs" element={<BlogList />} />
+          <Route path="/blogs/:dateFolder/:blogId" element={<BlogPost />} /> */}
+          <Route path="/blog/new" element={<BlogEditor />} />
+          <Route path="/callback" element={<GitHubCallback />} />
+          {/* <Route path="/blog/edit/:blogId" element={<BlogEditor />} /> */}
 
           <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>

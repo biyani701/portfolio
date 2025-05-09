@@ -9,6 +9,7 @@
         }
     },
     "rules": {
+      "react/prop-types": "off",
         "react/no-deprecated": "warn",
         "no-restricted-syntax": ["off"]
     },

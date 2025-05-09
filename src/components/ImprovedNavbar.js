@@ -1,8 +1,9 @@
+import PropTypes from 'prop-types';
 import React, { useState, useMemo } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 import Fuse from 'fuse.js';
-import { styled, alpha, useTheme } from '@mui/material/styles'; // Add useTheme hook
+import { styled, alpha, useTheme } from '@mui/material/styles';
 import {
   AppBar,
   Toolbar,
@@ -17,7 +18,8 @@ import {
   Menu,
   MenuItem,
   Button,
-  Divider
+  Divider,
+  useMediaQuery
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import InputBase from '@mui/material/InputBase';
@@ -128,20 +130,16 @@ const SearchResultContent = styled(Typography)(({ theme }) => ({
 
 // Use the theme directly for AppBar styling - no hardcoded colors
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  // backgroundColor: theme.palette.background.paper,
   backgroundColor: theme.palette.background.footer,
-  // color: theme.palette.text.primary,
   color: theme.palette.common.white,
   boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.5)' : '0 2px 10px rgba(0,0,0,0.1)',
   backdropFilter: 'blur(8px)',
   borderBottom: `1px solid ${theme.palette.divider}`,
   transition: 'all 0.3s ease',
   '& .MuiIconButton-root': {
-    // color: theme.palette.text.primary,
     color: theme.palette.common.white,
   },
   '& .MuiButton-root': {
-    // color: theme.palette.text.primary,
     color: theme.palette.common.white,
   }
 }));
@@ -154,16 +152,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-start',
 }));
 
-// const ResumeButton = styled(Button)(({ theme }) => ({
-//   position: 'relative',
-//   marginRight: theme.spacing(2),
-//   color: theme.palette.text.primary,
-//   '&:hover': {
-//     backgroundColor: alpha(theme.palette.primary.main, 0.1),
-//   },
-// }));
-
-// Add styled components for the color palette menu
 const ColorPaletteMenu = styled(Menu)(({ theme }) => ({
   '& .MuiPaper-root': {
     backgroundColor: theme.palette.background.paper,
@@ -207,14 +195,17 @@ const ColorPaletteItem = styled(MenuItem)(({ theme }) => ({
 const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, changePalette, availablePalettes }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme(); // Get the theme using the hook
+  const theme = useTheme();
+  
+  // Add media queries for responsive behavior
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isLandscape = useMediaQuery('(orientation: landscape)');
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resumeAnchorEl, setResumeAnchorEl] = useState(null);
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
   const [query, setQuery] = useState('');
-  // const [mode, setMode] = useState(isDarkMode ? 'dark' : 'light');
-  // const [paletteIndex, setPaletteIndex] = useState(currentPaletteIndex);
   const [paletteAnchorEl, setPaletteAnchorEl] = useState(null);
   const results = fuse.search(query);
   const matches = query ? results.map(r => r.item) : [];
@@ -273,8 +264,6 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
 
   const handleThemeToggle = () => {
     toggleDarkMode(!isDarkMode);
-    // Refresh page after theme change
-    // window.location.reload();
   };
 
   const handlePaletteMenuOpen = (event) => {
@@ -288,8 +277,6 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
   const handlePaletteSelect = (index) => {
     changePalette(index);
     handlePaletteMenuClose();
-    // Refresh the page after palette change
-    // window.location.reload();
   };
 
   // Get icon for each nav item
@@ -325,205 +312,216 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
       ["summary", "timeline", "skills", "experience", "certifications", "education", "recognition"].includes(item.id)
     ), [navItems]);
   
+  // Determine when to show desktop navigation vs mobile navigation
+  const showDesktopNav = !isMobile || (isLandscape && !isMobile) || isTablet;
+  
   return (
     <Box sx={{ display: 'flex' }}>
       <StyledAppBar position="fixed">
         <Toolbar sx={{ minHeight: (theme) => theme.mixins.toolbar.minHeight }}>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {/* Only show the left hamburger on mobile in portrait */}
+          {isMobile && !isLandscape && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+          
           <Typography
             variant="h6"
             noWrap
             component="div"
-            sx={{ display: { xs: 'none', sm: 'block' } }}
+            sx={{ flexGrow: 1 }}
           >
             Portfolio
           </Typography>
-          <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2 }}>
-            {/* Navigation Items */}
-            <Button
-              component={RouterLink}
-              to="/"
-              onClick={() => {
-                if (location.pathname === '/') {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-              }}
-            >
-              Home
-            </Button>
+          
+          {/* Desktop and Landscape Navigation */}
+          {showDesktopNav && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Button
+                component={RouterLink}
+                to="/"
+                onClick={() => {
+                  if (location.pathname === '/') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
+              >
+                Home
+              </Button>
 
-            <Button
-                          component={RouterLink}
-                          to="/privacy"
+              <Button
+                component={RouterLink}
+                to="/privacy"
+              >
+                Privacy Policy
+              </Button>
+              
+              <Button
+                component={RouterLink}
+                to="/about"
+              >
+                About Me
+              </Button>
+
+              {/* Resume Menu */}
+              <Button
+                id="resume-button"
+                onClick={handleResumeMenuOpen}
+                endIcon={<KeyboardArrowDownIcon />}
+                aria-controls="resume-menu"
+                aria-haspopup="true"
+                aria-expanded={Boolean(resumeAnchorEl) ? 'true' : undefined}
+              >
+                Resume
+              </Button>
+              <Menu
+                id="resume-menu"
+                anchorEl={resumeAnchorEl}
+                open={Boolean(resumeAnchorEl)}
+                onClose={handleResumeMenuClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                MenuListProps={{
+                  'aria-labelledby': 'resume-button',
+                }}
+              >
+                {resumeItems.map(({ id, label }) => (
+                  <MenuItem
+                    key={id}
+                    onClick={() => handleResumeItemClick(id)}
+                  >
+                    <ListItemIcon sx={{ minWidth: 36 }}>
+                      {getIconForNavItem(id)}
+                    </ListItemIcon>
+                    <ListItemText>{label}</ListItemText>
+                  </MenuItem>
+                ))}
+              </Menu>
+
+              <Button
+                component={RouterLink}
+                to="/works"
+              >
+                Portfolio
+              </Button>
+              <Button
+                component={RouterLink}
+                to="/blogs"
+              >
+                Blog
+              </Button>
+              <Button
+                onClick={() => navigate('/contact')}
+                startIcon={<ContactMailIcon />}
+              >
+                Contact
+              </Button>
+
+              {/* Theme Controls */}
+              <IconButton 
+                onClick={handleThemeToggle}
+                sx={{ ml: 1 }}
+              >
+                {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+              </IconButton>
+
+              <ColorPaletteButton
+                onClick={handlePaletteMenuOpen}
+                endIcon={<KeyboardArrowDownIcon />}
+              >
+                {availablePalettes[currentPaletteIndex]?.name || 'Theme'}
+              </ColorPaletteButton>
+
+              <ColorPaletteMenu
+                anchorEl={paletteAnchorEl}
+                open={Boolean(paletteAnchorEl)}
+                onClose={handlePaletteMenuClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              >
+                {availablePalettes.map((palette, index) => (
+                  <ColorPaletteItem
+                    key={palette.name}
+                    onClick={() => handlePaletteSelect(index)}
+                    selected={index === currentPaletteIndex}
+                    sx={{ color: palette.primary }}
+                  >
+                    {palette.name}
+                  </ColorPaletteItem>
+                ))}
+              </ColorPaletteMenu>
+
+              <Search>
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder="Search…"
+                  inputProps={{ 'aria-label': 'search' }}
+                  value={query}
+                  onChange={handleSearchChange}
+                  onFocus={(e) => e.target.value && setSearchAnchorEl(e.currentTarget)}
+                />
+                {Boolean(searchAnchorEl) && (
+                  <SearchResultsDropdown>
+                    {matches.length > 0 ? (
+                      matches.map((item, index) => (
+                        <SearchResultItem
+                          key={index}
+                          button
+                          onClick={() => handleSearchResultClick(item.section)}
                         >
-                          Privacy Policy
-                        </Button>
-                        
-            <Button
-              component={RouterLink}
-              to="/about"
-            >
-              About Me
-            </Button>
+                          <SearchResultSection>
+                            {item.section}
+                          </SearchResultSection>
+                          <SearchResultContent>
+                            {item.content}
+                          </SearchResultContent>
+                        </SearchResultItem>
+                      ))
+                    ) : (
+                      <ListItem>
+                        <Typography color="text.secondary">
+                          No results found
+                        </Typography>
+                      </ListItem>
+                    )}
+                  </SearchResultsDropdown>
+                )}
+              </Search>
+            </Box>
+          )}
 
-            {/* Resume Menu */}
-            <Button
-              id="resume-button"
-              onClick={handleResumeMenuOpen}
-              endIcon={<KeyboardArrowDownIcon />}
-              aria-controls="resume-menu"
-              aria-haspopup="true"
-              aria-expanded={Boolean(resumeAnchorEl) ? 'true' : undefined}
+          {/* Only show the right hamburger on mobile and handle tablet in landscape */}
+          {(isMobile || (isLandscape && !showDesktopNav)) && (
+            <IconButton
+              aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+              edge="end"
+              onClick={handleDrawerToggle}
+              sx={{ ml: 'auto' }}
             >
-              Resume
-            </Button>
-            <Menu
-              id="resume-menu"
-              anchorEl={resumeAnchorEl}
-              open={Boolean(resumeAnchorEl)}
-              onClose={handleResumeMenuClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              MenuListProps={{
-                'aria-labelledby': 'resume-button',
-              }}
-            >
-              {resumeItems.map(({ id, label }) => (
-                <MenuItem
-                  key={id}
-                  onClick={() => handleResumeItemClick(id)}
-                >
-                  <ListItemIcon sx={{ minWidth: 36 }}>
-                    {getIconForNavItem(id)}
-                  </ListItemIcon>
-                  <ListItemText>{label}</ListItemText>
-                </MenuItem>
-              ))}
-            </Menu>
-
-            <Button
-              component={RouterLink}
-              to="/works"
-            >
-              Portfolio & Case Studies
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/blogs"
-            >
-              Blog & Insights
-            </Button>
-            <Button
-              onClick={() => navigate('/contact')}
-              startIcon={<ContactMailIcon />}
-            >
-              Contact
-            </Button>
-
-            {/* Theme Controls */}
-            <IconButton 
-              onClick={handleThemeToggle}
-              sx={{ ml: 1 }}
-            >
-              {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+              <MenuIcon />
             </IconButton>
-
-            <ColorPaletteButton
-              onClick={handlePaletteMenuOpen}
-              endIcon={<KeyboardArrowDownIcon />}
-            >
-              {availablePalettes[currentPaletteIndex]?.name || 'Theme'}
-            </ColorPaletteButton>
-
-            <ColorPaletteMenu
-              anchorEl={paletteAnchorEl}
-              open={Boolean(paletteAnchorEl)}
-              onClose={handlePaletteMenuClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-            >
-              {availablePalettes.map((palette, index) => (
-                <ColorPaletteItem
-                  key={palette.name}
-                  onClick={() => handlePaletteSelect(index)}
-                  selected={index === currentPaletteIndex}
-                  sx={{ color: palette.primary }}
-                >
-                  {palette.name}
-                </ColorPaletteItem>
-              ))}
-            </ColorPaletteMenu>
-
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ 'aria-label': 'search' }}
-                value={query}
-                onChange={handleSearchChange}
-                onFocus={(e) => e.target.value && setSearchAnchorEl(e.currentTarget)}
-              />
-              {Boolean(searchAnchorEl) && (
-                <SearchResultsDropdown>
-                  {matches.length > 0 ? (
-                    matches.map((item, index) => (
-                      <SearchResultItem
-                        key={index}
-                        button
-                        onClick={() => handleSearchResultClick(item.section)}
-                      >
-                        <SearchResultSection>
-                          {item.section}
-                        </SearchResultSection>
-                        <SearchResultContent>
-                          {item.content}
-                        </SearchResultContent>
-                      </SearchResultItem>
-                    ))
-                  ) : (
-                    <ListItem>
-                      <Typography color="text.secondary">
-                        No results found
-                      </Typography>
-                    </ListItem>
-                  )}
-                </SearchResultsDropdown>
-              )}
-            </Search>
-          </Box>
-
-          {/* Mobile Menu Button */}
-          <IconButton
-            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
-            edge="end"
-            onClick={handleDrawerToggle}
-            sx={{ display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
+          )}
         </Toolbar>
       </StyledAppBar>
 
@@ -537,7 +535,6 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
           keepMounted: true,
         }}
         sx={{
-          display: { xs: 'block', sm: 'none' },
           '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
         }}
       >
@@ -601,7 +598,6 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
             <ListItemText primary={isDarkMode ? "Light Mode" : "Dark Mode"} />
           </ListItem>
 
-          {/* Use theme directly from useTheme hook without referencing an undefined variable */}
           <ListItem 
             button 
             onClick={handlePaletteMenuOpen}
@@ -628,7 +624,6 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
                   variant="body2" 
                   color="text.secondary"
                   sx={{ 
-                    // Make secondary text a bit more visible
                     opacity: theme.palette.mode === 'dark' ? 0.9 : 0.7 
                   }}
                 >
@@ -643,4 +638,15 @@ const NavigationBar = ({ isDarkMode, toggleDarkMode, currentPaletteIndex, change
   );
 };
 
+NavigationBar.propTypes = {
+  isDarkMode: PropTypes.bool.isRequired,
+  toggleDarkMode: PropTypes.func.isRequired,
+  currentPaletteIndex: PropTypes.number.isRequired,
+  changePalette: PropTypes.func.isRequired,
+  availablePalettes: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    primary: PropTypes.string.isRequired,
+    secondary: PropTypes.string.isRequired,
+  })).isRequired,
+};
 export default NavigationBar;

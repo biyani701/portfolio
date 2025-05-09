@@ -1,9 +1,21 @@
 // theme.js
 import { createTheme } from '@mui/material/styles';
-
+import { generateSemanticColors } from './utilities/colorUtils'; // Import the color utility function
 // Define multiple palettes for light and dark modes
+
+
 export const palettes = {
   light: [
+    {
+      name: 'Sunny Day',
+      primary: '#FFEB3B',
+      secondary: '#FFC107',
+      background: { 
+        default: '#FFFDE7', paper: '#FFFFFF', header: '#F57F17', footer: '#F57F17' 
+      },
+      text: { primary: '#212121', secondary: '#757575' },
+      appLink: '#FFEB3B',
+    },
     {
       name: 'Salt & Pepper',
       primary: '#4A4A4A',
@@ -27,7 +39,88 @@ export const palettes = {
       background: { default: '#E3F2FD', paper: '#FFFFFF', header: '#1565C0', footer: '#1565C0' },
       text: { primary: '#0D47A1', secondary: '#1976D2' },
       appLink: '#1976D2',
-    }
+    },
+    {
+      name: 'Sunset Coral',
+      primary: '#F06292',
+      secondary: '#FFB74D',
+      background: {
+        default: '#FFF4F0',
+        paper: '#FFFFFF',
+        header: '#E91E63',
+        footer: '#E91E63',
+      },
+      text: {
+        primary: '#4A1F1F',
+        secondary: '#7B2F2F',
+      },
+      appLink: '#F06292',
+    },
+    {
+      name: 'Lavender Mist',
+      primary: '#7E57C2',
+      secondary: '#CE93D8',
+      background: {
+        default: '#F3E5F5',
+        paper: '#FFFFFF',
+        header: '#512DA8',
+        footer: '#512DA8',
+      },
+      text: {
+        primary: '#2A2A2A',
+        secondary: '#5A5A5A',
+      },
+      appLink: '#7E57C2',
+    },
+    {
+      name: 'Desert Clay',
+      primary: '#D2691E',
+      secondary: '#F4A261',
+      background: {
+        default: '#FFF5E1',
+        paper: '#FFFFFF',
+        header: '#C1550E',
+        footer: '#C1550E',
+      },
+      text: {
+        primary: '#4B2E22',
+        secondary: '#8B5E3C',
+      },
+      appLink: '#F4A261',
+    },
+    {
+      name: 'Stormy Morning',
+      primary: '#6A89A7',
+      secondary: '#88BDF2',
+      background: {
+        default: '#BDDDFC',
+        paper: '#FFFFFF',
+        header: '#384959',
+        footer: '#384959',
+      },
+      text: {
+        primary: '#212121',
+        secondary: '#455A64',
+      },
+      appLink: '#6A89A7',
+    },
+    {
+      name: 'Zesty Lemon',
+      primary: '#FFFF66',
+      secondary: '#FFE566',
+      background: {
+        default: '#FFFDE7',
+        paper: '#FFFFFF',
+        header: '#B3B347',
+        footer: '#B3B347',
+      },
+      text: {
+        primary: '#212121',
+        secondary: '#5F5F00',
+      },
+      appLink: '#D6D58B',
+    },   
+    
   ],
   dark: [
     {
@@ -53,7 +146,89 @@ export const palettes = {
       background: { default: '#0A1929', paper: '#132F4C', header: '#0A1929', footer: '#0A1929' },
       text: { primary: '#E3F2FD', secondary: '#90CAF9' },
       appLink: '#64B5F6',
-    }
+    },
+    {
+      name: 'Crimson Night',
+      primary: '#EF5350',
+      secondary: '#B71C1C',
+      background: {
+        default: '#1A0000',
+        paper: '#2C0A0A',
+        header: '#0D0000',
+        footer: '#0D0000',
+      },
+      text: {
+        primary: '#F8DAD9',
+        secondary: '#EF9A9A',
+      },
+      appLink: '#EF5350',
+    },
+    {
+      name: 'Violet Twilight',
+      primary: '#9575CD',
+      secondary: '#7B1FA2',
+      background: {
+        default: '#1B1425',
+        paper: '#2A1B3D',
+        header: '#1B1425',
+        footer: '#1B1425',
+      },
+      text: {
+        primary: '#EDE7F6',
+        secondary: '#B39DDB',
+      },
+      appLink: '#9575CD',
+    },
+    {
+      name: 'Emerald Night',
+      primary: '#66BB6A',
+      secondary: '#2E7D32',
+      background: {
+        default: '#0C1B0C',
+        paper: '#1A3320',
+        header: '#0C1B0C',
+        footer: '#0C1B0C',
+      },
+      text: {
+        primary: '#D0F2D0',
+        secondary: '#A5D6A7',
+      },
+      appLink: '#66BB6A',
+    },
+    {
+      name: 'Cappuccino',
+      primary: '#705E46',
+      secondary: '#C6C0B9',
+      background: {
+        default: '#F5F0EB',
+        paper: '#FFFFFF',
+        header: '#422701',
+        footer: '#422701',
+      },
+      text: {
+        primary: '#3E2723',
+        secondary: '#5D4037',
+      },
+      appLink: '#D6B588',
+    },
+    {
+      name: 'Calm Blue',
+      primary: '#57B9FF',
+      secondary: '#90D5FF',
+      background: {
+        default: '#E1F5FE',
+        paper: '#FFFFFF',
+        header: '#517891',
+        footer: '#517891',
+      },
+      text: {
+        primary: '#0D47A1',
+        secondary: '#1976D2',
+      },
+      appLink: '#77B1D4',
+    },
+    
+    
   ],
 };
 
@@ -67,6 +242,8 @@ export const getTheme = (mode, paletteIndex = 0) => {
   // Get the selected palette or fallback to the first one if index is invalid
   const selectedPalettes = palettes[mode] || palettes.light;
   const selectedPalette = selectedPalettes[paletteIndex] || selectedPalettes[0];
+
+  const semanticColors = generateSemanticColors(selectedPalette.primary, mode);
 
   return createTheme({
     // Start Newly Added Theme Properties
@@ -107,7 +284,13 @@ export const getTheme = (mode, paletteIndex = 0) => {
       info: { main: '#2196f3' },
       warning: { main: '#ff9800' },
       error: { main: '#f44336' },
-      default: { main: '#f44336' },
+      // default: { main: '#f44336' },
+      default: { main: selectedPalette.primary },
+      alpha: semanticColors.alpha, 
+      beta: semanticColors.beta,
+      gamma: semanticColors.gamma,
+      theta: semanticColors.theta,
+      epsilon: semanticColors.epsilon,
       background: {
         default: selectedPalette.background.default,
         paper: selectedPalette.background.paper,

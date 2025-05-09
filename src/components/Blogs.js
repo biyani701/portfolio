@@ -1,3 +1,4 @@
+import React from 'react';
 const Blogs = () => (
     <section id="blogs" className="py-5">
       <div className="container">
