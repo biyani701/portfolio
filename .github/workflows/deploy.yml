@@ -22,8 +22,9 @@ jobs:
         - name: Build the project
           run: npm run build
           env:
-            REACT_APP_GITHUB_CLIENT_ID: ${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}
-            REACT_APP_REDIRECT_URI: ${{ secrets.REACT_APP_REDIRECT_URI }}
+            REACT_APP_GITHUB_CLIENT_ID: ${{ vars.REACT_APP_GITHUB_CLIENT_ID }}
+            REACT_APP_REDIRECT_URI: ${{ vars.REACT_APP_REDIRECT_URI }}
+            REACT_APP_TOKEN_PROXY_URL: ${{ vars.REACT_APP_TOKEN_PROXY_URL }}
 
         - name: Deploy to production server
           uses: peaceiris/actions-gh-pages@v4
