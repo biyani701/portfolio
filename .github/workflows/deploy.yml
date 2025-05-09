@@ -4,32 +4,30 @@ on:
     branches:
       - main
 jobs:
-    deploy:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: Set up Node.js
-          uses: actions/setup-node@v2
-          with:
-            node-version: '20'
-        
-        - name: Install dependencies
-          run: npm ci
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
 
+      - name: Install dependencies
+        run: npm ci
 
-        - name: Build the project
-          run: npm run build
-          env:
-            REACT_APP_GITHUB_CLIENT_ID: ${{ vars.REACT_APP_GITHUB_CLIENT_ID }}
-            REACT_APP_REDIRECT_URI: ${{ vars.REACT_APP_REDIRECT_URI }}
-            REACT_APP_TOKEN_PROXY_URL: ${{ vars.REACT_APP_TOKEN_PROXY_URL }}
+      - name: Build the project
+        run: npm run build
+        env:
+          REACT_APP_GITHUB_CLIENT_ID: ${{ vars.REACT_APP_GITHUB_CLIENT_ID }}
+          REACT_APP_REDIRECT_URI: ${{ vars.REACT_APP_REDIRECT_URI }}
+          REACT_APP_TOKEN_PROXY_URL: ${{ vars.REACT_APP_TOKEN_PROXY_URL }}
 
-        - name: Deploy to production server
-          uses: peaceiris/actions-gh-pages@v4
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: ./build
-            cname: vishal.biyani.xyz
-            
+      - name: Deploy to production server
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          cname: vishal.biyani.xyz
