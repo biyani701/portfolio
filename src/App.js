@@ -56,6 +56,7 @@ export const ProtectedRoute = ({ children }) => {
 
         // Redirect to GitHub login if not authenticated
         const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
+        console.log(githubAuthUrl);
 
         // Redirect to GitHub login
         window.location.href = githubAuthUrl;

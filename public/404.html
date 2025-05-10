@@ -3,17 +3,25 @@
   <head>
     <meta charset="utf-8">
     <script type="text/javascript">
-      // SPA redirect logic
-      (function() {
-        var redirect = sessionStorage.redirect;
+      (function () {
+        var search = window.location.search;
+
+        // If it's a GitHub OAuth callback like ?code=abc123
+        if (search.includes("code=")) {
+          var hash = "#" + search.substring(1); // turns ?code=abc123 into #code=abc123
+          var redirect = "/" + hash;
+          sessionStorage.redirect = redirect;
+        }
+
+        var finalRedirect = sessionStorage.redirect;
         delete sessionStorage.redirect;
-        if (redirect && redirect !== location.href) {
-          history.replaceState(null, null, redirect);
+
+        if (finalRedirect && finalRedirect !== location.href) {
+          history.replaceState(null, null, finalRedirect);
         }
       })();
     </script>
     <meta http-equiv="refresh" content="0;url=/" />
   </head>
-  <body>
-  </body>
+  <body></body>
 </html>
