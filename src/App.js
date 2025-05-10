@@ -45,31 +45,30 @@ import "./App.minimal.css";
 import { palettes } from "./theme";
 
 export const ProtectedRoute = ({ children }) => {
-    const { isAuthenticated, loading } = useAuth();
-    const navigate = useNavigate();
-    const location = useLocation();
+  const { isAuthenticated, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    useEffect(() => {
-      if (!loading && !isAuthenticated) {
-        // Store the intended destination to redirect back after login
-        sessionStorage.setItem('auth_redirect', location.pathname);
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      // Store the intended destination to redirect back after login
+      sessionStorage.setItem("auth_redirect", location.pathname);
 
-        // Redirect to GitHub login if not authenticated
-        const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
-        console.log(githubAuthUrl);
+      // Redirect to GitHub login if not authenticated
+      const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
+      console.log(githubAuthUrl);
 
-        // Redirect to GitHub login
-        window.location.href = githubAuthUrl;
-      }
-    }, [loading, isAuthenticated, location.pathname]);
-
-    if (loading) {
-      return <div>Loading authentication...</div>;
+      // Redirect to GitHub login
+      window.location.href = githubAuthUrl;
     }
+  }, [loading, isAuthenticated, location.pathname]);
 
-    return isAuthenticated ? children : null;
-  };
+  if (loading) {
+    return <div>Loading authentication...</div>;
+  }
 
+  return isAuthenticated ? children : null;
+};
 
 function ScrollTop(props) {
   const { children, window } = props;
@@ -119,6 +118,109 @@ function App(props) {
   const [mode, setMode] = useState("light"); // Default to 'light'
   const [paletteIndex, setPaletteIndex] = useState(0); // Default to 0
 
+  // New Code
+  useEffect(() => {
+    // Load theme preferences
+    const loadThemePreferences = () => {
+      try {
+        // First try to read from cookies (preferred when consent exists)
+        const cookieMode = getCookieValue('themeMode');
+        const cookiePaletteIndex = getCookieValue('themePaletteIndex');
+        
+        if (cookieMode) {
+          setMode(cookieMode);
+        }
+        
+        if (cookiePaletteIndex && !isNaN(parseInt(cookiePaletteIndex, 10))) {
+          setPaletteIndex(parseInt(cookiePaletteIndex, 10));
+        }
+        
+        // If cookies don't exist, fall back to localStorage
+        if (!cookieMode) {
+          const localMode = localStorage.getItem('themeMode');
+          if (localMode) {
+            setMode(localMode);
+          }
+        }
+        
+        if (!cookiePaletteIndex) {
+          const localPaletteIndex = localStorage.getItem('themePaletteIndex');
+          if (localPaletteIndex && !isNaN(parseInt(localPaletteIndex, 10))) {
+            setPaletteIndex(parseInt(localPaletteIndex, 10));
+          }
+        }
+      } catch (error) {
+        console.warn('Error loading theme preferences:', error);
+      }
+    };
+
+    // Helper function to get cookie value by name
+    const getCookieValue = (name) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? match[2] : null;
+    };
+
+    // Load theme preferences immediately on mount
+    loadThemePreferences();
+
+    // Check for consent changes
+    const handleConsentChange = () => {
+      try {
+        const manager = window.klaro?.getManager?.();
+        const consents = manager?.consents;
+        
+        // If we have consent, save to cookies again to ensure they exist
+        if (consents?.essentialCookies === true) {
+          saveThemePreferences(mode, paletteIndex);
+        }
+      } catch (error) {
+        console.warn('Error handling consent change:', error);
+      }
+    };
+
+    // Listen for Klaro consent changes
+    document.addEventListener('klaro-consent-changed', handleConsentChange);
+
+    return () => {
+      document.removeEventListener('klaro-consent-changed', handleConsentChange);
+    };
+  }, []);
+
+  // Save theme preferences whenever they change
+  useEffect(() => {
+    saveThemePreferences(mode, paletteIndex);
+    
+    // Apply data-theme attribute for any components that might need it
+    document.documentElement.setAttribute("data-theme", mode);
+  }, [mode, paletteIndex]);
+
+  // Function to save theme preferences to both cookies and localStorage
+  const saveThemePreferences = (currentMode, currentPaletteIndex) => {
+    try {
+      // Always save to localStorage as fallback
+      localStorage.setItem("themeMode", currentMode);
+      localStorage.setItem("themePaletteIndex", currentPaletteIndex.toString());
+      
+      // Check for cookie consent
+      const manager = window.klaro?.getManager?.();
+      const consents = manager?.consents;
+      const cookieConsent = consents?.essentialCookies === true;
+      
+      // If we have consent or no Klaro (development), save to cookies
+      if (cookieConsent || !window.klaro) {
+        // Set cookies with 365 days expiry
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 365);
+        document.cookie = `themeMode=${currentMode}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
+        document.cookie = `themePaletteIndex=${currentPaletteIndex}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
+      }
+    } catch (error) {
+      console.warn('Error saving theme preferences:', error);
+    }
+  };
+  
+  // End New Code
+
   useEffect(() => {
     // Check if we have consent to use cookies
     const checkConsent = () => {
@@ -129,14 +231,18 @@ function App(props) {
 
         // If we have consent or no Klaro (development), load from cookies
         if (cookieConsent || !window.klaro) {
-          const savedMode = document.cookie.split('; ').find(row => row.startsWith('themeMode='));
+          const savedMode = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("themeMode="));
           if (savedMode) {
-            setMode(savedMode.split('=')[1]);
+            setMode(savedMode.split("=")[1]);
           }
 
-          const savedIndex = document.cookie.split('; ').find(row => row.startsWith('themePaletteIndex='));
+          const savedIndex = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("themePaletteIndex="));
           if (savedIndex) {
-            setPaletteIndex(parseInt(savedIndex.split('=')[1], 10));
+            setPaletteIndex(parseInt(savedIndex.split("=")[1], 10));
           }
         } else {
           // Fallback to localStorage if no cookie consent
@@ -151,7 +257,10 @@ function App(props) {
           }
         }
       } catch (error) {
-        console.warn('Error checking consent or loading theme preferences:', error);
+        console.warn(
+          "Error checking consent or loading theme preferences:",
+          error
+        );
         // Fallback to localStorage
         const savedMode = localStorage.getItem("themeMode");
         if (savedMode) {
@@ -169,10 +278,10 @@ function App(props) {
     checkConsent();
 
     // Listen for Klaro consent changes
-    document.addEventListener('klaro-consent-changed', checkConsent);
+    document.addEventListener("klaro-consent-changed", checkConsent);
 
     return () => {
-      document.removeEventListener('klaro-consent-changed', checkConsent);
+      document.removeEventListener("klaro-consent-changed", checkConsent);
     };
   }, []);
 
@@ -213,17 +322,17 @@ function App(props) {
   // Handle OAuth code from localStorage (set by 404.html)
   const navigate = useNavigate();
   useEffect(() => {
-    const oauthCode = localStorage.getItem('oauth.code');
-    if (oauthCode && location.pathname === '/') {
-      console.log('Found OAuth code in localStorage, redirecting to callback');
+    const oauthCode = localStorage.getItem("oauth.code");
+    if (oauthCode && location.pathname === "/") {
+      console.log("Found OAuth code in localStorage, redirecting to callback");
 
       // Clean up localStorage
-      localStorage.removeItem('oauth.code');
-      localStorage.removeItem('oauth.state');
-      localStorage.removeItem('oauth.error');
+      localStorage.removeItem("oauth.code");
+      localStorage.removeItem("oauth.state");
+      localStorage.removeItem("oauth.error");
 
       // Add a flag to prevent infinite loops
-      sessionStorage.setItem('oauth_redirect_processed', 'true');
+      sessionStorage.setItem("oauth_redirect_processed", "true");
 
       // Navigate to callback with the code
       navigate(`/callback?code=${oauthCode}`);
@@ -249,7 +358,8 @@ function App(props) {
     try {
       const manager = window.klaro?.getManager?.();
       const consents = manager?.consents;
-      const cookieConsent = consents?.essentialCookies === true;
+      const cookieConsent = consents?.essentialCookies === true;     
+      
 
       // If we have consent or no Klaro (development), save to cookies
       if (cookieConsent || !window.klaro) {
@@ -264,7 +374,7 @@ function App(props) {
       localStorage.setItem("themeMode", mode);
       localStorage.setItem("themePaletteIndex", paletteIndex);
     } catch (error) {
-      console.warn('Error saving theme preferences:', error);
+      console.warn("Error saving theme preferences:", error);
       // Fallback to localStorage
       localStorage.setItem("themeMode", mode);
       localStorage.setItem("themePaletteIndex", paletteIndex);
@@ -332,17 +442,22 @@ function App(props) {
               }
             />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/about" element={
-              <ProtectedRoute>
-                <AboutMe />
-              </ProtectedRoute>
-
-              } />
-              <Route path="/profile" element={
-      <ProtectedRoute>
-        <ProfilePage />
-      </ProtectedRoute>
-    } />
+            <Route
+              path="/about"
+              element={
+                <ProtectedRoute>
+                  <AboutMe />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/works" element={<Works />} />
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/login" element={<GitHubAuth />} />
