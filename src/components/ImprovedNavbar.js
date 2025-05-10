@@ -17,12 +17,25 @@ import {
   ListItemIcon,
   Box,
   Menu,
+  Grow,
   MenuItem,
   Button,
   Divider,
   useMediaQuery,
   Tooltip,
 } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBriefcase,
+  faGraduationCap,
+  faAward,
+  faEnvelope,
+  faFileLines,
+  faRoad
+} from "@fortawesome/free-solid-svg-icons";
+
+import { motion } from 'framer-motion';
+
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -36,14 +49,29 @@ import WorkIcon from "@mui/icons-material/Work";
 import SchoolIcon from "@mui/icons-material/School";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import DashboardIcon from '@mui/icons-material/Dashboard';
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import { resumeData } from "./resumeData";
 import { skillSections } from "./Skills"; // Import skillSections from Skills component
 
 import { useAuth } from "../context/AuthContext";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import SettingsIcon from '@mui/icons-material/Settings';
+import SettingsIcon from "@mui/icons-material/Settings";
 import config from "../config";
+
+const itemVariants = {
+  hidden: { opacity: 0, scale: 0.95, y: -5 },
+  visible: (i) => ({
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.03,
+      type: 'spring',
+      stiffness: 300,
+      damping: 20,
+    },
+  }),
+};
 
 // Initialize Fuse.js for search functionality
 const fuse = new Fuse(resumeData, {
@@ -60,27 +88,29 @@ const addSkillsToSearchIndex = (skillSections) => {
 
   Object.entries(skillSections).forEach(([category, skills]) => {
     // Add category as a section
-    const skillNames = skills.map(skill => skill.name).join(", ");
+    const skillNames = skills.map((skill) => skill.name).join(", ");
     skillEntries.push({
       section: category,
-      content: `Skills in ${category}: ${skillNames}`
+      content: `Skills in ${category}: ${skillNames}`,
     });
 
     // Add individual skills with more details
-    skills.forEach(skill => {
+    skills.forEach((skill) => {
       skillEntries.push({
         section: "Skills",
-        content: `${skill.name} (${skill.years}+ years experience) - ${category}`
+        content: `${skill.name} (${skill.years}+ years experience) - ${category}`,
       });
     });
   });
 
   // Add to fuse index
-  skillEntries.forEach(entry => {
-    if (!resumeData.some(item =>
-      item.section === entry.section &&
-      item.content === entry.content
-    )) {
+  skillEntries.forEach((entry) => {
+    if (
+      !resumeData.some(
+        (item) =>
+          item.section === entry.section && item.content === entry.content
+      )
+    ) {
       resumeData.push(entry);
     }
   });
@@ -407,16 +437,22 @@ const NavigationBar = ({
       case "home":
         return <HomeIcon />;
       case "experience":
+        return <FontAwesomeIcon icon={faBriefcase} />;
       case "timeline":
+        return <FontAwesomeIcon icon={faRoad} />;
       case "skills":
         return <WorkIcon />;
       case "education":
+        return <FontAwesomeIcon icon={faGraduationCap} />;
       case "certifications":
         return <SchoolIcon />;
       case "recognition":
-        return <EmojiEventsIcon />;
+        // return <EmojiEventsIcon />;
+        return <FontAwesomeIcon icon={faAward} />;
       case "contact":
-        return <ContactMailIcon />;
+        return <FontAwesomeIcon icon={faEnvelope} />;
+      case "summary":
+        <FontAwesomeIcon icon={faFileLines} />;
       default:
         return null;
     }
@@ -454,6 +490,34 @@ const NavigationBar = ({
     [navItems]
   );
 
+  // New Addition
+  const groupedResumeItems = [
+    {
+      label: "Professional",
+      items: [
+        { id: "summary", label: "Summary" },
+        { id: "timeline", label: "Career Timeline" },
+        { id: "skills", label: "Skills" },
+        { id: "experience", label: "Experience" },
+      ],
+    },
+    {
+      label: "Education & Certs",
+      items: [
+        { id: "certifications", label: "Certifications" },
+        { id: "education", label: "Education" },
+      ],
+    },
+    {
+      label: "Other",
+      items: [
+        { id: "recognition", label: "Awards" },
+        { id: "contact", label: "Contact" },
+      ],
+    },
+  ];
+
+  // New Addition
   // Determine when to show desktop navigation vs mobile navigation
   const showDesktopNav = !isMobile || (isLandscape && !isMobile) || isTablet;
 
@@ -495,32 +559,141 @@ const NavigationBar = ({
               >
                 Resume
               </Button>
+              {/* <Menu
+                id="resume-menu"
+                anchorEl={resumeAnchorEl}
+                open={Boolean(resumeAnchorEl)}
+                onClose={handleResumeMenuClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                MenuListProps={{ "aria-labelledby": "resume-button" }}
+                PaperProps={{
+                  elevation: 4,
+                  sx: {
+                    borderRadius: 2,
+                    minWidth: 220,
+                    bgcolor: theme.palette.background.paper,
+                    boxShadow: theme.shadows[4],
+                  },
+                }}
+              >
+                {resumeItems.map(({ id, label }) => (
+                  <MenuItem
+                    key={id}
+                    onClick={() => handleResumeItemClick(id)}
+                    sx={{
+                      py: 1.2,
+                      px: 2,
+                      gap: 1,
+                      "&:hover": {
+                        bgcolor: theme.palette.action.hover,
+                      },
+                      "&:focus": {
+                        bgcolor: theme.palette.action.selected,
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                    >
+                      {getIconForNavItem(id)}
+                    </ListItemIcon>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        variant: "body1",
+                        sx: { color: theme.palette.text.primary },
+                      }}
+                    >
+                      {label}
+                    </ListItemText>
+                  </MenuItem>
+                ))}
+              </Menu> */}
+              {/* New section */}
               <Menu
                 id="resume-menu"
                 anchorEl={resumeAnchorEl}
                 open={Boolean(resumeAnchorEl)}
                 onClose={handleResumeMenuClose}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                MenuListProps={{
-                  "aria-labelledby": "resume-button",
+                TransitionComponent={Grow}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                MenuListProps={{ "aria-labelledby": "resume-button" }}
+                PaperProps={{
+                  elevation: 4,
+                  sx: {
+                    borderRadius: 2,
+                    minWidth: 240,
+                    bgcolor: theme.palette.background.paper,
+                    boxShadow: theme.shadows[4],
+                    p: 1,
+                  },
                 }}
               >
-                {resumeItems.map(({ id, label }) => (
-                  <MenuItem key={id} onClick={() => handleResumeItemClick(id)}>
-                    <ListItemIcon sx={{ minWidth: 36 }}>
-                      {getIconForNavItem(id)}
-                    </ListItemIcon>
-                    <ListItemText>{label}</ListItemText>
-                  </MenuItem>
+                {groupedResumeItems.map((group, groupIndex) => (
+                  <Box key={group.label}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        px: 2,
+                        py: 1,
+                        fontWeight: 600,
+                        color: theme.palette.text.secondary,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {group.label}
+                    </Typography>
+                    {group.items.map((item, itemIndex ) => (
+                       <motion.div
+        key={item.id}
+        custom={groupIndex * 10 + itemIndex}
+        initial="hidden"
+        animate="visible"
+        variants={itemVariants}
+      >
+                      <MenuItem
+                        key={item.id}
+                        onClick={() => handleResumeItemClick(item.id)}
+                        sx={{
+                          py: 1.2,
+                          px: 2,
+                          gap: 1,
+                          "&:hover": {
+                            bgcolor: theme.palette.action.hover,
+                          },
+                          "&:focus": {
+                            bgcolor: theme.palette.action.selected,
+                          },
+                        }}
+                      >
+                        <ListItemIcon
+                          sx={{
+                            color: theme.palette.text.secondary,
+                            minWidth: 32,
+                          }}
+                        >
+                          {getIconForNavItem(item.id)}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={item.label}
+                          slotProps={{
+                            primary: {
+                              variant: "body1",
+                              sx: { color: theme.palette.text.primary },
+                            },
+                          }}
+                        />
+                      </MenuItem>
+                      </motion.div>
+                    ))}
+                    {groupIndex  < groupedResumeItems.length - 1 && (
+                      <Divider sx={{ my: 1 }} />
+                    )}
+                  </Box>
                 ))}
               </Menu>
+              {/* End New Section */}
 
               <Button component={RouterLink} to="/works">
                 Portfolio
@@ -534,8 +707,6 @@ const NavigationBar = ({
               >
                 Contact
               </Button>
-
-
 
               <Search>
                 <SearchIconWrapper>
@@ -597,35 +768,42 @@ const NavigationBar = ({
                 MenuListProps={{
                   onMouseEnter: () => setSettingsHover(true),
                   onMouseLeave: handleSettingsMouseLeave,
-                  sx: { minWidth: 220 }
+                  sx: { minWidth: 220 },
                 }}
                 PaperProps={{
                   elevation: 3,
                   sx: {
                     mt: 1.5,
-                    overflow: 'visible',
-                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                    '&:before': {
+                    overflow: "visible",
+                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                    "&:before": {
                       content: '""',
-                      display: 'block',
-                      position: 'absolute',
+                      display: "block",
+                      position: "absolute",
                       top: 0,
                       right: 14,
                       width: 10,
                       height: 10,
-                      bgcolor: 'background.paper',
-                      transform: 'translateY(-50%) rotate(45deg)',
+                      bgcolor: "background.paper",
+                      transform: "translateY(-50%) rotate(45deg)",
                       zIndex: 0,
                     },
                   },
                 }}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
               >
                 {/* User Profile Section */}
-                <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Box
+                  sx={{
+                    px: 2,
+                    py: 1.5,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
                   {isAuthenticated ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
                       {user?.avatar_url ? (
                         <Avatar
                           src={user.avatar_url}
@@ -638,21 +816,27 @@ const NavigationBar = ({
                         </Avatar>
                       )}
                       <Box>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                          {user?.name || user?.login || 'User'}
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: "bold" }}
+                        >
+                          {user?.name || user?.login || "User"}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          {user?.email || 'Authenticated'}
+                          {user?.email || "Authenticated"}
                         </Typography>
                       </Box>
                     </Box>
                   ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Avatar sx={{ width: 40, height: 40, mr: 1.5 }}>
                         <PersonIcon />
                       </Avatar>
                       <Box>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: "bold" }}
+                        >
                           Guest User
                         </Typography>
                         <Button
@@ -677,15 +861,28 @@ const NavigationBar = ({
                   <ListItemIcon>
                     {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
                   </ListItemIcon>
-                  <ListItemText primary={isDarkMode ? "Light Mode" : "Dark Mode"} />
+                  <ListItemText
+                    primary={isDarkMode ? "Light Mode" : "Dark Mode"}
+                  />
                 </MenuItem>
 
                 {/* Color Palette Section */}
-                <Box sx={{ px: 2, py: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                <Box
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    borderTop: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <Typography
+                    variant="subtitle2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                  >
                     Color Theme
                   </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                     {availablePalettes.map((palette, index) => (
                       <Tooltip key={palette.name} title={palette.name} arrow>
                         <Box
@@ -693,14 +890,17 @@ const NavigationBar = ({
                           sx={{
                             width: 24,
                             height: 24,
-                            borderRadius: '50%',
+                            borderRadius: "50%",
                             bgcolor: palette.primary,
-                            border: '2px solid',
-                            borderColor: index === currentPaletteIndex ? 'primary.main' : 'transparent',
-                            cursor: 'pointer',
-                            transition: 'transform 0.2s',
-                            '&:hover': {
-                              transform: 'scale(1.2)',
+                            border: "2px solid",
+                            borderColor:
+                              index === currentPaletteIndex
+                                ? "primary.main"
+                                : "transparent",
+                            cursor: "pointer",
+                            transition: "transform 0.2s",
+                            "&:hover": {
+                              transform: "scale(1.2)",
                             },
                           }}
                         />
@@ -711,7 +911,7 @@ const NavigationBar = ({
 
                 {/* User Actions */}
                 {isAuthenticated && (
-                  <Box sx={{ borderTop: '1px solid', borderColor: 'divider' }}>
+                  <Box sx={{ borderTop: "1px solid", borderColor: "divider" }}>
                     <MenuItem
                       component={RouterLink}
                       to="/profile"
@@ -732,10 +932,12 @@ const NavigationBar = ({
                       </ListItemIcon>
                       <ListItemText primary="Dashboard" />
                     </MenuItem>
-                    <MenuItem onClick={() => {
-                      handleSettingsClose();
-                      logout();
-                    }}>
+                    <MenuItem
+                      onClick={() => {
+                        handleSettingsClose();
+                        logout();
+                      }}
+                    >
                       <ListItemIcon>
                         <LogoutIcon fontSize="small" />
                       </ListItemIcon>
@@ -744,7 +946,6 @@ const NavigationBar = ({
                   </Box>
                 )}
               </Menu>
-
             </Box>
           )}
 
@@ -760,7 +961,7 @@ const NavigationBar = ({
                 ml: "auto",
                 position: { xs: "absolute", sm: "relative" },
                 right: { xs: 8, sm: "auto" },
-                zIndex: 1100
+                zIndex: 1100,
               }}
             >
               <MenuIcon />
