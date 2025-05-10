@@ -23,10 +23,9 @@
         }
 
         if (code) {
-          const hash = "#" + search.substring(1); // convert ?code=xyz to #code=xyz
-          const redirect = "/" + hash;
-          sessionStorage.redirect = redirect;
-          console.log("↪️ OAuth redirect path set:", redirect);
+          // Redirect directly to the callback route instead of using hash
+          sessionStorage.redirect = "/callback" + search;
+          console.log("↪️ OAuth redirect path set to callback:", "/callback" + search);
         }
 
         const finalRedirect = sessionStorage.redirect;
@@ -38,9 +37,10 @@
 
         if (!debug) {
           setTimeout(() => {
-            console.log("⏩ Redirecting to / now...");
-            window.location.href = "/";
-          }, 10000); // 10-second delay
+            const redirectTo = finalRedirect || "/";
+            console.log("⏩ Redirecting to", redirectTo, "now...");
+            window.location.href = redirectTo;
+          }, 500); // Reduced to 500ms for faster redirection
         } else {
           console.log("🛑 Debug mode — staying on this page.");
         }
