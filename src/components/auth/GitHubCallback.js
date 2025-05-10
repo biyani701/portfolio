@@ -5,9 +5,7 @@ import { Box, Typography, CircularProgress } from '@mui/material';
 
 // Important: Since GitHub Pages is static hosting, we need a proxy server
 // to exchange the code for an access token (to keep client_secret secure)
-const TOKEN_PROXY_URL = 'https://github-oauth-proxy-dad46y34u-vishals-projects-d59fa5fe.vercel.app/api/github-token.js';
-// Or if using custom domain: 'https://auth.vishal.biyani.xyz/api/github-token.js'
-// https://github-oauth-proxy.vercel.app/api/github-token.js
+import config from '../../config';
 
 
 const GitHubCallback = () => {
@@ -26,7 +24,8 @@ const GitHubCallback = () => {
 
       try {
         // Call your proxy server to exchange the code for an access token
-        const response = await fetch(TOKEN_PROXY_URL, {
+        console.log('Using token proxy URL:', config.github.tokenProxyUrl);
+        const response = await fetch(config.github.tokenProxyUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -67,8 +66,25 @@ const GitHubCallback = () => {
         setTimeout(() => navigate(redirectPath), 1500);
       } catch (error) {
         console.error('Authentication error:', error);
-        setStatus(`Authentication failed: ${error.message}. Redirecting to home page in 5 seconds.`);
-        setTimeout(() => navigate('/'), 5000);
+
+        // More detailed error logging
+        if (error.response) {
+          console.error('Response data:', error.response.data);
+          console.error('Response status:', error.response.status);
+        }
+
+        // Check if the error is related to the token proxy
+        const errorMessage = error.message.includes('Failed to fetch')
+          ? 'Failed to connect to authentication server. Please try again later.'
+          : `Authentication failed: ${error.message}`;
+
+        setStatus(`${errorMessage}. Redirecting to home page in 10 seconds.`);
+
+        // Add a debug link
+        console.log('For debugging, visit: /auth-debug');
+
+        // Longer timeout to give user time to read the error
+        setTimeout(() => navigate('/'), 10000);
       }
     };
 

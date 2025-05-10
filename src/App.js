@@ -198,6 +198,7 @@ function App(props) {
   //   return 0;
   // });
 
+  // Handle scrolling to sections
   useEffect(() => {
     if (location.pathname === "/" && location.state?.scrollTo) {
       const el = document.getElementById(location.state.scrollTo);
@@ -208,6 +209,19 @@ function App(props) {
       }
     }
   }, [location]);
+
+  // Handle OAuth code from localStorage (set by 404.html)
+  const navigate = useNavigate();
+  useEffect(() => {
+    const oauthCode = localStorage.getItem('oauth.code');
+    if (oauthCode && location.pathname === '/') {
+      console.log('Found OAuth code in localStorage, redirecting to callback');
+      localStorage.removeItem('oauth.code');
+      localStorage.removeItem('oauth.state');
+      localStorage.removeItem('oauth.error');
+      navigate('/callback?code=' + oauthCode);
+    }
+  }, [location.pathname, navigate]);
 
   // Initialize AOS with better settings
   useEffect(() => {
