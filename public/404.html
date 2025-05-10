@@ -1,27 +1,53 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <script type="text/javascript">
       (function () {
-        var search = window.location.search;
+        const search = window.location.search;
+        const params = new URLSearchParams(search);
+        const debug = params.get("debug") === "true";
+        const code = params.get("code");
+        const state = params.get("state");
+        const error = params.get("error");
 
-        // If it's a GitHub OAuth callback like ?code=abc123
-        if (search.includes("code=")) {
-          var hash = "#" + search.substring(1); // turns ?code=abc123 into #code=abc123
-          var redirect = "/" + hash;
-          sessionStorage.redirect = redirect;
+        console.log("🚀 404.html loaded");
+        console.log("🔍 Query params:", Object.fromEntries(params.entries()));
+        console.log("🐞 Debug mode:", debug);
+
+        if (code || error) {
+          localStorage.setItem("oauth.code", code ?? "");
+          localStorage.setItem("oauth.state", state ?? "");
+          localStorage.setItem("oauth.error", error ?? "");
+          console.log("💾 Stored OAuth info in localStorage");
         }
 
-        var finalRedirect = sessionStorage.redirect;
+        if (code) {
+          const hash = "#" + search.substring(1); // convert ?code=xyz to #code=xyz
+          const redirect = "/" + hash;
+          sessionStorage.redirect = redirect;
+          console.log("↪️ OAuth redirect path set:", redirect);
+        }
+
+        const finalRedirect = sessionStorage.redirect;
         delete sessionStorage.redirect;
 
         if (finalRedirect && finalRedirect !== location.href) {
           history.replaceState(null, null, finalRedirect);
         }
+
+        if (!debug) {
+          setTimeout(() => {
+            console.log("⏩ Redirecting to / now...");
+            window.location.href = "/";
+          }, 10000); // 10-second delay
+        } else {
+          console.log("🛑 Debug mode — staying on this page.");
+        }
       })();
     </script>
-    <meta http-equiv="refresh" content="0;url=/" />
   </head>
-  <body></body>
+  <body>
+    <p>Redirecting... open DevTools console to inspect logs and stored data.</p>
+  </body>
 </html>
