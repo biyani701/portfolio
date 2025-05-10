@@ -37,7 +37,7 @@ import GitHubCallback from "./components/auth/GitHubCallback";
 import GitHubAuth from "./components/auth/GitHubAuth";
 import AuthDebug from "./components/auth/AuthDebug";
 import ProfilePage from "./components/ProfilePage";
-
+import CreditsPage from "./components/credits/CreditsPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Import just the minimal non-themeable styles
@@ -354,6 +354,7 @@ function App(props) {
             <Route path="/blog/new" element={<BlogEditor />} />
             <Route path="/callback" element={<GitHubCallback />} />
             <Route path="/auth-debug" element={<AuthDebug />} />
+            <Route path="/credits" element={<CreditsPage />} />
             {/* <Route path="/blog/edit/:blogId" element={<BlogEditor />} /> */}
 
             {/* <Route path="*" element={<div>404 Not Found</div>} /> */}

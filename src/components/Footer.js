@@ -84,6 +84,22 @@ const Footer = () => {
             >
               Terms of Use
             </Button>
+            <Button
+              size="medium"
+              component={RouterLink}
+              to="/credits"
+              variant="text"
+              sx={{
+                color: theme.palette.common.white,
+                '&:hover': {
+                  textDecoration: 'underline',
+                  backgroundColor: 'transparent',
+                },
+                fontSize: '0.875rem',
+              }}
+            >
+              Credits
+            </Button>
           </Box>
           {/* Social links section */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
