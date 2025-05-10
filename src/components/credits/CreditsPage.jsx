@@ -29,7 +29,6 @@ export default function CreditsPage() {
           borderColor: theme.palette.divider,
         }}
       />
-
       <Box sx={{ mb: 4 }}>
         <Typography variant="h6" sx={{ fontWeight: 500 }}>
           Periodic Table Filter Logic
