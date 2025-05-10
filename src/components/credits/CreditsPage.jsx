@@ -42,7 +42,7 @@ export default function CreditsPage() {
             rel="noopener noreferrer"
             sx={{ color: theme.palette.secondary.main }}
           >
-            Mads Stoumann's article on DEV.to
+            Mads Stoumann&apos;s article on DEV.to
           </Link>
           . I adapted the concept into a React-based UI using MUI.
         </Typography>
