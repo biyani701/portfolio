@@ -56,7 +56,6 @@ export default function CreditsPage() {
           optimization, and UX suggestions.
         </Typography>
       </Box>
-
       <Box sx={{ mb: 4 }}>
         <Typography variant="h6" sx={{ fontWeight: 500 }}>
           Technology Stack
