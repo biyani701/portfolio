@@ -8,6 +8,63 @@ import { Box, Typography, CircularProgress } from '@mui/material';
 import config from '../../config';
 
 
+// Log the complete request details before sending
+const logCompleteRequest = async (url, options) => {
+  console.group('🚀 OUTGOING FETCH REQUEST');
+  console.log('📍 URL:', url);
+  console.log('📊 Method:', options.method);
+  console.log('🔑 Headers:', JSON.stringify(options.headers, null, 2));
+  console.log('📦 Body:', options?.body ? JSON.stringify(JSON.parse(options.body), null, 2) : null);
+  console.log('🔒 Mode:', options.mode);
+  console.log('🍪 Credentials:', options.credentials);
+  console.groupEnd();
+  
+  return { url, options };
+};
+
+// Replace your fetch call with this enhanced version
+const fetchWithLogging = async (url, options) => {
+  // Log complete request
+  const { url: finalUrl, options: finalOptions } = await logCompleteRequest(url, options);
+  
+  try {
+    // Make the actual request
+    const response = await fetch(finalUrl, finalOptions);
+    
+    // Clone the response so we can log it without consuming it
+    const clonedResponse = response.clone();
+    
+    try {
+      // Try to parse response as JSON
+      const responseData = await clonedResponse.json();
+      console.group('📥 INCOMING FETCH RESPONSE');
+      console.log('📍 URL:', finalUrl);
+      console.log('📊 Status:', response.status, response.statusText);
+      console.log('🔑 Headers:', JSON.stringify(Object.fromEntries([...response.headers.entries()]), null, 2));
+      console.log('📦 Body:', responseData);
+      console.groupEnd();
+    } catch (e) {
+      // Handle non-JSON responses
+      console.group('📥 INCOMING FETCH RESPONSE (non-JSON)');
+      console.log('📍 URL:', finalUrl);
+      console.log('📊 Status:', response.status, response.statusText);
+      console.log('🔑 Headers:', JSON.stringify(Object.fromEntries([...response.headers.entries()]), null, 2));
+      console.log('📦 Body: Unable to parse as JSON');
+      console.groupEnd();
+    }
+    
+    return response;
+  } catch (error) {
+    console.group('❌ FETCH ERROR');
+    console.log('📍 URL:', finalUrl);
+    console.error('Error:', error.message);
+    console.error('Stack:', error.stack);
+    console.groupEnd();
+    throw error;
+  }
+};
+
+
 const GitHubCallback = () => {
   const [searchParams] = useSearchParams();
   const code = searchParams.get('code');
@@ -48,7 +105,7 @@ const GitHubCallback = () => {
         });
 
         // Add more headers and options for better CORS handling
-        const response = await fetch(config.github.tokenProxyUrl, {
+        const response = await fetchWithLogging(config.github.tokenProxyUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
