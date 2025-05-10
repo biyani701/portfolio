@@ -216,10 +216,17 @@ function App(props) {
     const oauthCode = localStorage.getItem('oauth.code');
     if (oauthCode && location.pathname === '/') {
       console.log('Found OAuth code in localStorage, redirecting to callback');
+
+      // Clean up localStorage
       localStorage.removeItem('oauth.code');
       localStorage.removeItem('oauth.state');
       localStorage.removeItem('oauth.error');
-      navigate('/callback?code=' + oauthCode);
+
+      // Add a flag to prevent infinite loops
+      sessionStorage.setItem('oauth_redirect_processed', 'true');
+
+      // Navigate to callback with the code
+      navigate(`/callback?code=${oauthCode}`);
     }
   }, [location.pathname, navigate]);
 

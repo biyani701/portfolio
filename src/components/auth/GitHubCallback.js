@@ -15,7 +15,21 @@ const GitHubCallback = () => {
   const [status, setStatus] = useState('Processing GitHub login...');
 
   useEffect(() => {
+    // Check if we're in an infinite loop
+    const isProcessed = sessionStorage.getItem('oauth_redirect_processed');
+    console.log('GitHubCallback: Processing code, isProcessed flag =', isProcessed);
+
+    // If we don't have the processed flag and we're on the callback route,
+    // this might be a direct hit from GitHub OAuth that bypassed our 404.html
+    if (!isProcessed && window.location.pathname.includes('/callback')) {
+      console.log('Setting processed flag to prevent loops');
+      sessionStorage.setItem('oauth_redirect_processed', 'true');
+    }
+
     const exchangeCodeForToken = async () => {
+      // Clear the flag after we've used it
+      sessionStorage.removeItem('oauth_redirect_processed');
+
       if (!code) {
         setStatus('No authorization code found');
         setTimeout(() => navigate('/'), 5000);
