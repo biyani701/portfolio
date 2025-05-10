@@ -39,16 +39,40 @@ const GitHubCallback = () => {
       try {
         // Call your proxy server to exchange the code for an access token
         console.log('Using token proxy URL:', config.github.tokenProxyUrl);
+
+        // Log the environment variables for debugging
+        console.log('Environment variables:', {
+          clientId: process.env.REACT_APP_GITHUB_CLIENT_ID,
+          redirectUri: process.env.REACT_APP_REDIRECT_URI,
+          tokenProxyUrl: process.env.REACT_APP_TOKEN_PROXY_URL,
+        });
+
+        // Add more headers and options for better CORS handling
         const response = await fetch(config.github.tokenProxyUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Origin': window.location.origin,
           },
-          body: JSON.stringify({ code }),
+          mode: 'cors',
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            code,
+            redirect_uri: config.github.redirectUri
+          }),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to exchange code for token');
+          console.error('Token exchange failed with status:', response.status);
+          try {
+            // Try to get more error details
+            const errorData = await response.text();
+            console.error('Error response:', errorData);
+            throw new Error(`Failed to exchange code for token: ${response.status} ${errorData}`);
+          } catch (parseError) {
+            throw new Error(`Failed to exchange code for token: ${response.status}`);
+          }
         }
 
         const data = await response.json();
@@ -87,18 +111,32 @@ const GitHubCallback = () => {
           console.error('Response status:', error.response.status);
         }
 
-        // Check if the error is related to the token proxy
-        const errorMessage = error.message.includes('Failed to fetch')
-          ? 'Failed to connect to authentication server. Please try again later.'
-          : `Authentication failed: ${error.message}`;
+        // Log the current environment and configuration
+        console.error('Current configuration:', {
+          tokenProxyUrl: config.github.tokenProxyUrl,
+          redirectUri: config.github.redirectUri,
+          origin: window.location.origin,
+          currentUrl: window.location.href
+        });
 
-        setStatus(`${errorMessage}. Redirecting to home page in 10 seconds.`);
+        // Check if the error is related to the token proxy
+        let errorMessage = '';
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          errorMessage = 'Failed to connect to authentication server. This may be due to CORS restrictions. Please check the console for more details.';
+        } else if (error.message.includes('CORS')) {
+          errorMessage = 'CORS error: The authentication server is not configured to accept requests from this domain.';
+        } else {
+          errorMessage = `Authentication failed: ${error.message}`;
+        }
+
+        setStatus(`${errorMessage}. Redirecting to home page in 15 seconds.`);
 
         // Add a debug link
         console.log('For debugging, visit: /auth-debug');
+        console.log('Try using a different token proxy URL in your .env.local file');
 
         // Longer timeout to give user time to read the error
-        setTimeout(() => navigate('/'), 10000);
+        setTimeout(() => navigate('/'), 15000);
       }
     };
 
