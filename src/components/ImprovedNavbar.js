@@ -36,10 +36,13 @@ import WorkIcon from "@mui/icons-material/Work";
 import SchoolIcon from "@mui/icons-material/School";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import { resumeData } from "./resumeData";
+import { skillSections } from "./Skills"; // Import skillSections from Skills component
 
 import { useAuth } from "../context/AuthContext";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import SettingsIcon from '@mui/icons-material/Settings';
 import config from "../config";
 
 // Initialize Fuse.js for search functionality
@@ -47,6 +50,41 @@ const fuse = new Fuse(resumeData, {
   keys: ["section", "content"],
   threshold: 0.3, // lower is stricter
 });
+
+// Add skills data to search index
+const addSkillsToSearchIndex = (skillSections) => {
+  if (!skillSections) return;
+
+  // Create skill search entries
+  const skillEntries = [];
+
+  Object.entries(skillSections).forEach(([category, skills]) => {
+    // Add category as a section
+    const skillNames = skills.map(skill => skill.name).join(", ");
+    skillEntries.push({
+      section: category,
+      content: `Skills in ${category}: ${skillNames}`
+    });
+
+    // Add individual skills with more details
+    skills.forEach(skill => {
+      skillEntries.push({
+        section: "Skills",
+        content: `${skill.name} (${skill.years}+ years experience) - ${category}`
+      });
+    });
+  });
+
+  // Add to fuse index
+  skillEntries.forEach(entry => {
+    if (!resumeData.some(item =>
+      item.section === entry.section &&
+      item.content === entry.content
+    )) {
+      resumeData.push(entry);
+    }
+  });
+};
 
 // Styled components - using theme properly
 const Search = styled("div")(({ theme }) => ({
@@ -229,6 +267,14 @@ const NavigationBar = ({
   const [query, setQuery] = useState("");
   const [paletteAnchorEl, setPaletteAnchorEl] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
+  const [settingsHover, setSettingsHover] = useState(false);
+  // Add skills to search index
+  React.useEffect(() => {
+    // Add skills data to search index
+    addSkillsToSearchIndex(skillSections);
+  }, []);
+
   const results = fuse.search(query);
   const matches = query ? results.map((r) => r.item) : [];
 
@@ -288,7 +334,20 @@ const NavigationBar = ({
 
   const handleSearchResultClick = (section) => {
     handleSearchClose();
-    scrollToSection(section.toLowerCase());
+
+    // Handle skill-specific searches
+    if (section === "Skills" || Object.keys(skillSections).includes(section)) {
+      // If we're not on the home page, navigate there first
+      if (location.pathname !== "/") {
+        navigate("/", { state: { scrollTo: "skills" } });
+      } else {
+        // Scroll to skills section
+        scrollToSection("skills");
+      }
+    } else {
+      // For other sections, use the standard behavior
+      scrollToSection(section.toLowerCase());
+    }
   };
 
   const scrollToSection = (id) => {
@@ -308,6 +367,33 @@ const NavigationBar = ({
 
   const handlePaletteMenuClose = () => {
     setPaletteAnchorEl(null);
+  };
+
+  // Settings menu handlers
+  const handleSettingsClick = (event) => {
+    setSettingsAnchorEl(event.currentTarget);
+  };
+
+  const handleSettingsClose = () => {
+    if (!settingsHover) {
+      setSettingsAnchorEl(null);
+    }
+  };
+
+  const handleSettingsMouseEnter = (event) => {
+    setSettingsHover(true);
+    if (!settingsAnchorEl) {
+      setSettingsAnchorEl(event.currentTarget);
+    }
+  };
+
+  const handleSettingsMouseLeave = () => {
+    setSettingsHover(false);
+    setTimeout(() => {
+      if (!settingsHover) {
+        setSettingsAnchorEl(null);
+      }
+    }, 300);
   };
 
   const handlePaletteSelect = (index) => {
@@ -449,42 +535,7 @@ const NavigationBar = ({
                 Contact
               </Button>
 
-              {/* Theme Controls */}
-              <IconButton onClick={handleThemeToggle} sx={{ ml: 1 }}>
-                {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-              </IconButton>
 
-              <ColorPaletteButton
-                onClick={handlePaletteMenuOpen}
-                endIcon={<KeyboardArrowDownIcon />}
-              >
-                {availablePalettes[currentPaletteIndex]?.name || "Theme"}
-              </ColorPaletteButton>
-
-              <ColorPaletteMenu
-                anchorEl={paletteAnchorEl}
-                open={Boolean(paletteAnchorEl)}
-                onClose={handlePaletteMenuClose}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-              >
-                {availablePalettes.map((palette, index) => (
-                  <ColorPaletteItem
-                    key={palette.name}
-                    onClick={() => handlePaletteSelect(index)}
-                    selected={index === currentPaletteIndex}
-                    sx={{ color: palette.primary }}
-                  >
-                    {palette.name}
-                  </ColorPaletteItem>
-                ))}
-              </ColorPaletteMenu>
 
               <Search>
                 <SearchIconWrapper>
@@ -527,80 +578,173 @@ const NavigationBar = ({
                 )}
               </Search>
 
+              {/* Settings Icon */}
               <IconButton
-                onClick={handleMenuOpen}
+                onClick={handleSettingsClick}
+                onMouseEnter={handleSettingsMouseEnter}
                 color="inherit"
-                aria-label="user menu"
-                title={isAuthenticated ? "User Menu" : "Login with GitHub"}
+                aria-label="settings"
+                sx={{ ml: 1 }}
               >
-                {isAuthenticated && user?.avatar_url ? (
-                  <Avatar
-                    src={user.avatar_url}
-                    alt={user.login}
-                    sx={{ width: 32, height: 32 }}
-                  />
-                ) : (
-                  <Tooltip
-                    title={
-                      isAuthenticated
-                        ? "User Menu"
-                        : "Login with GitHub (Anonymous User)"
-                    }
-                  >
-                    <PersonIcon />
-                  </Tooltip>
-                )}
+                <SettingsIcon />
               </IconButton>
+
+              {/* Settings Menu */}
               <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
+                anchorEl={settingsAnchorEl}
+                open={Boolean(settingsAnchorEl)}
+                onClose={handleSettingsClose}
+                MenuListProps={{
+                  onMouseEnter: () => setSettingsHover(true),
+                  onMouseLeave: handleSettingsMouseLeave,
+                  sx: { minWidth: 220 }
+                }}
+                PaperProps={{
+                  elevation: 3,
+                  sx: {
+                    mt: 1.5,
+                    overflow: 'visible',
+                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                    '&:before': {
+                      content: '""',
+                      display: 'block',
+                      position: 'absolute',
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: 'background.paper',
+                      transform: 'translateY(-50%) rotate(45deg)',
+                      zIndex: 0,
+                    },
+                  },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
-                {isAuthenticated ? (
-                  <>
+                {/* User Profile Section */}
+                <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+                  {isAuthenticated ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      {user?.avatar_url ? (
+                        <Avatar
+                          src={user.avatar_url}
+                          alt={user.login}
+                          sx={{ width: 40, height: 40, mr: 1.5 }}
+                        />
+                      ) : (
+                        <Avatar sx={{ width: 40, height: 40, mr: 1.5 }}>
+                          <PersonIcon />
+                        </Avatar>
+                      )}
+                      <Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                          {user?.name || user?.login || 'User'}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {user?.email || 'Authenticated'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Avatar sx={{ width: 40, height: 40, mr: 1.5 }}>
+                        <PersonIcon />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                          Guest User
+                        </Typography>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<GitHubIcon />}
+                          onClick={() => {
+                            handleSettingsClose();
+                            const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
+                            window.location.href = githubAuthUrl;
+                          }}
+                        >
+                          Login with GitHub
+                        </Button>
+                      </Box>
+                    </Box>
+                  )}
+                </Box>
+
+                {/* Theme Toggle */}
+                <MenuItem onClick={() => toggleDarkMode(!isDarkMode)}>
+                  <ListItemIcon>
+                    {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+                  </ListItemIcon>
+                  <ListItemText primary={isDarkMode ? "Light Mode" : "Dark Mode"} />
+                </MenuItem>
+
+                {/* Color Palette Section */}
+                <Box sx={{ px: 2, py: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                    Color Theme
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {availablePalettes.map((palette, index) => (
+                      <Tooltip key={palette.name} title={palette.name} arrow>
+                        <Box
+                          onClick={() => handlePaletteSelect(index)}
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            borderRadius: '50%',
+                            bgcolor: palette.primary,
+                            border: '2px solid',
+                            borderColor: index === currentPaletteIndex ? 'primary.main' : 'transparent',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s',
+                            '&:hover': {
+                              transform: 'scale(1.2)',
+                            },
+                          }}
+                        />
+                      </Tooltip>
+                    ))}
+                  </Box>
+                </Box>
+
+                {/* User Actions */}
+                {isAuthenticated && (
+                  <Box sx={{ borderTop: '1px solid', borderColor: 'divider' }}>
                     <MenuItem
                       component={RouterLink}
                       to="/profile"
-                      onClick={handleMenuClose}
+                      onClick={handleSettingsClose}
                     >
-                      Profile
+                      <ListItemIcon>
+                        <PersonIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary="Profile" />
                     </MenuItem>
                     <MenuItem
                       component={RouterLink}
                       to="/dashboard"
-                      onClick={handleMenuClose}
+                      onClick={handleSettingsClose}
                     >
-                      Dashboard
+                      <ListItemIcon>
+                        <DashboardIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary="Dashboard" />
                     </MenuItem>
-                    <MenuItem onClick={handleLogout}>
-                      <LogoutIcon size={16} style={{ marginRight: 8 }} />
-                      Logout
+                    <MenuItem onClick={() => {
+                      handleSettingsClose();
+                      logout();
+                    }}>
+                      <ListItemIcon>
+                        <LogoutIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary="Logout" />
                     </MenuItem>
-                  </>
-                ) : (
-                  <MenuItem
-                    onClick={() => {
-                      console.log("Login clicked. Value o config.github is");
-                      console.log(config.github);
-                      // const returnTo = encodeURIComponent(
-                      //   "http://localhost:3000/callback"
-                      // );
-                      // const redirectUri = `https://vishal.biyani.xyz/api/github/callback?return_to=${returnTo}`;
-
-                      handleMenuClose();
-                      setTimeout(() => {
-                        const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
-                          // const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
-                        console.log(githubAuthUrl);
-                          window.location.href = githubAuthUrl;
-                      }, 10000);
-                    }}
-                  >
-                    <GitHubIcon style={{ marginRight: 8 }} />
-                    Login with GitHub
-                  </MenuItem>
+                  </Box>
                 )}
               </Menu>
+
             </Box>
           )}
 
@@ -612,7 +756,12 @@ const NavigationBar = ({
               }
               edge="end"
               onClick={handleDrawerToggle}
-              sx={{ ml: "auto" }}
+              sx={{
+                ml: "auto",
+                position: { xs: "absolute", sm: "relative" },
+                right: { xs: 8, sm: "auto" },
+                zIndex: 1100
+              }}
             >
               <MenuIcon />
             </IconButton>

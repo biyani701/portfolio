@@ -10,8 +10,8 @@ export const palettes = {
       name: 'Sunny Day',
       primary: '#FFEB3B',
       secondary: '#FFC107',
-      background: { 
-        default: '#FFFDE7', paper: '#FFFFFF', header: '#F57F17', footer: '#F57F17' 
+      background: {
+        default: '#FFFDE7', paper: '#FFFFFF', header: '#F57F17', footer: '#F57F17'
       },
       text: { primary: '#212121', secondary: '#757575' },
       appLink: '#FFEB3B',
@@ -119,8 +119,8 @@ export const palettes = {
         secondary: '#5F5F00',
       },
       appLink: '#D6D58B',
-    },   
-    
+    },
+
   ],
   dark: [
     {
@@ -227,8 +227,8 @@ export const palettes = {
       },
       appLink: '#77B1D4',
     },
-    
-    
+
+
   ],
 };
 
@@ -254,6 +254,11 @@ export const getTheme = (mode, paletteIndex = 0) => {
         md: 900,
         lg: 1200,
         xl: 1536,
+        // Custom breakpoints for specific devices
+        mobile: 480,  // Most mobile phones
+        smallMobile: 320, // Small mobile phones
+        largeMobile: 540, // Large mobile phones
+        tablet: 768,  // Tablets
       },
     },
     spacing: 8, // 8px grid, so theme.spacing(2) = 16px
@@ -286,7 +291,7 @@ export const getTheme = (mode, paletteIndex = 0) => {
       error: { main: '#f44336' },
       // default: { main: '#f44336' },
       default: { main: selectedPalette.primary },
-      alpha: semanticColors.alpha, 
+      alpha: semanticColors.alpha,
       beta: semanticColors.beta,
       gamma: semanticColors.gamma,
       theta: semanticColors.theta,
@@ -372,7 +377,7 @@ export const getTheme = (mode, paletteIndex = 0) => {
       },
       htmlFontSize: 16,
       fontSize: 14,
-      // End Newly Added Typography Styles      
+      // End Newly Added Typography Styles
     },
     shape: {
       borderRadius: 8,

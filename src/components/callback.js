@@ -35,7 +35,7 @@ const GitHubCallback = () => {
         setStatus('Exchanging code for token...');
 
         // Send code to your proxy server
-        const response = await fetch('https://auth.vishal.biyani.xyz/api/github-token', {
+        const response = await fetch('https://auth.vishal.biyani.xyz/api/github-token.js', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

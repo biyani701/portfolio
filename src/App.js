@@ -35,6 +35,7 @@ import PrivacyPolicy from "./components/PrivacyPolicy";
 import BlogEditor from "./components/BlogEditor";
 import GitHubCallback from "./components/auth/GitHubCallback";
 import GitHubAuth from "./components/auth/GitHubAuth";
+import AuthDebug from "./components/auth/AuthDebug";
 import ProfilePage from "./components/ProfilePage";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -330,6 +331,7 @@ function App(props) {
             <Route path="/blogs/:dateFolder/:blogId" element={<BlogPost />} /> */}
             <Route path="/blog/new" element={<BlogEditor />} />
             <Route path="/callback" element={<GitHubCallback />} />
+            <Route path="/auth-debug" element={<AuthDebug />} />
             {/* <Route path="/blog/edit/:blogId" element={<BlogEditor />} /> */}
 
             {/* <Route path="*" element={<div>404 Not Found</div>} /> */}
