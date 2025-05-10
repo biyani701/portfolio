@@ -22,10 +22,13 @@
           console.log("💾 Stored OAuth info in localStorage");
         }
 
-        if (code) {
-          // Redirect directly to the callback route instead of using hash
-          sessionStorage.redirect = "/callback" + search;
-          console.log("↪️ OAuth redirect path set to callback:", "/callback" + search);
+        // Check if we're already on the callback path to prevent infinite loops
+        const isCallbackPath = window.location.pathname.includes('/callback');
+
+        if (code && !isCallbackPath) {
+          // Store the code in localStorage but don't redirect to callback again
+          console.log("↪️ OAuth code detected, will be handled by main app");
+          // We'll let the main app handle the redirect to avoid loops
         }
 
         const finalRedirect = sessionStorage.redirect;
@@ -36,11 +39,27 @@
         }
 
         if (!debug) {
-          setTimeout(() => {
-            const redirectTo = finalRedirect || "/";
-            console.log("⏩ Redirecting to", redirectTo, "now...");
-            window.location.href = redirectTo;
-          }, 500); // Reduced to 500ms for faster redirection
+          // Always redirect to home page for OAuth flows
+          if (code) {
+            console.log("⏩ OAuth flow detected, redirecting to home page...");
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 500);
+          }
+          // For other 404s, use the stored redirect if available
+          else if (finalRedirect) {
+            console.log("⏩ Redirecting to", finalRedirect, "now...");
+            setTimeout(() => {
+              window.location.href = finalRedirect;
+            }, 500);
+          }
+          // Default fallback
+          else {
+            console.log("⏩ No redirect found, going to home page...");
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 500);
+          }
         } else {
           console.log("🛑 Debug mode — staying on this page.");
         }
