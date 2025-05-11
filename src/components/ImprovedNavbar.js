@@ -53,7 +53,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import { resumeData } from "./resumeData";
 import { skillSections } from "./Skills"; // Import skillSections from Skills component
 
-import { useAuth } from "../context/AuthContext";
+import { useAuthContext } from "../context/AuthProvider";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import SettingsIcon from "@mui/icons-material/Settings";
 import config from "../config";
@@ -308,7 +308,7 @@ const NavigationBar = ({
   const results = fuse.search(query);
   const matches = query ? results.map((r) => r.item) : [];
 
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, signOut } = useAuthContext();
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -318,7 +318,7 @@ const NavigationBar = ({
   };
 
   const handleLogout = () => {
-    logout();
+    signOut();
     handleMenuClose();
   };
 
@@ -842,14 +842,12 @@ const NavigationBar = ({
                         <Button
                           size="small"
                           variant="outlined"
-                          startIcon={<GitHubIcon />}
                           onClick={() => {
                             handleSettingsClose();
-                            const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
-                            window.location.href = githubAuthUrl;
+                            navigate('/signin');
                           }}
                         >
-                          Login with GitHub
+                          Sign In
                         </Button>
                       </Box>
                     </Box>
@@ -1162,14 +1160,13 @@ const NavigationBar = ({
               button
               onClick={() => {
                 handleDrawerToggle();
-                const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
-                window.location.href = githubAuthUrl;
+                navigate('/signin');
               }}
             >
               <ListItemIcon>
-                <GitHubIcon />
+                <PersonIcon />
               </ListItemIcon>
-              <ListItemText primary="Login with GitHub" />
+              <ListItemText primary="Sign In" />
             </ListItem>
           )}
         </List>

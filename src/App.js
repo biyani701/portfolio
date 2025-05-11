@@ -38,30 +38,27 @@ import GitHubAuth from "./components/auth/GitHubAuth";
 import AuthDebug from "./components/auth/AuthDebug";
 import ProfilePage from "./components/ProfilePage";
 import CreditsPage from "./components/credits/CreditsPage";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import SimpleSignIn from "./components/auth/SimpleSignIn";
+import AuthServerDebug from "./components/auth/AuthServerDebug";
+import GoogleCallback from "./components/auth/GoogleCallback";
+import AuthProvider from "./context/AuthProvider";
+import { useAuthContext } from "./context/AuthProvider";
 
 // Import just the minimal non-themeable styles
 import "./App.minimal.css";
 import { palettes } from "./theme";
 
 export const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-  const navigate = useNavigate();
+  const { isAuthenticated, loading } = useAuthContext();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      // Store the intended destination to redirect back after login
-      sessionStorage.setItem("auth_redirect", location.pathname);
-
-      // Redirect to GitHub login if not authenticated
-      const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
-      console.log(githubAuthUrl);
-
-      // Redirect to GitHub login
-      window.location.href = githubAuthUrl;
+      // Navigate to sign-in page with current location for redirect after login
+      navigate('/signin', { state: { from: location } });
     }
-  }, [loading, isAuthenticated, location.pathname]);
+  }, [loading, isAuthenticated, location, navigate]);
 
   if (loading) {
     return <div>Loading authentication...</div>;
@@ -126,15 +123,15 @@ function App(props) {
         // First try to read from cookies (preferred when consent exists)
         const cookieMode = getCookieValue('themeMode');
         const cookiePaletteIndex = getCookieValue('themePaletteIndex');
-        
+
         if (cookieMode) {
           setMode(cookieMode);
         }
-        
+
         if (cookiePaletteIndex && !isNaN(parseInt(cookiePaletteIndex, 10))) {
           setPaletteIndex(parseInt(cookiePaletteIndex, 10));
         }
-        
+
         // If cookies don't exist, fall back to localStorage
         if (!cookieMode) {
           const localMode = localStorage.getItem('themeMode');
@@ -142,7 +139,7 @@ function App(props) {
             setMode(localMode);
           }
         }
-        
+
         if (!cookiePaletteIndex) {
           const localPaletteIndex = localStorage.getItem('themePaletteIndex');
           if (localPaletteIndex && !isNaN(parseInt(localPaletteIndex, 10))) {
@@ -168,7 +165,7 @@ function App(props) {
       try {
         const manager = window.klaro?.getManager?.();
         const consents = manager?.consents;
-        
+
         // If we have consent, save to cookies again to ensure they exist
         if (consents?.essentialCookies === true) {
           saveThemePreferences(mode, paletteIndex);
@@ -189,7 +186,7 @@ function App(props) {
   // Save theme preferences whenever they change
   useEffect(() => {
     saveThemePreferences(mode, paletteIndex);
-    
+
     // Apply data-theme attribute for any components that might need it
     document.documentElement.setAttribute("data-theme", mode);
   }, [mode, paletteIndex]);
@@ -200,12 +197,12 @@ function App(props) {
       // Always save to localStorage as fallback
       localStorage.setItem("themeMode", currentMode);
       localStorage.setItem("themePaletteIndex", currentPaletteIndex.toString());
-      
+
       // Check for cookie consent
       const manager = window.klaro?.getManager?.();
       const consents = manager?.consents;
       const cookieConsent = consents?.essentialCookies === true;
-      
+
       // If we have consent or no Klaro (development), save to cookies
       if (cookieConsent || !window.klaro) {
         // Set cookies with 365 days expiry
@@ -218,7 +215,7 @@ function App(props) {
       console.warn('Error saving theme preferences:', error);
     }
   };
-  
+
   // End New Code
 
   useEffect(() => {
@@ -358,8 +355,8 @@ function App(props) {
     try {
       const manager = window.klaro?.getManager?.();
       const consents = manager?.consents;
-      const cookieConsent = consents?.essentialCookies === true;     
-      
+      const cookieConsent = consents?.essentialCookies === true;
+
 
       // If we have consent or no Klaro (development), save to cookies
       if (cookieConsent || !window.klaro) {
@@ -461,12 +458,19 @@ function App(props) {
             <Route path="/works" element={<Works />} />
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/login" element={<GitHubAuth />} />
+            <Route path="/signin" element={<SimpleSignIn />} />
+            <Route path="/auth-debug" element={<AuthServerDebug />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<PrivacyPolicy initialTab={1} />} />
             {/* Blog Routes */}
             {/* <Route path="/blogs" element={<BlogList />} />
             <Route path="/blogs/:dateFolder/:blogId" element={<BlogPost />} /> */}
             <Route path="/blog/new" element={<BlogEditor />} />
+            {/* Auth.js callback routes */}
+            <Route path="/api/auth/callback/github" element={<GitHubCallback />} />
+            <Route path="/api/auth/callback/google" element={<GoogleCallback />} />
+
+            {/* Legacy callback route for backward compatibility */}
             <Route path="/callback" element={<GitHubCallback />} />
             <Route path="/auth-debug" element={<AuthDebug />} />
             <Route path="/credits" element={<CreditsPage />} />

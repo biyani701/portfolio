@@ -46,6 +46,23 @@ export default function CreditsPage() {
           . I adapted the concept into a React-based UI using MUI.
         </Typography>
       </Box>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          Responsive Skill Icons
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 1 }}>
+          Got the idea to use responsive icons for Skills from {' '}
+          <Link
+            href="https://dev.to/chrisbenjamin/responsive-skill-icons-for-your-portfolio-tutorial-2270"
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ color: theme.palette.secondary.main }}
+          >
+            Chris Benjamin&apos;s article on DEV.to
+          </Link>
+          . I adapted the concept into a React-based UI using MUI.
+        </Typography>
+      </Box>
 
       <Box sx={{ mb: 4 }}>
         <Typography variant="h6" sx={{ fontWeight: 500 }}>

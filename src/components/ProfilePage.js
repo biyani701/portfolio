@@ -1,60 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from "prop-types";
 
-import { 
-  Container, 
-  Typography, 
-  Box, 
-  Avatar, 
-  Paper, 
-  Grid, 
-  List, 
-  ListItem, 
+import {
+  Container,
+  Typography,
+  Box,
+  Avatar,
+  Paper,
+  Grid,
+  List,
+  ListItem,
   ListItemText,
   Chip,
   Divider,
   CircularProgress
 } from '@mui/material';
 
-import { 
-  GitHub, 
-  Mail, 
-  Link as LinkIcon,   
-  Star 
+import {
+  GitHub,
+  Mail,
+  Link as LinkIcon,
+  Star
 } from '@mui/icons-material';
 import PersonIcon from '@mui/icons-material/Person';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import { useAuth } from '../context/AuthContext';
+import { useAuthContext } from '../context/AuthProvider';
 
 const ProfilePage = () => {
-  const { user, token, fetchUserRepos} = useAuth();
+  const { user, session } = useAuthContext();
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadRepos = async () => {
-      if (!token) return;
-      
+      if (!user || !session) return;
+
       try {
         setLoading(true);
-        const repoData = await fetchUserRepos();
-        
-        if (repoData) {
-          // Sort repos by stars
-          const sortedRepos = repoData.sort((a, b) => 
-            b.stargazers_count - a.stargazers_count
-          );
-          setRepos(sortedRepos.slice(0, 5)); // Just take top 5
+
+        // Fetch user repos directly
+        const response = await fetch('https://api.github.com/user/repos', {
+          headers: {
+            Authorization: `token ${session.accessToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch repositories');
         }
+
+        const repoData = await response.json();
+
+        // Sort repos by stars
+        const sortedRepos = repoData.sort((a, b) =>
+          b.stargazers_count - a.stargazers_count
+        );
+        setRepos(sortedRepos.slice(0, 5)); // Just take top 5
       } catch (error) {
         console.error('Error loading repos:', error);
       } finally {
         setLoading(false);
       }
     };
-    
+
     loadRepos();
-  }, [token, fetchUserRepos]);
+  }, [user, session]);
 
   if (loading || !user) {
     return (
@@ -83,104 +93,104 @@ const ProfilePage = () => {
             <Typography variant="body1" color="text.secondary" gutterBottom>
               @{user.login}
             </Typography>
-            
+
             {user.bio && (
               <Typography variant="body2" sx={{ mt: 2, mb: 3 }}>
                 {user.bio}
               </Typography>
             )}
-            
+
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mb: 2 }}>
-              <Chip 
-                icon={<PersonIcon size={16} />} 
-                label={`${user.followers} followers`} 
+              <Chip
+                icon={<PersonIcon size={16} />}
+                label={`${user.followers} followers`}
                 variant="outlined"
               />
-              <Chip 
-                icon={<PersonIcon size={16} />} 
-                label={`${user.following} following`} 
+              <Chip
+                icon={<PersonIcon size={16} />}
+                label={`${user.following} following`}
                 variant="outlined"
               />
             </Box>
           </Grid>
-          
+
           <Grid item xs={12} md={8}>
             <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
               <GitHub size={20} style={{ marginRight: 8 }} />
               GitHub Profile Information
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <List dense>
               {user.company && (
                 <ListItem>
-                  <ListItemText 
-                    primary="Organization" 
-                    secondary={user.company} 
+                  <ListItemText
+                    primary="Organization"
+                    secondary={user.company}
                   />
                 </ListItem>
               )}
-              
+
               {user.location && (
                 <ListItem>
-                  <ListItemText 
+                  <ListItemText
                     primary={
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <LocationOnIcon size={16} style={{ marginRight: 8 }} />
                         Location
                       </Box>
-                    } 
-                    secondary={user.location} 
+                    }
+                    secondary={user.location}
                   />
                 </ListItem>
               )}
-              
+
               {user.email && (
                 <ListItem>
-                  <ListItemText 
+                  <ListItemText
                     primary={
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Mail size={16} style={{ marginRight: 8 }} />
                         Email
                       </Box>
-                    } 
-                    secondary={user.email} 
+                    }
+                    secondary={user.email}
                   />
                 </ListItem>
               )}
-              
+
               {user.blog && (
                 <ListItem>
-                  <ListItemText 
+                  <ListItemText
                     primary={
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <LinkIcon size={16} style={{ marginRight: 8 }} />
                         Website
                       </Box>
-                    } 
+                    }
                     secondary={
                       <a href={user.blog} target="_blank" rel="noopener noreferrer">
                         {user.blog}
                       </a>
-                    } 
+                    }
                   />
                 </ListItem>
               )}
-              
+
               <ListItem>
-                <ListItemText 
-                  primary="Public repositories" 
-                  secondary={user.public_repos} 
+                <ListItemText
+                  primary="Public repositories"
+                  secondary={user.public_repos}
                 />
               </ListItem>
             </List>
-            
+
             <Typography variant="h6" gutterBottom sx={{ mt: 4, display: 'flex', alignItems: 'center' }}>
               <Star size={20} style={{ marginRight: 8 }} />
               Top Repositories
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             {loading ? (
               <Box sx={{ textAlign: 'center', py: 2 }}>
                 <CircularProgress size={24} />
@@ -191,9 +201,9 @@ const ProfilePage = () => {
                   <ListItem key={repo.id} sx={{ border: '1px solid', borderColor: 'divider', mb: 1, borderRadius: 1 }}>
                     <ListItemText
                       primary={
-                        <a 
-                          href={repo.html_url} 
-                          target="_blank" 
+                        <a
+                          href={repo.html_url}
+                          target="_blank"
                           rel="noopener noreferrer"
                           style={{ textDecoration: 'none' }}
                         >
@@ -207,11 +217,11 @@ const ProfilePage = () => {
                             {repo.language && (
                               <Chip label={repo.language} size="small" />
                             )}
-                            <Chip 
-                              icon={<Star size={14} />} 
-                              label={repo.stargazers_count} 
-                              size="small" 
-                              variant="outlined" 
+                            <Chip
+                              icon={<Star size={14} />}
+                              label={repo.stargazers_count}
+                              size="small"
+                              variant="outlined"
                             />
                           </Box>
                         </>

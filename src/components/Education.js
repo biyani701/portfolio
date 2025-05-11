@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { 
-  Box, 
-  Container, 
-  Typography, 
+import {
+  Box,
+  Container,
+  Typography,
   CardContent,
   Stack,
   Paper,
@@ -42,10 +42,10 @@ const Education = () => {
   ];
 
   return (
-    <Box 
-      id="education" 
-      sx={{ 
-        py: 6, 
+    <Box
+      id="education"
+      sx={{
+        py: 6,
         backgroundColor: theme.palette.background.default
       }}
     >
@@ -64,12 +64,12 @@ const Education = () => {
               elevation={hoveredIndex === index ? 4 : 1}
               sx={{
                 borderLeft: '4px solid',
-                borderColor: hoveredIndex === index ? 
-                  theme.palette.primary.main : 
+                borderColor: hoveredIndex === index ?
+                  theme.palette.primary.main :
                   theme.palette.divider,
                 transition: 'all 0.3s ease',
-                transform: hoveredIndex === index ? 
-                  'translateX(4px)' : 
+                transform: hoveredIndex === index ?
+                  'translateX(4px)' :
                   'none',
                 overflow: 'hidden'
               }}
@@ -80,24 +80,24 @@ const Education = () => {
                 <Typography variant="h6" fontWeight="bold" gutterBottom>
                   {item.degree}
                 </Typography>
-                <Typography 
-                  variant="subtitle1" 
-                  color="primary" 
+                <Typography
+                  variant="subtitle1"
+                  color="primary"
                   gutterBottom
                 >
                   {item.institution}
                 </Typography>
-                <Box 
-                  sx={{ 
+                <Box
+                  sx={{
                     display: 'flex',
                     justifyContent: 'center',
                     mb: 2
                   }}
                 >
-                  <Stack 
-                    direction="row" 
-                    alignItems="center" 
-                    spacing={1} 
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1}
                     sx={{ color: theme.palette.text.secondary }}
                   >
                     <CalendarTodayIcon fontSize="small" />
@@ -106,11 +106,11 @@ const Education = () => {
                     </Typography>
                   </Stack>
                 </Box>
-                
-                {/* <Stack 
-                  direction="row" 
-                  alignItems="center" 
-                  spacing={1} 
+
+                {/* <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={1}
                   sx={{ color: theme.palette.text.secondary, mb: 2 }}
                 >
                   <CalendarTodayIcon fontSize="small" />
@@ -118,10 +118,8 @@ const Education = () => {
                     {item.period}
                   </Typography>
                 </Stack> */}
-                <PassionText>
-                <Typography variant="body1" color="text.secondary">
+                <PassionText variant="body1">
                   {item.description}
-                </Typography>
                 </PassionText>
               </CardContent>
             </Paper>

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuthContext } from '../../context/AuthProvider';
 import { Box, Typography, Paper, TextField, Button, Divider, Alert, CircularProgress } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import config from '../../config';
 
 const AuthDebug = () => {
-  const { isAuthenticated, user, loading } = useAuth();
+  const { isAuthenticated, user, loading } = useAuthContext();
   const [authCode, setAuthCode] = useState('');
   const [authToken, setAuthToken] = useState('');
   const [tokenResponse, setTokenResponse] = useState(null);
@@ -33,7 +33,7 @@ const AuthDebug = () => {
 
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch(config.github.tokenProxyUrl, {
         method: 'POST',
@@ -45,7 +45,7 @@ const AuthDebug = () => {
 
       const data = await response.json();
       setTokenResponse(data);
-      
+
       if (data.access_token) {
         setAuthToken(data.access_token);
       } else {
@@ -67,7 +67,7 @@ const AuthDebug = () => {
 
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('https://api.github.com/user', {
         headers: {
@@ -94,7 +94,7 @@ const AuthDebug = () => {
       <Typography variant="h4" gutterBottom>
         GitHub Authentication Debug
       </Typography>
-      
+
       {loading ? (
         <CircularProgress />
       ) : (
@@ -108,9 +108,9 @@ const AuthDebug = () => {
           {isAuthenticated && user && (
             <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle1">User Info:</Typography>
-              <pre style={{ 
-                backgroundColor: '#f5f5f5', 
-                padding: '10px', 
+              <pre style={{
+                backgroundColor: '#f5f5f5',
+                padding: '10px',
                 borderRadius: '4px',
                 overflow: 'auto',
                 maxHeight: '200px'
@@ -126,8 +126,8 @@ const AuthDebug = () => {
         <Typography variant="h6" gutterBottom>
           Start New Authentication
         </Typography>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           color="primary"
           href={generateAuthUrl()}
           sx={{ mb: 2 }}
@@ -151,21 +151,21 @@ const AuthDebug = () => {
           margin="normal"
           helperText="Enter the code from the URL after GitHub authorization"
         />
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={exchangeCodeForToken}
           disabled={isLoading || !authCode}
           sx={{ mt: 1 }}
         >
           Exchange Code for Token
         </Button>
-        
+
         {tokenResponse && (
           <Box sx={{ mt: 2 }}>
             <Typography variant="subtitle1">Token Response:</Typography>
-            <pre style={{ 
-              backgroundColor: '#f5f5f5', 
-              padding: '10px', 
+            <pre style={{
+              backgroundColor: '#f5f5f5',
+              padding: '10px',
               borderRadius: '4px',
               overflow: 'auto',
               maxHeight: '200px'
@@ -188,21 +188,21 @@ const AuthDebug = () => {
           margin="normal"
           helperText="Enter the access token to fetch user data"
         />
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={fetchUserData}
           disabled={isLoading || !authToken}
           sx={{ mt: 1 }}
         >
           Fetch User Data
         </Button>
-        
+
         {userResponse && (
           <Box sx={{ mt: 2 }}>
             <Typography variant="subtitle1">User Data:</Typography>
-            <pre style={{ 
-              backgroundColor: '#f5f5f5', 
-              padding: '10px', 
+            <pre style={{
+              backgroundColor: '#f5f5f5',
+              padding: '10px',
               borderRadius: '4px',
               overflow: 'auto',
               maxHeight: '200px'
