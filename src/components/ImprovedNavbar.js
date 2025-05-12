@@ -23,6 +23,7 @@ import {
   Divider,
   useMediaQuery,
   Tooltip,
+  Icon,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -50,6 +51,8 @@ import SchoolIcon from "@mui/icons-material/School";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import { resumeData } from "./resumeData";
 import { skillSections } from "./Skills"; // Import skillSections from Skills component
 
@@ -58,6 +61,7 @@ import { useAuth as useLegacyAuth } from "../context/AuthContext";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import SettingsIcon from "@mui/icons-material/Settings";
 import config from "../config";
+import domainKnowledgeData from "../data/domainKnowledgeData";
 
 const itemVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -5 },
@@ -300,6 +304,7 @@ const NavigationBar = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
   const [settingsHover, setSettingsHover] = useState(false);
+  const [knowledgeAnchorEl, setKnowledgeAnchorEl] = useState(null);
   // Add skills to search index
   React.useEffect(() => {
     // Add skills data to search index
@@ -633,36 +638,15 @@ const NavigationBar = ({
                 anchorEl={resumeAnchorEl}
                 open={Boolean(resumeAnchorEl)}
                 onClose={handleResumeMenuClose}
-                slots={{
-                  paper: "div", // default
-                  popper: "div", // default
-                  transition: Grow, // replaces deprecated `TransitionComponent`
-                }}
-                slotProps={{
-                  popper: {
-                    placement: "bottom-end",
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, 4], // optional spacing between anchor and menu
-                        },
-                      },
-                    ],
-                  },
-                  transition: {
-                    timeout: 200,
-                  },
-                  paper: {
-                    sx: {
-                      borderRadius: 2,
-                      minWidth: 240,
-                      p: 1,
-                      boxShadow: 4,
-                    },
-                  },
-                  listbox: {
-                    "aria-labelledby": "resume-button",
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                PaperProps={{
+                  elevation: 4,
+                  sx: {
+                    borderRadius: 2,
+                    minWidth: 220,
+                    bgcolor: theme.palette.background.paper,
+                    boxShadow: theme.shadows[4],
                   },
                 }}
               >
@@ -734,6 +718,100 @@ const NavigationBar = ({
               <Button component={RouterLink} to="/works">
                 Portfolio
               </Button>
+
+              {/* Knowledge Base Menu */}
+              <Button
+                id="knowledge-button"
+                onClick={(e) => setKnowledgeAnchorEl(e.currentTarget)}
+                endIcon={<KeyboardArrowDownIcon />}
+                aria-controls="knowledge-menu"
+                aria-haspopup="true"
+                aria-expanded={Boolean(knowledgeAnchorEl) ? "true" : undefined}
+              >
+                Knowledge Base
+              </Button>
+              <Menu
+                id="knowledge-menu"
+                anchorEl={knowledgeAnchorEl}
+                open={Boolean(knowledgeAnchorEl)}
+                onClose={() => setKnowledgeAnchorEl(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                PaperProps={{
+                  elevation: 4,
+                  sx: {
+                    borderRadius: 2,
+                    minWidth: 220,
+                    bgcolor: theme.palette.background.paper,
+                    boxShadow: theme.shadows[4],
+                    p: 1
+                  },
+                }}
+              >
+                <MenuItem
+                  component={RouterLink}
+                  to="/knowledge"
+                  onClick={() => setKnowledgeAnchorEl(null)}
+                  sx={{
+                    py: 1.2,
+                    px: 2,
+                    gap: 1,
+                  }}
+                >
+                  <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                    <MenuBookIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Overview" />
+                </MenuItem>
+                <MenuItem
+                  component={RouterLink}
+                  to="/knowledge/glossary"
+                  onClick={() => setKnowledgeAnchorEl(null)}
+                  sx={{
+                    py: 1.2,
+                    px: 2,
+                    gap: 1,
+                  }}
+                >
+                  <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                    <LibraryBooksIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Glossary" />
+                </MenuItem>
+                <Divider sx={{ my: 1 }} />
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    px: 2,
+                    py: 0.5,
+                    fontWeight: 600,
+                    color: theme.palette.text.secondary,
+                    textTransform: "uppercase",
+                    fontSize: "0.75rem",
+                  }}
+                >
+                  Domain Knowledge
+                </Typography>
+                {domainKnowledgeData.categories.map((category) => (
+                  <MenuItem
+                    key={category.id}
+                    component={RouterLink}
+                    to={`/knowledge/domain/${category.id}`}
+                    onClick={() => setKnowledgeAnchorEl(null)}
+                    sx={{
+                      py: 1.2,
+                      px: 2,
+                      gap: 1,
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                      <Icon>{category.icon}</Icon>
+                    </ListItemIcon>
+                    <ListItemText primary={category.name} />
+                  </MenuItem>
+                ))}
+              </Menu>
+
               <Button component={RouterLink} to="/blogs">
                 Blog
               </Button>
@@ -1085,6 +1163,44 @@ const NavigationBar = ({
             </ListItemIcon>
             <ListItemText primary="Blog" />
           </ListItem>
+
+          {/* Knowledge Base Section */}
+          <ListItem>
+            <ListItemText
+              primary={
+                <Typography variant="subtitle2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  Knowledge Base
+                </Typography>
+              }
+            />
+          </ListItem>
+          <ListItem
+            button
+            component={RouterLink}
+            to="/knowledge/glossary"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon>
+              <LibraryBooksIcon />
+            </ListItemIcon>
+            <ListItemText primary="Glossary" />
+          </ListItem>
+          {domainKnowledgeData.categories.map((category) => (
+            <ListItem
+              key={category.id}
+              button
+              component={RouterLink}
+              to={`/knowledge/domain/${category.id}`}
+              onClick={handleDrawerToggle}
+              sx={{ pl: 4 }}
+            >
+              <ListItemIcon>
+                <Icon>{category.icon}</Icon>
+              </ListItemIcon>
+              <ListItemText primary={category.name} />
+            </ListItem>
+          ))}
+
           <ListItem
             button
             component={RouterLink}

@@ -46,6 +46,16 @@ import AuthCallback from "./components/auth/AuthCallback";
 import AuthProvider from "./context/AuthProvider";
 import { useAuthContext } from "./context/AuthProvider";
 
+// Knowledge Base components
+import KnowledgeBase from "./components/knowledge/KnowledgeBase";
+import Glossary from "./components/knowledge/Glossary";
+import DomainKnowledge from "./components/knowledge/DomainKnowledge";
+
+// Enhanced Blog components
+import BlogList from "./components/blog/BlogList";
+import BlogPost from "./components/blog/BlogPost";
+import EnhancedBlogEditor from "./components/blog/EnhancedBlogEditor";
+
 // Import just the minimal non-themeable styles
 import "./App.minimal.css";
 import { palettes } from "./theme";
@@ -458,17 +468,25 @@ function App(props) {
               }
             />
             <Route path="/works" element={<Works />} />
-            <Route path="/blogs" element={<Blogs />} />
+
+            {/* Knowledge Base Routes */}
+            <Route path="/knowledge" element={<KnowledgeBase />} />
+            <Route path="/knowledge/glossary" element={<Glossary />} />
+            <Route path="/knowledge/domain/:categoryId" element={<DomainKnowledge />} />
+
+            {/* Blog Routes */}
+            <Route path="/blogs" element={<BlogList />} />
+            <Route path="/blogs/:blogId" element={<BlogPost />} />
+            <Route path="/blog/new" element={<EnhancedBlogEditor />} />
+            <Route path="/blog/edit/:blogId" element={<EnhancedBlogEditor editMode={true} />} />
+
+            {/* Auth Routes */}
             <Route path="/login" element={<GitHubAuth />} />
             <Route path="/signin" element={<SimpleSignIn />} />
             <Route path="/logout" element={<LogoutPage />} />
             <Route path="/auth-debug" element={<AuthServerDebug />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<PrivacyPolicy initialTab={1} />} />
-            {/* Blog Routes */}
-            {/* <Route path="/blogs" element={<BlogList />} />
-            <Route path="/blogs/:dateFolder/:blogId" element={<BlogPost />} /> */}
-            <Route path="/blog/new" element={<BlogEditor />} />
             {/* Auth.js callback routes */}
             <Route path="/api/auth/callback/github" element={<GitHubCallback />} />
             <Route path="/api/auth/callback/google" element={<GoogleCallback />} />
