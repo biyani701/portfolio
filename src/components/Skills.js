@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Grid,
   Paper,
@@ -6,7 +6,7 @@ import {
   LinearProgress,
   Box,
   useTheme,
-  Chip,  
+  Chip,
   ToggleButtonGroup,
   ToggleButton,
   TextField,
@@ -16,7 +16,9 @@ import {
   Card,
   CardContent,
   Tooltip,
+  Rating,
 } from "@mui/material";
+import FlexSearch from "flexsearch";
 
 // Icons
 import CodeIcon from "@mui/icons-material/Code";
@@ -77,7 +79,7 @@ const getSkillIcon = (skillName) => {
     MySQL:
       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
     MongoDB:
-      "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",      
+      "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",
 
     // IDEs & Editors
     PyCharm:
@@ -187,81 +189,110 @@ const getSkillColor = (category) => {
   return key;
 };
 
-// Enhanced skill data with usage and project experience
+// Function to calculate experience based on start and end dates
+const calculateExperience = (startDate, endDate = null) => {
+  const start = new Date(startDate);
+  const end = endDate ? new Date(endDate) : new Date();
+
+  // Calculate difference in milliseconds
+  const diffTime = Math.abs(end - start);
+  // Convert to years
+  const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+
+  if (diffYears < 1) {
+    // If less than a year, return in months
+    const diffMonths = Math.floor(diffYears * 12);
+    return { value: diffMonths, unit: "months", display: `${diffMonths}+ months` };
+  } else {
+    // Round down to whole years
+    const years = Math.floor(diffYears);
+    // Check if there's a partial year to add the "+" sign
+    const hasPartialYear = diffYears - years > 0.1; // More than ~1 month
+    return {
+      value: diffYears,
+      unit: "years",
+      display: `${years}${hasPartialYear ? "+" : ""}`
+    };
+  }
+};
+
+// Enhanced skill data with experience, usage, project type and rating
 export const skillSections = {
   Programming: [
-    { name: "Python", years: 5, usage: "current", projectUse: true },
-    { name: "C", years: 10, usage: "past", projectUse: true },
-    { name: "C++", years: 10, usage: "past", projectUse: true },
-    { name: "JavaScript", years: 4, usage: "current", projectUse: false },
-    { name: "HTML5", years: 4, usage: "current", projectUse: true },
-    { name: "SQL", years: 9, usage: "past", projectUse: true },
-    { name: "Java", years: 1, usage: "past", projectUse: false },
+    { name: "Python", startDate: "2019-01-01", experience: calculateExperience("2019-01-01"), usage: "current", projectUse: "Professional", rating: 8 },
+    { name: "C", startDate: "2010-01-01", endDate: "2020-01-01", experience: calculateExperience("2010-01-01", "2020-01-01"), usage: "past", projectUse: "Professional", rating: 7 },
+    { name: "C++", startDate: "2010-01-01", endDate: "2020-01-01", experience: calculateExperience("2010-01-01", "2020-01-01"), usage: "past", projectUse: "Professional", rating: 7 },
+    { name: "JavaScript", startDate: "2020-01-01", experience: calculateExperience("2020-01-01"), usage: "current", projectUse: "Personal", rating: 6 },
+    { name: "HTML5", startDate: "2020-01-01", experience: calculateExperience("2020-01-01"), usage: "current", projectUse: "Professional", rating: 8 },
+    { name: "SQL", startDate: "2012-01-01", endDate: "2021-01-01", experience: calculateExperience("2012-01-01", "2021-01-01"), usage: "past", projectUse: "Professional", rating: 9 },
+    { name: "Java", startDate: "2020-01-01", endDate: "2021-01-01", experience: calculateExperience("2020-01-01", "2021-01-01"), usage: "past", projectUse: "Learning", rating: 5 },
   ],
   Frontend: [
-    { name: "React.js", years: 1, usage: "current", projectUse: true },
-    { name: "CSS3", years: 4, usage: "current", projectUse: true },
-    { name: "Tailwind CSS", years: 0.5, usage: "current", projectUse: false },
-    { name: "Sass", years: 0.5, usage: "current", projectUse: false },
-    { name: "Bootstrap", years: 4, usage: "current", projectUse: true },
-    { name: "Flask", years: 3, usage: "current", projectUse: true },
+    { name: "React.js", startDate: "2023-01-01", experience: calculateExperience("2023-01-01"), usage: "current", projectUse: "Professional", rating: 7 },
+    { name: "CSS3", startDate: "2020-01-01", experience: calculateExperience("2020-01-01"), usage: "current", projectUse: "Professional", rating: 7 },
+    { name: "Tailwind CSS", startDate: "2023-06-01", experience: calculateExperience("2023-06-01"), usage: "current", projectUse: "Personal", rating: 6 },
+    { name: "Sass", startDate: "2023-06-01", experience: calculateExperience("2023-06-01"), usage: "current", projectUse: "Learning", rating: 5 },
+    { name: "Bootstrap", startDate: "2020-01-01", experience: calculateExperience("2020-01-01"), usage: "current", projectUse: "Professional", rating: 8 },
+    { name: "Flask", startDate: "2021-01-01", experience: calculateExperience("2021-01-01"), usage: "current", projectUse: "Professional", rating: 8 },
   ],
 
   Database: [
-    { name: "Oracle", years: 9, usage: "past", projectUse: true },
-    { name: "Sybase", years: 5, usage: "past", projectUse: true },
-    { name: "DB2", years: 2, usage: "past", projectUse: true },
-    { name: "PostgreSQL", years: 3, usage: "current", projectUse: true },
-    { name: "MS SQL", years: 4, usage: "past", projectUse: true },
-    { name: "MongoDB", years: 0.5, usage: "past", projectUse: false },
+    { name: "Oracle", startDate: "2010-01-01", endDate: "2019-01-01", experience: calculateExperience("2010-01-01", "2019-01-01"), usage: "past", projectUse: "Professional", rating: 8 },
+    { name: "Sybase", startDate: "2015-01-01", endDate: "2020-01-01", experience: calculateExperience("2015-01-01", "2020-01-01"), usage: "past", projectUse: "Professional", rating: 7 },
+    { name: "DB2", startDate: "2018-01-01", endDate: "2020-01-01", experience: calculateExperience("2018-01-01", "2020-01-01"), usage: "past", projectUse: "Professional", rating: 6 },
+    { name: "PostgreSQL", startDate: "2021-01-01", experience: calculateExperience("2021-01-01"), usage: "current", projectUse: "Professional", rating: 8 },
+    { name: "MS SQL", startDate: "2016-01-01", endDate: "2020-01-01", experience: calculateExperience("2016-01-01", "2020-01-01"), usage: "past", projectUse: "Professional", rating: 7 },
+    { name: "MongoDB", startDate: "2022-06-01", endDate: "2023-01-01", experience: calculateExperience("2022-06-01", "2023-01-01"), usage: "past", projectUse: "Learning", rating: 5 },
   ],
   SCM: [
-    { name: "Git", years: 5, usage: "current", projectUse: true },
-    { name: "SVN", years: 5, usage: "past", projectUse: true },
-    { name: "GitHub", years: 5, usage: "current", projectUse: true },
-    { name: "Bitbucket", years: 5, usage: "current", projectUse: true },
+    { name: "Git", startDate: "2019-01-01", experience: calculateExperience("2019-01-01"), usage: "current", projectUse: "Professional", rating: 9 },
+    { name: "SVN", startDate: "2015-01-01", endDate: "2020-01-01", experience: calculateExperience("2015-01-01", "2020-01-01"), usage: "past", projectUse: "Professional", rating: 7 },
+    { name: "GitHub", startDate: "2019-01-01", experience: calculateExperience("2019-01-01"), usage: "current", projectUse: "Professional", rating: 9 },
+    { name: "Bitbucket", startDate: "2019-01-01", experience: calculateExperience("2019-01-01"), usage: "current", projectUse: "Professional", rating: 8 },
   ],
   "Cloud & DevOps": [
     {
       name: "Bitbucket Pipelines",
-      years: 3,
+      startDate: "2021-01-01",
+      experience: calculateExperience("2021-01-01"),
       usage: "current",
-      projectUse: true,
+      projectUse: "Professional",
+      rating: 8
     },
-    { name: "Jenkins", years: 1, usage: "current", projectUse: false },
-    { name: "GitHub Actions", years: 1, usage: "current", projectUse: false },
-    { name: "AWS", years: 1, usage: "past", projectUse: true },
-    { name: "Azure", years: 1, usage: "past", projectUse: false },
-    { name: "Docker", years: 1, usage: "past", projectUse: false },
-    { name: "Terraform", years: 1, usage: "past", projectUse: false },
+    { name: "Jenkins", startDate: "2023-01-01", experience: calculateExperience("2023-01-01"), usage: "current", projectUse: "Personal", rating: 6 },
+    { name: "GitHub Actions", startDate: "2023-01-01", experience: calculateExperience("2023-01-01"), usage: "current", projectUse: "Personal", rating: 7 },
+    { name: "AWS", startDate: "2022-01-01", endDate: "2023-01-01", experience: calculateExperience("2022-01-01", "2023-01-01"), usage: "past", projectUse: "Professional", rating: 6 },
+    { name: "Azure", startDate: "2022-01-01", endDate: "2023-01-01", experience: calculateExperience("2022-01-01", "2023-01-01"), usage: "past", projectUse: "Learning", rating: 5 },
+    { name: "Docker", startDate: "2022-01-01", endDate: "2023-01-01", experience: calculateExperience("2022-01-01", "2023-01-01"), usage: "past", projectUse: "Learning", rating: 6 },
+    { name: "Terraform", startDate: "2022-01-01", endDate: "2023-01-01", experience: calculateExperience("2022-01-01", "2023-01-01"), usage: "past", projectUse: "Learning", rating: 5 },
   ],
   "Project Management": [
-    { name: "Jira", years: 10, usage: "current", projectUse: true },
-    { name: "MS Project", years: 13, usage: "past", projectUse: true },
-    { name: "Trello", years: 1, usage: "current", projectUse: false },
+    { name: "Jira", startDate: "2014-01-01", experience: calculateExperience("2014-01-01"), usage: "current", projectUse: "Professional", rating: 9 },
+    { name: "MS Project", startDate: "2010-01-01", endDate: "2023-01-01", experience: calculateExperience("2010-01-01", "2023-01-01"), usage: "past", projectUse: "Professional", rating: 8 },
+    { name: "Trello", startDate: "2023-01-01", experience: calculateExperience("2023-01-01"), usage: "current", projectUse: "Personal", rating: 7 },
   ],
   "Collaboration Tools": [
-    { name: "Confluence", years: 5, usage: "current", projectUse: true },
-    { name: "SharePoint", years: 5, usage: "current", projectUse: true },
-    { name: "Notion", years: 1, usage: "current", projectUse: false },
+    { name: "Confluence", startDate: "2019-01-01", experience: calculateExperience("2019-01-01"), usage: "current", projectUse: "Professional", rating: 9 },
+    { name: "SharePoint", startDate: "2019-01-01", experience: calculateExperience("2019-01-01"), usage: "current", projectUse: "Professional", rating: 7 },
+    { name: "Notion", startDate: "2023-01-01", experience: calculateExperience("2023-01-01"), usage: "current", projectUse: "Personal", rating: 8 },
   ],
   Testing: [
-    { name: "Selenium", years: 1, usage: "current", projectUse: false },
-    { name: "Pytest", years: 3, usage: "current", projectUse: true },
-    { name: "Postman", years: 1, usage: "current", projectUse: false },
-    { name: "SonarQube", years: 1, usage: "current", projectUse: false },
+    { name: "Selenium", startDate: "2023-01-01", experience: calculateExperience("2023-01-01"), usage: "current", projectUse: "Personal", rating: 6 },
+    { name: "Pytest", startDate: "2021-01-01", experience: calculateExperience("2021-01-01"), usage: "current", projectUse: "Professional", rating: 8 },
+    { name: "Postman", startDate: "2023-01-01", experience: calculateExperience("2023-01-01"), usage: "current", projectUse: "Personal", rating: 7 },
+    { name: "SonarQube", startDate: "2023-01-01", experience: calculateExperience("2023-01-01"), usage: "current", projectUse: "Personal", rating: 6 },
   ],
   Visualization: [
-    { name: "Plotly Dash", years: 3, usage: "current", projectUse: true },
-    { name: "Pandas", years: 4, usage: "current", projectUse: true },
-    { name: "Power BI", years: 1, usage: "past", projectUse: false },
-    { name: "Tableau", years: 1, usage: "past", projectUse: true },
+    { name: "Plotly Dash", startDate: "2021-01-01", experience: calculateExperience("2021-01-01"), usage: "current", projectUse: "Professional", rating: 9 },
+    { name: "Pandas", startDate: "2020-01-01", experience: calculateExperience("2020-01-01"), usage: "current", projectUse: "Professional", rating: 9 },
+    { name: "Power BI", startDate: "2022-01-01", endDate: "2023-01-01", experience: calculateExperience("2022-01-01", "2023-01-01"), usage: "past", projectUse: "Learning", rating: 6 },
+    { name: "Tableau", startDate: "2022-01-01", endDate: "2023-01-01", experience: calculateExperience("2022-01-01", "2023-01-01"), usage: "past", projectUse: "Professional", rating: 7 },
   ],
   "Dev Tools": [
-    { name: "PyCharm", years: 5, usage: "current", projectUse: true },
-    { name: "VS Code", years: 4, usage: "current", projectUse: true },
-    { name: "pip", years: 5, usage: "current", projectUse: false },
-    { name: "npm", years: 1, usage: "current", projectUse: false },
+    { name: "PyCharm", startDate: "2019-01-01", experience: calculateExperience("2019-01-01"), usage: "current", projectUse: "Professional", rating: 9 },
+    { name: "VS Code", startDate: "2020-01-01", experience: calculateExperience("2020-01-01"), usage: "current", projectUse: "Professional", rating: 9 },
+    { name: "pip", startDate: "2019-01-01", experience: calculateExperience("2019-01-01"), usage: "current", projectUse: "Personal", rating: 8 },
+    { name: "npm", startDate: "2023-01-01", experience: calculateExperience("2023-01-01"), usage: "current", projectUse: "Personal", rating: 7 },
   ],
 };
 
@@ -489,9 +520,19 @@ const organizeSkillsIntoPeriodicTable = (
   return table;
 };
 
-// Skill usage badge text
+// Helper functions
 const getUsageBadge = (usage) => {
   return usage === "current" ? "Active" : "Past";
+};
+
+// Get project use color
+const getProjectUseColor = (projectUse) => {
+  switch (projectUse) {
+    case "Professional": return "success";
+    case "Personal": return "info";
+    case "Learning": return "secondary";
+    default: return "default";
+  }
 };
 
 const Skills = () => {
@@ -499,17 +540,34 @@ const Skills = () => {
   const [viewMode, setViewMode] = useState("list");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchIndex, setSearchIndex] = useState(null);
 
   // Process and sort skills data
   const processedSkills = useMemo(() => {
     const result = {};
 
     Object.entries(skillSections).forEach(([category, skills]) => {
-      // Sort by usage (current first), then by years (descending), then by project use (true first)
+      // Sort by usage (current first), then by experience (descending), then by project use
       result[category] = [...skills].sort((a, b) => {
         if (a.usage !== b.usage) return a.usage === "current" ? -1 : 1;
-        if (b.years !== a.years) return b.years - a.years;
-        if (a.projectUse !== b.projectUse) return a.projectUse ? -1 : 1;
+
+        // Compare experience values
+        const aExp = a.experience.value;
+        const bExp = b.experience.value;
+        if (bExp !== aExp) return bExp - aExp;
+
+        // Compare project use (Professional > Personal > Learning)
+        if (a.projectUse !== b.projectUse) {
+          if (a.projectUse === "Professional") return -1;
+          if (b.projectUse === "Professional") return 1;
+          if (a.projectUse === "Personal") return -1;
+          if (b.projectUse === "Personal") return 1;
+        }
+
+        // Compare ratings
+        if (b.rating !== a.rating) return b.rating - a.rating;
+
         return a.name.localeCompare(b.name);
       });
     });
@@ -530,46 +588,114 @@ const Skills = () => {
       });
     });
 
-    // Sort by years (descending), then by name
+    // Sort by experience (descending), then by name
     return skills.sort(
-      (a, b) => b.years - a.years || a.name.localeCompare(b.name)
+      (a, b) => b.experience.value - a.experience.value || a.name.localeCompare(b.name)
     );
   }, []);
 
+  // Initialize search results with all skills
+  useEffect(() => {
+    setSearchResults(allSkills);
+  }, [allSkills]);
+
+  // Initialize FlexSearch index
+  useEffect(() => {
+    try {
+      // Create a new FlexSearch index
+      const index = new FlexSearch.Document({
+        document: {
+          id: "id",
+          index: ["name", "category", "projectUse"],
+          store: true
+        }
+      });
+
+      // Add all skills to the index
+      allSkills.forEach((skill, idx) => {
+        index.add({
+          id: idx,
+          name: skill.name,
+          category: skill.category,
+          projectUse: skill.projectUse,
+          // Store the original skill object
+          skill: skill
+        });
+      });
+
+      setSearchIndex(index);
+      console.log("FlexSearch index initialized with", allSkills.length, "skills");
+    } catch (error) {
+      console.error("Error initializing FlexSearch:", error);
+      // Fallback to default search if FlexSearch fails
+      setSearchResults(allSkills);
+    }
+  }, [allSkills]);
+
+  // Perform search using FlexSearch or fallback to basic filtering
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      // If no search term, use all skills
+      setSearchResults(allSkills);
+      return;
+    }
+
+    try {
+      if (searchIndex) {
+        // Search across multiple fields with FlexSearch
+        const results = searchIndex.search(searchTerm, {
+          enrich: true,
+          limit: 100
+        });
+
+        // Extract the skill objects from the results
+        const foundSkills = [];
+        results.forEach(resultSet => {
+          resultSet.result.forEach(result => {
+            foundSkills.push(result.skill);
+          });
+        });
+
+        // Remove duplicates (a skill might match on multiple fields)
+        const uniqueSkills = [...new Map(foundSkills.map(skill =>
+          [skill.name + skill.category, skill])).values()];
+
+        setSearchResults(uniqueSkills);
+        console.log(`FlexSearch for "${searchTerm}" found ${uniqueSkills.length} results`);
+      } else {
+        // Fallback to basic filtering if FlexSearch index is not ready
+        performBasicSearch();
+      }
+    } catch (error) {
+      console.error("Error during search:", error);
+      // Fallback to basic filtering if FlexSearch fails
+      performBasicSearch();
+    }
+
+    function performBasicSearch() {
+      const filteredSkills = allSkills.filter(skill =>
+        skill.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        skill.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        skill.projectUse.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSearchResults(filteredSkills);
+      console.log(`Basic search for "${searchTerm}" found ${filteredSkills.length} results`);
+    }
+  }, [searchIndex, searchTerm, allSkills]);
+
   // Organize skills into periodic table layout
   const periodicTableData = useMemo(() => {
-    // Only filter by search term, not by category
-    const searchFilteredSkills = allSkills.filter((skill) => {
-      return (
-        skill.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        skill.category.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    });
-
     console.log(
-      `Search filtered skills: ${searchFilteredSkills.length} skills`
+      `Search results: ${searchResults.length} skills`
     );
 
-    // Use all skills that match the search term for the periodic table layout
-    // The category filtering will be handled by the opacity logic in the rendering
-    return organizeSkillsIntoPeriodicTable(searchFilteredSkills);
-  }, [allSkills, searchTerm]);
-
-  // Filter skills based on search and category
-  const filteredSkills = useMemo(() => {
-    return allSkills.filter((skill) => {
-      const matchesSearch =
-        skill.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        skill.category.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "All" || skill.category === selectedCategory;
-
-      return matchesSearch && matchesCategory;
-    });
-  }, [allSkills, searchTerm, selectedCategory]);
+    // Use all search results for the periodic table layout
+    // The category filtering will be handled by the opacity in the rendering
+    return organizeSkillsIntoPeriodicTable(searchResults);
+  }, [searchResults]);
 
   // Handle view mode change
-  const handleViewModeChange = (event, newMode) => {
+  const handleViewModeChange = (_, newMode) => {
     if (newMode !== null) {
       setViewMode(newMode);
     }
@@ -706,32 +832,42 @@ const Skills = () => {
               justifyContent: "center",
             }}
           >
-            {/* Responsive Layout */}
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={1}
-              alignItems="center"
+            <Box
+              sx={{
+                width: '100%',
+                overflowX: 'auto',
+                pb: 1,
+                display: 'flex',
+                justifyContent: 'center'
+              }}
             >
-              <Grid container spacing={1} justifyContent="center">
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 1,
+                  justifyContent: 'center',
+                  maxWidth: '100%'
+                }}
+              >
                 {categories.map((category) => (
-                  <Grid item xs={12} sm={6} md={4} key={category}>
-                    <Chip
-                      label={category}
-                      onClick={() => handleCategoryChange(category)}
-                      color={
-                        category === selectedCategory ? "primary" : "default"
+                  <Chip
+                    key={category}
+                    label={category}
+                    onClick={() => handleCategoryChange(category)}
+                    color={category === selectedCategory ? "primary" : "default"}
+                    variant={category === selectedCategory ? "filled" : "outlined"}
+                    icon={category !== "All" ? categoryIcons[category] : undefined}
+                    sx={{
+                      m: 0.5,
+                      '& .MuiChip-label': {
+                        whiteSpace: 'nowrap',
                       }
-                      variant={
-                        category === selectedCategory ? "filled" : "outlined"
-                      }
-                      icon={
-                        category !== "All" ? categoryIcons[category] : undefined
-                      }
-                    />
-                  </Grid>
+                    }}
+                  />
                 ))}
-              </Grid>
-            </Stack>
+              </Box>
+            </Box>
           </Box>
         )}
 
@@ -864,33 +1000,87 @@ const Skills = () => {
                               },
                             }}
                           />
+                          <Chip
+                            label={skill.projectUse}
+                            size="small"
+                            color={getProjectUseColor(skill.projectUse)}
+                            sx={{
+                              height: 20,
+                              "& .MuiChip-label": {
+                                px: 1,
+                                fontSize: theme.typography.pxToRem(10),
+                              },
+                            }}
+                          />
                           <Typography
                             variant="body2"
                             color="text.secondary"
                             fontWeight={theme.typography.fontWeightMedium}
                           >
-                            {skill.years}+ yrs
+                            {skill.experience.display}{skill.experience.unit === "years" ? " yrs" : ""}
                           </Typography>
                         </Box>
                       </Box>
-                      <LinearProgress
-                        variant="determinate"
-                        value={Math.min((skill.years / 15) * 100, 100)}
-                        color={
-                          skill.usage === "current" ? "primary" : "secondary"
-                        }
-                        sx={{
-                          height: 8,
-                          borderRadius: theme.shape.borderRadius,
-                          backgroundColor:
-                            theme.palette.mode === "dark"
-                              ? theme.palette.grey[700]
-                              : theme.palette.grey[200],
-                          "& .MuiLinearProgress-bar": {
+
+                      {/* Experience Progress Bar */}
+                      <Box sx={{ mb: 1 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.25 }}>
+                          <Typography variant="caption" color="text.secondary">
+                            Experience
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {skill.experience.unit === "years"
+                              ? `${Math.floor(skill.experience.value)} years`
+                              : `${skill.experience.value} months`}
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={Math.min((skill.experience.value / 15) * 100, 100)}
+                          color={
+                            skill.usage === "current" ? "primary" : "secondary"
+                          }
+                          sx={{
+                            height: 6,
                             borderRadius: theme.shape.borderRadius,
-                          },
-                        }}
-                      />
+                            backgroundColor:
+                              theme.palette.mode === "dark"
+                                ? theme.palette.grey[700]
+                                : theme.palette.grey[200],
+                            "& .MuiLinearProgress-bar": {
+                              borderRadius: theme.shape.borderRadius,
+                            },
+                          }}
+                        />
+                      </Box>
+
+                      {/* Rating Progress Bar */}
+                      <Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.25 }}>
+                          <Typography variant="caption" color="text.secondary">
+                            Skill Rating
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {skill.rating}/10
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={(skill.rating / 10) * 100}
+                          color="success"
+                          sx={{
+                            height: 6,
+                            borderRadius: theme.shape.borderRadius,
+                            backgroundColor:
+                              theme.palette.mode === "dark"
+                                ? theme.palette.grey[700]
+                                : theme.palette.grey[200],
+                            "& .MuiLinearProgress-bar": {
+                              borderRadius: theme.shape.borderRadius,
+                            },
+                          }}
+                        />
+                      </Box>
                     </Box>
                   ))}
                 </Paper>
@@ -921,6 +1111,31 @@ const Skills = () => {
                       }}
                     >
                       {rowData.map((skill, cellIndex) => {
+                        // Check if skill exists first
+                        if (!skill) {
+                          return (
+                            <Box
+                              key={`${rowKey}-${cellIndex}`}
+                              sx={{
+                                width: {
+                                  xs: 75,
+                                  sm: 95,
+                                  md: 115,
+                                  lg: 130,
+                                },
+                                m: 0.3,
+                                borderRadius: 0.5,
+                                height: {
+                                  xs: 130,
+                                  sm: 140,
+                                  md: 150,
+                                  lg: 160,
+                                },
+                              }}
+                            />
+                          );
+                        }
+
                         // Check if skill matches both the search term and category filter
                         const matchesSearch =
                           !searchTerm ||
@@ -932,7 +1147,6 @@ const Skills = () => {
                             .includes(searchTerm.toLowerCase());
 
                         const matchesCategory =
-                          !skill ||
                           selectedCategory === "All" ||
                           skill.category === selectedCategory;
 
@@ -943,26 +1157,56 @@ const Skills = () => {
                             key={`${rowKey}-${cellIndex}`}
                             sx={{
                               width: {
-                                xs: 70,
-                                sm: 90,
-                                md: 110,
-                                lg: 120,
-                              },                                                             
-                              m: 0.5,
-                              borderRadius: 0.5,                              
+                                xs: 75,
+                                sm: 95,
+                                md: 115,
+                                lg: 130,
+                              },
+                              m: 0.3,
+                              borderRadius: 0.5,
+                              height: {
+                                xs: 130,
+                                sm: 140,
+                                md: 150,
+                                lg: 160,
+                              },
                             }}
                           >
                             {skill && (
                               <Tooltip
-                                title={`${skill.category} • ${skill.years}+ years • ${skill.usage} • ${skill.projectUse ? "Project experience" : "Training only"}`}
+                                title={
+                                  <React.Fragment>
+                                    <Typography variant="subtitle2" component="span">
+                                      {skill.name}
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="body2" component="span">
+                                      Category: {skill.category}
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="body2" component="span">
+                                      Experience: {skill.experience.display}
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="body2" component="span">
+                                      Status: {skill.usage === "current" ? "Active" : "Past"}
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="body2" component="span">
+                                      Type: {skill.projectUse}
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="body2" component="span">
+                                      Rating: {skill.rating}/10
+                                    </Typography>
+                                  </React.Fragment>
+                                }
                                 arrow
                               >
                                 <Card
                                   elevation={2}
                                   sx={{
-                                    // height: { xs: 90, sm: 110, md: 120, lg: 150 },                                    
-                                    height: "100%",
-                                    
+                                    height: "100%",                                    
                                     display: "flex",
                                     flexDirection: "column",
                                     position: "relative",
@@ -1001,6 +1245,9 @@ const Skills = () => {
                                       display: "flex",
                                       flexDirection: "column",
                                       alignItems: "center",
+                                      justifyContent: "space-between",
+                                      height: "100%",
+                                      overflow: "hidden",
                                     }}
                                   >
                                     {/* Skill Icon */}
@@ -1012,86 +1259,122 @@ const Skills = () => {
                                         sx={{
                                           width: 24,
                                           height: 24,
-                                          mb: 1,
+                                          mb: 0.5,
                                           opacity: 0.9,
                                         }}
                                       />
                                     )}
+
                                     {/* Skill name */}
                                     <Typography
                                       variant="subtitle2"
                                       component="h3"
                                       align="center"
                                       sx={{
-                                        mt: 0.5,
                                         fontWeight: (theme) =>
                                           theme.typography.fontWeightMedium,
                                         fontSize: {
-                                          xs: "0.7rem",
-                                          sm: "0.75rem",
+                                          xs: "0.65rem",
+                                          sm: "0.7rem",
                                         },
+                                        lineHeight: 1.2,
+                                        mb: 0.5,
                                       }}
                                     >
                                       {skill.name}
                                     </Typography>
-                                      <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
 
-                                    {/* Years Badge */}
+                                    {/* Experience Badge */}
                                     <Typography
                                       variant="caption"
                                       sx={(theme) => {
-                                        const key = getSkillColor(
-                                          skill.category
-                                        );
-                                        console.log(
-                                          `[sx debug key] ${skill.category} → ${key}`
-                                        );
+                                        const key = getSkillColor(skill.category);
                                         const color = theme.palette[key]?.main;
-                                        console.log(
-                                          `[sx debug color] ${skill.category} → ${color}`
-                                        );
-                                        console.log(
-                                          `[sx debug] ${skill.category} → ${key} → ${color}`
-                                        );
                                         return {
                                           fontWeight: "bold",
                                           bgcolor: `${color}20`,
                                           color,
                                           px: 1,
                                           py: 0.25,
-                                          borderRadius:
-                                            theme.shape.borderRadius,
-                                          fontSize: "0.65rem",
+                                          borderRadius: theme.shape.borderRadius,
+                                          fontSize: "0.6rem",
+                                          mb: 0.5,
                                         };
                                       }}
                                     >
-                                      {skill.years}yr
+                                      {skill.experience.display}
                                     </Typography>
 
-                                    {/* Status */}
-                                    <Chip
-                                      label={
-                                        skill.usage === "current"
-                                          ? "Active"
-                                          : "Past"
-                                      }
-                                      size="small"
-                                      color={
-                                        skill.usage === "current"
-                                          ? "primary"
-                                          : "default"
-                                      }
-                                      sx={{
-                                        mt: "auto",
-                                        height: 16,
-                                        "& .MuiChip-label": {
-                                          px: 0.5,
-                                          fontSize: "0.625rem",
-                                        },
-                                      }}
-                                    />
+                                    {/* Status and Project Use */}
+                                    <Box sx={{
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      justifyContent: "center",
+                                      width: "100%",
+                                      gap: 0.5,
+                                      mb: 0.5,
+                                      flexWrap: "wrap"
+                                    }}>
+                                      <Chip
+                                        label={skill.usage === "current" ? "Active" : "Past"}
+                                        size="small"
+                                        color={skill.usage === "current" ? "primary" : "default"}
+                                        sx={{
+                                          height: 16,
+                                          minWidth: "40%",
+                                          "& .MuiChip-label": {
+                                            px: 0.5,
+                                            fontSize: "0.6rem",
+                                            whiteSpace: "nowrap",
+                                          },
+                                        }}
+                                      />
+
+                                      <Chip
+                                        label={skill.projectUse}
+                                        size="small"
+                                        color={getProjectUseColor(skill.projectUse)}
+                                        sx={{
+                                          height: 16,
+                                          minWidth: "40%",
+                                          "& .MuiChip-label": {
+                                            px: 0.5,
+                                            fontSize: "0.6rem",
+                                            whiteSpace: "nowrap",
+                                          },
+                                        }}
+                                      />
                                     </Box>
 
+                                    {/* Rating Progress Bar */}
+                                    <Box sx={{ width: "100%", mt: "auto" }}>
+                                      <Typography
+                                        variant="caption"
+                                        sx={{
+                                          fontSize: "0.6rem",
+                                          display: "block",
+                                          textAlign: "center",
+                                          mb: 0.25
+                                        }}
+                                      >
+                                        Rating: {skill.rating}/10
+                                      </Typography>
+                                      <LinearProgress
+                                        variant="determinate"
+                                        value={(skill.rating / 10) * 100}
+                                        sx={{
+                                          height: 4,
+                                          borderRadius: 1,
+                                          bgcolor: theme.palette.grey[300],
+                                          '& .MuiLinearProgress-bar': {
+                                            borderRadius: 1,
+                                            bgcolor: theme.palette.mode === 'dark'
+                                              ? theme.palette.primary.light
+                                              : theme.palette.primary.main,
+                                          }
+                                        }}
+                                      />
+                                    </Box>
                                   </CardContent>
                                 </Card>
                               </Tooltip>

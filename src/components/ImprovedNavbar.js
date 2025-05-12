@@ -31,10 +31,10 @@ import {
   faAward,
   faEnvelope,
   faFileLines,
-  faRoad
+  faRoad,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
@@ -67,7 +67,7 @@ const itemVariants = {
     y: 0,
     transition: {
       delay: i * 0.03,
-      type: 'spring',
+      type: "spring",
       stiffness: 300,
       damping: 20,
     },
@@ -315,11 +315,11 @@ const NavigationBar = ({
 
   // Create a simplified logout function that redirects to the logout page
   const combinedLogout = () => {
-    console.log('[Auth Debug] Redirecting to logout page');
+    console.log("[Auth Debug] Redirecting to logout page");
 
     // Get the current URL to redirect back after logout
     const currentPath = window.location.pathname;
-    const callbackUrl = currentPath === '/logout' ? '/' : currentPath;
+    const callbackUrl = currentPath === "/logout" ? "/" : currentPath;
 
     // Get the base URL (e.g., http://localhost:3000 or your GitHub Pages URL)
     const baseUrl = window.location.origin;
@@ -633,18 +633,36 @@ const NavigationBar = ({
                 anchorEl={resumeAnchorEl}
                 open={Boolean(resumeAnchorEl)}
                 onClose={handleResumeMenuClose}
-                TransitionComponent={Grow}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
-                MenuListProps={{ "aria-labelledby": "resume-button" }}
-                PaperProps={{
-                  elevation: 4,
-                  sx: {
-                    borderRadius: 2,
-                    minWidth: 240,
-                    bgcolor: theme.palette.background.paper,
-                    boxShadow: theme.shadows[4],
-                    p: 1,
+                slots={{
+                  paper: "div", // default
+                  popper: "div", // default
+                  transition: Grow, // replaces deprecated `TransitionComponent`
+                }}
+                slotProps={{
+                  popper: {
+                    placement: "bottom-end",
+                    modifiers: [
+                      {
+                        name: "offset",
+                        options: {
+                          offset: [0, 4], // optional spacing between anchor and menu
+                        },
+                      },
+                    ],
+                  },
+                  transition: {
+                    timeout: 200,
+                  },
+                  paper: {
+                    sx: {
+                      borderRadius: 2,
+                      minWidth: 240,
+                      p: 1,
+                      boxShadow: 4,
+                    },
+                  },
+                  listbox: {
+                    "aria-labelledby": "resume-button",
                   },
                 }}
               >
@@ -662,50 +680,50 @@ const NavigationBar = ({
                     >
                       {group.label}
                     </Typography>
-                    {group.items.map((item, itemIndex ) => (
-                       <motion.div
-        key={item.id}
-        custom={groupIndex * 10 + itemIndex}
-        initial="hidden"
-        animate="visible"
-        variants={itemVariants}
-      >
-                      <MenuItem
+                    {group.items.map((item, itemIndex) => (
+                      <motion.div
                         key={item.id}
-                        onClick={() => handleResumeItemClick(item.id)}
-                        sx={{
-                          py: 1.2,
-                          px: 2,
-                          gap: 1,
-                          "&:hover": {
-                            bgcolor: theme.palette.action.hover,
-                          },
-                          "&:focus": {
-                            bgcolor: theme.palette.action.selected,
-                          },
-                        }}
+                        custom={groupIndex * 10 + itemIndex}
+                        initial="hidden"
+                        animate="visible"
+                        variants={itemVariants}
                       >
-                        <ListItemIcon
+                        <MenuItem
+                          key={item.id}
+                          onClick={() => handleResumeItemClick(item.id)}
                           sx={{
-                            color: theme.palette.text.secondary,
-                            minWidth: 32,
-                          }}
-                        >
-                          {getIconForNavItem(item.id)}
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={item.label}
-                          slotProps={{
-                            primary: {
-                              variant: "body1",
-                              sx: { color: theme.palette.text.primary },
+                            py: 1.2,
+                            px: 2,
+                            gap: 1,
+                            "&:hover": {
+                              bgcolor: theme.palette.action.hover,
+                            },
+                            "&:focus": {
+                              bgcolor: theme.palette.action.selected,
                             },
                           }}
-                        />
-                      </MenuItem>
+                        >
+                          <ListItemIcon
+                            sx={{
+                              color: theme.palette.text.secondary,
+                              minWidth: 32,
+                            }}
+                          >
+                            {getIconForNavItem(item.id)}
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={item.label}
+                            slotProps={{
+                              primary: {
+                                variant: "body1",
+                                sx: { color: theme.palette.text.primary },
+                              },
+                            }}
+                          />
+                        </MenuItem>
                       </motion.div>
                     ))}
-                    {groupIndex  < groupedResumeItems.length - 1 && (
+                    {groupIndex < groupedResumeItems.length - 1 && (
                       <Divider sx={{ my: 1 }} />
                     )}
                   </Box>
@@ -862,7 +880,7 @@ const NavigationBar = ({
                           variant="outlined"
                           onClick={() => {
                             handleSettingsClose();
-                            navigate('/signin');
+                            navigate("/signin");
                           }}
                         >
                           Sign In
@@ -1178,7 +1196,7 @@ const NavigationBar = ({
               button
               onClick={() => {
                 handleDrawerToggle();
-                navigate('/signin');
+                navigate("/signin");
               }}
             >
               <ListItemIcon>
