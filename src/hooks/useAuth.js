@@ -105,64 +105,24 @@ export function useAuth() {
     // Get the auth server URL from config
     const authServerUrl = config.auth.serverUrl;
 
-    // Construct the callback URL - this is where the auth server will redirect after authentication
-    // Use the root URL as the callback to avoid issues with specific paths
-    const callbackUrl = encodeURIComponent(`${window.location.origin}`);
+    // Get the client URL from config or use the current origin
+    const clientUrl = config.auth.callbackUrl || window.location.origin;
 
-    // Construct the sign-in URL with the callback URL
+    // Use the client URL as the callback URL
+    const callbackUrl = encodeURIComponent(clientUrl);
+
+    // Construct the sign-in URL with the callback URL - use the direct auth server URL
     const signInUrl = `${authServerUrl}/api/auth/signin/${provider}?callbackUrl=${callbackUrl}`;
 
     console.log('[Auth Debug] Signing in with provider:', provider);
     console.log('[Auth Debug] Current path:', currentPath);
     console.log('[Auth Debug] Auth server URL:', authServerUrl);
+    console.log('[Auth Debug] Client URL:', clientUrl);
     console.log('[Auth Debug] Callback URL:', callbackUrl);
     console.log('[Auth Debug] Sign-in URL:', signInUrl);
 
-    // Log all cookies for debugging
-    console.log('[Auth Debug] Current cookies:', document.cookie);
-
-    // First check if the auth server is available
-    console.log('[Auth Debug] Checking auth server availability...');
-
-    fetch(`${authServerUrl}/api/auth/providers`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json',
-      },
-    })
-      .then(response => {
-        console.log('[Auth Debug] Providers response status:', response.status);
-
-        if (response.status === 200) {
-          // Auth server is available, proceed with sign-in
-          console.log('[Auth Debug] Auth server is available, proceeding with sign-in');
-          window.location.href = signInUrl;
-        } else {
-          console.error('[Auth Debug] Auth server returned error:', response.status);
-          setError(`Auth server returned error: ${response.status}. Please try again later.`);
-
-          // Try using the proxy instead
-          const proxySignInUrl = `/api/auth/signin/${provider}?callbackUrl=${callbackUrl}`;
-          console.log('[Auth Debug] Trying proxy URL instead:', proxySignInUrl);
-
-          setTimeout(() => {
-            window.location.href = proxySignInUrl;
-          }, 1000);
-        }
-      })
-      .catch(error => {
-        console.error('[Auth Debug] Error checking auth server:', error);
-        setError(`Error connecting to auth server: ${error.message}. Please try again later.`);
-
-        // Try using the proxy as a fallback
-        const proxySignInUrl = `/api/auth/signin/${provider}?callbackUrl=${callbackUrl}`;
-        console.log('[Auth Debug] Trying proxy URL as fallback:', proxySignInUrl);
-
-        setTimeout(() => {
-          window.location.href = proxySignInUrl;
-        }, 1000);
-      });
+    // Directly redirect to the auth server URL
+    window.location.href = signInUrl;
   }, []);
 
   // Function to sign out
@@ -174,13 +134,16 @@ export function useAuth() {
       // Get the auth server URL from config
       const authServerUrl = config.auth.serverUrl;
 
-      // Use the direct URL to the auth server
-      const signoutEndpoint = `${authServerUrl}/api/auth/signout`;
+      // Get the client URL from config or use the current origin
+      const clientUrl = config.auth.callbackUrl || window.location.origin;
 
-      // Use a specific callback URL that includes the full path to ensure proper redirection
-      const callbackUrl = encodeURIComponent(`${window.location.origin}/`);
-      const signoutUrl = `${signoutEndpoint}?callbackUrl=${callbackUrl}`;
+      // Use the direct auth server URL for signout
+      const callbackUrl = encodeURIComponent(clientUrl);
+      const signoutUrl = `${authServerUrl}/api/auth/signout?callbackUrl=${callbackUrl}`;
 
+      console.log('[Auth Debug] Auth server URL:', authServerUrl);
+      console.log('[Auth Debug] Client URL:', clientUrl);
+      console.log('[Auth Debug] Callback URL:', callbackUrl);
       console.log('[Auth Debug] Using signout URL:', signoutUrl);
 
       // Clear session storage (for legacy auth)

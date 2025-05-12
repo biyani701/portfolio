@@ -1,87 +1,123 @@
 // src/components/auth/AuthCallback.js
-import React, { useEffect, useState } from 'react';
+import  React,{ useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, Typography, CircularProgress } from '@mui/material';
+import {
+  Typography,
+  CircularProgress,
+  Paper,
+  Container,
+  Alert,
+  Button
+} from '@mui/material';
 import { useAuthContext } from '../../context/AuthProvider';
-import config from '../../config';
 
 /**
  * Generic Auth Callback component
  * This component handles the callback from OAuth providers via Auth.js
+ * Simplified to work with the MUI sign-in pattern
  */
 const AuthCallback = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { checkSession } = useAuthContext();
   const [status, setStatus] = useState('Processing authentication...');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getAuthSession = async () => {
+    const processAuthentication = async () => {
       try {
-        setStatus('Checking authentication status...');
-        console.log('[Auth Debug] Auth callback triggered');
-        console.log('[Auth Debug] Current URL:', window.location.href);
-        
+        setLoading(true);
+        console.log('[Auth] Processing authentication callback');
+
         // Extract error from URL if present
         const searchParams = new URLSearchParams(location.search);
-        const error = searchParams.get('error');
-        
-        if (error) {
-          console.error('[Auth Debug] Auth error from URL:', error);
-          throw new Error(`Authentication error: ${error}`);
-        }
-        
-        // Check the session to update the auth context
-        const session = await checkSession();
-        console.log('[Auth Debug] Session after auth:', session);
-        
-        if (!session || !session.user) {
-          console.warn('[Auth Debug] No session found after authentication');
-          setStatus('No session found. Redirecting to sign-in page...');
-          setTimeout(() => navigate('/signin'), 2000);
+        const urlError = searchParams.get('error');
+
+        if (urlError) {
+          console.error('[Auth] Error from URL:', urlError);
+          setError(`Authentication error: ${urlError}`);
+          setLoading(false);
           return;
         }
-        
-        // Log session info for debugging
-        console.log('[Auth Debug] User info:', session.user);
-        
-        // Check if there's a redirect URL stored from a protected route
+
+        // Check the session to update the auth context
+        const session = await checkSession();
+
+        if (!session || !session.user) {
+          console.warn('[Auth] No session found after authentication');
+          setError('No session found. Please try signing in again.');
+          setLoading(false);
+          return;
+        }
+
+        // Get the redirect path from sessionStorage
         const redirectPath = sessionStorage.getItem('auth_redirect') || '/';
-        console.log('[Auth Debug] Redirect path from storage:', redirectPath);
-        
-        // Clear the stored path after use
+
+        // Clear the stored path
         sessionStorage.removeItem('auth_redirect');
-        
-        // Redirect to the stored path or home page
-        setStatus(`Login successful! Redirecting to ${redirectPath}...`);
+
+        // Update status and redirect
+        setStatus(`Authentication successful! Redirecting...`);
+
+        // Redirect after a short delay
         setTimeout(() => {
-          console.log('[Auth Debug] Navigating to:', redirectPath);
-          navigate(redirectPath);
+          window.location.href = redirectPath;
         }, 1500);
-      } catch (error) {
-        console.error('[Auth Debug] Authentication error:', error);
-        setStatus(`Authentication failed: ${error.message}. Redirecting to sign-in page in 5 seconds.`);
-        setTimeout(() => navigate('/signin'), 5000);
+      } catch (err) {
+        console.error('[Auth] Error during authentication:', err);
+        setError(`Authentication error: ${err.message}`);
+        setLoading(false);
       }
     };
 
-    getAuthSession();
+    processAuthentication();
   }, [navigate, checkSession, location.search]);
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '50vh',
-        gap: 3,
-      }}
-    >
-      <CircularProgress sx={{ mb: 2 }} />
-      <Typography variant="h6">{status}</Typography>
-    </Box>
+    <Container maxWidth="sm" sx={{ mt: 8 }}>
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          borderRadius: 2
+        }}
+      >
+        <Typography variant="h4" component="h1" gutterBottom>
+          Authentication
+        </Typography>
+
+        {loading ? (
+          <>
+            <CircularProgress sx={{ my: 4 }} />
+            <Typography variant="body1">{status}</Typography>
+          </>
+        ) : error ? (
+          <>
+            <Alert severity="error" sx={{ width: '100%', my: 2 }}>
+              {error}
+            </Alert>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate('/signin')}
+              sx={{ mt: 2 }}
+            >
+              Back to Sign In
+            </Button>
+          </>
+        ) : (
+          <>
+            <Alert severity="success" sx={{ width: '100%', my: 2 }}>
+              {status}
+            </Alert>
+          </>
+        )}
+      </Paper>
+    </Container>
   );
 };
 

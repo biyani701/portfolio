@@ -26,7 +26,9 @@ const AuthServerDebug = () => {
   const theme = useTheme();
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
-  const [serverUrl, setServerUrl] = useState('http://localhost:4000');
+  const [serverUrl, setServerUrl] = useState(window.location.hostname === 'localhost'
+    ? 'http://localhost:4000'
+    : 'https://my-oauth-proxy.vercel.app');
 
   // Test endpoints
   const endpoints = [
@@ -145,10 +147,10 @@ const AuthServerDebug = () => {
   };
 
   return (
-    <Container 
-          maxWidth="md" 
+    <Container
+          maxWidth="md"
           id="about"
-          sx={{ 
+          sx={{
             scrollMarginTop: theme.spacing(8),
             display: 'flex',
             flexDirection: 'column',
@@ -164,12 +166,23 @@ const AuthServerDebug = () => {
         Auth.js Server Diagnostics
       </Typography>
 
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <input
+          type="text"
+          value={serverUrl}
+          onChange={(e) => setServerUrl(e.target.value)}
+          style={{
+            padding: '8px 12px',
+            borderRadius: '4px',
+            border: '1px solid #ccc',
+            width: '300px'
+          }}
+          placeholder="Auth server URL"
+        />
         <Button
           variant="contained"
           onClick={runTests}
           disabled={loading}
-          sx={{ mr: 2 }}
         >
           {loading ? <CircularProgress size={24} /> : 'Run Tests'}
         </Button>

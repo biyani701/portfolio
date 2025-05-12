@@ -1,5 +1,5 @@
 // src/components/auth/SimpleSignIn.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthProvider';
 
@@ -13,6 +13,8 @@ import {
   Typography,
   CircularProgress,
   useTheme,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 
 // Icons
@@ -23,31 +25,90 @@ import { faLock } from '@fortawesome/free-solid-svg-icons';
 /**
  * Simple sign-in component using MUI
  * Provides buttons for signing in with Google and GitHub
+ * Based on MUI's sign-in component pattern
  */
 const SimpleSignIn = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn, loading, isAuthenticated, error } = useAuthContext();
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('info');
 
   // Get the redirect path from location state or default to '/'
   const from = location.state?.from?.pathname || '/';
 
   // Redirect if already authenticated
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from]);
 
+  // Show error in snackbar if there is one
+  useEffect(() => {
+    if (error) {
+      setSnackbarMessage(error);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  }, [error]);
+
   // Handle sign-in with Google
   const handleGoogleSignIn = () => {
-    signIn('google');
+    try {
+      // Store the current path for redirect after authentication
+      sessionStorage.setItem('auth_redirect', from);
+
+      // Show loading indicator
+      setSnackbarMessage('Redirecting to Google authentication...');
+      setSnackbarSeverity('info');
+      setSnackbarOpen(true);
+
+      // Add a small delay to ensure the snackbar is shown before redirect
+      setTimeout(() => {
+        // Call the signIn function
+        signIn('google');
+      }, 500);
+    } catch (error) {
+      console.error('Error during Google sign-in:', error);
+      setSnackbarMessage('Error during sign-in. Please try again.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
   };
 
   // Handle sign-in with GitHub
   const handleGitHubSignIn = () => {
-    signIn('github');
+    try {
+      // Store the current path for redirect after authentication
+      sessionStorage.setItem('auth_redirect', from);
+
+      // Show loading indicator
+      setSnackbarMessage('Redirecting to GitHub authentication...');
+      setSnackbarSeverity('info');
+      setSnackbarOpen(true);
+
+      // Add a small delay to ensure the snackbar is shown before redirect
+      setTimeout(() => {
+        // Call the signIn function
+        signIn('github');
+      }, 500);
+    } catch (error) {
+      console.error('Error during GitHub sign-in:', error);
+      setSnackbarMessage('Error during sign-in. Please try again.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
+  // Handle snackbar close
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   return (
@@ -82,17 +143,6 @@ const SimpleSignIn = () => {
           <CircularProgress sx={{ my: 3 }} />
         ) : (
           <>
-            {/* Error message */}
-            {error && (
-              <Typography
-                variant="body2"
-                color="error"
-                sx={{ mb: 2, p: 2, bgcolor: 'rgba(211, 47, 47, 0.1)', borderRadius: 1, width: '100%', textAlign: 'center' }}
-              >
-                {error}
-              </Typography>
-            )}
-
             {/* GitHub Sign In Button */}
             <Button
               variant="contained"
@@ -176,6 +226,22 @@ const SimpleSignIn = () => {
           </Typography>
         </Box>
       </Paper>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
