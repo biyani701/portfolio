@@ -4,7 +4,9 @@
 
 window.runtimeConfig = {
   // Default values (will be overridden by runtime-config.json if available)
-  AUTH_SERVER_URL: 'http://localhost:4000'
+  AUTH_SERVER_URL: window.location.hostname === 'localhost'
+    ? 'http://localhost:4000'
+    : 'https://my-oauth-proxy.vercel.app'
 };
 
 // Function to load runtime configuration
