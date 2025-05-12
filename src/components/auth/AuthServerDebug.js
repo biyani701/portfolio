@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
+  Container,
   Typography,
   Paper,
   Table,
@@ -144,6 +145,20 @@ const AuthServerDebug = () => {
   };
 
   return (
+    <Container 
+          maxWidth="md" 
+          id="about"
+          sx={{ 
+            scrollMarginTop: theme.spacing(8),
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mx: 'auto',
+            px: { xs: 2, sm: 3, md: 4 },
+            marginTop: { xs: 8, sm: 10, md: 12 },
+          }}
+        >
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
         Auth.js Server Diagnostics
@@ -221,6 +236,7 @@ const AuthServerDebug = () => {
         </TableContainer>
       )}
     </Box>
+    </Container>
   );
 };
 

@@ -41,6 +41,8 @@ import CreditsPage from "./components/credits/CreditsPage";
 import SimpleSignIn from "./components/auth/SimpleSignIn";
 import AuthServerDebug from "./components/auth/AuthServerDebug";
 import GoogleCallback from "./components/auth/GoogleCallback";
+import LogoutPage from "./components/auth/LogoutPage";
+import AuthCallback from "./components/auth/AuthCallback";
 import AuthProvider from "./context/AuthProvider";
 import { useAuthContext } from "./context/AuthProvider";
 
@@ -459,6 +461,7 @@ function App(props) {
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/login" element={<GitHubAuth />} />
             <Route path="/signin" element={<SimpleSignIn />} />
+            <Route path="/logout" element={<LogoutPage />} />
             <Route path="/auth-debug" element={<AuthServerDebug />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<PrivacyPolicy initialTab={1} />} />
@@ -469,6 +472,9 @@ function App(props) {
             {/* Auth.js callback routes */}
             <Route path="/api/auth/callback/github" element={<GitHubCallback />} />
             <Route path="/api/auth/callback/google" element={<GoogleCallback />} />
+
+            {/* Generic auth callback route */}
+            <Route path="/auth-callback" element={<AuthCallback />} />
 
             {/* Legacy callback route for backward compatibility */}
             <Route path="/callback" element={<GitHubCallback />} />

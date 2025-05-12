@@ -24,6 +24,7 @@
     "framer-motion": "^12.10.5",
     "fuse.js": "^7.1.0",
     "gh-pages": "^6.3.0",
+    "http-proxy-middleware": "^3.0.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
@@ -37,9 +38,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:prod": "node build-prod.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "gh-pages -d build"
+    "deploy": "npm run build:prod && gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -59,5 +61,8 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:4000"
+  "proxy": "http://localhost:4000",
+  "devDependencies": {
+    "dotenv": "^16.5.0"
+  }
 }

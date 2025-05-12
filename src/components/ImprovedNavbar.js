@@ -54,6 +54,7 @@ import { resumeData } from "./resumeData";
 import { skillSections } from "./Skills"; // Import skillSections from Skills component
 
 import { useAuthContext } from "../context/AuthProvider";
+import { useAuth as useLegacyAuth } from "../context/AuthContext";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import SettingsIcon from "@mui/icons-material/Settings";
 import config from "../config";
@@ -308,7 +309,24 @@ const NavigationBar = ({
   const results = fuse.search(query);
   const matches = query ? results.map((r) => r.item) : [];
 
+  // Get auth functions from both auth systems
   const { user, isAuthenticated, signOut } = useAuthContext();
+  const legacyAuth = useLegacyAuth();
+
+  // Create a simplified logout function that redirects to the logout page
+  const combinedLogout = () => {
+    console.log('[Auth Debug] Redirecting to logout page');
+
+    // Get the current URL to redirect back after logout
+    const currentPath = window.location.pathname;
+    const callbackUrl = currentPath === '/logout' ? '/' : currentPath;
+
+    // Get the base URL (e.g., http://localhost:3000 or your GitHub Pages URL)
+    const baseUrl = window.location.origin;
+
+    // Redirect to the logout page with absolute URL
+    window.location.href = `${baseUrl}/logout?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  };
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -318,7 +336,7 @@ const NavigationBar = ({
   };
 
   const handleLogout = () => {
-    signOut();
+    combinedLogout();
     handleMenuClose();
   };
 
@@ -933,7 +951,7 @@ const NavigationBar = ({
                     <MenuItem
                       onClick={() => {
                         handleSettingsClose();
-                        logout();
+                        combinedLogout();
                       }}
                     >
                       <ListItemIcon>
@@ -1146,7 +1164,7 @@ const NavigationBar = ({
                 button
                 onClick={() => {
                   handleDrawerToggle();
-                  logout();
+                  combinedLogout();
                 }}
               >
                 <ListItemIcon>
