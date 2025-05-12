@@ -6,7 +6,7 @@ import {
   LinearProgress,
   Box,
   useTheme,
-  Chip,
+  Chip,  
   ToggleButtonGroup,
   ToggleButton,
   TextField,
@@ -37,7 +37,6 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { FaDatabase } from "react-icons/fa";
 
 // Import the getSkillIcon function
-
 
 const getSkillIcon = (skillName) => {
   const iconMap = {
@@ -78,7 +77,7 @@ const getSkillIcon = (skillName) => {
     MySQL:
       "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
     MongoDB:
-      "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",
+      "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",      
 
     // IDEs & Editors
     PyCharm:
@@ -541,11 +540,15 @@ const Skills = () => {
   const periodicTableData = useMemo(() => {
     // Only filter by search term, not by category
     const searchFilteredSkills = allSkills.filter((skill) => {
-      return skill.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        skill.category.toLowerCase().includes(searchTerm.toLowerCase());
+      return (
+        skill.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        skill.category.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     });
 
-    console.log(`Search filtered skills: ${searchFilteredSkills.length} skills`);
+    console.log(
+      `Search filtered skills: ${searchFilteredSkills.length} skills`
+    );
 
     // Use all skills that match the search term for the periodic table layout
     // The category filtering will be handled by the opacity logic in the rendering
@@ -673,6 +676,27 @@ const Skills = () => {
 
         {/* Category Filters */}
         {viewMode === "periodic" && (
+          // <Box
+          //   sx={{
+          //     mb: 3,
+          //     display: "flex",
+          //     flexWrap: "wrap",
+          //     gap: 1,
+          //     justifyContent: "center",
+          //   }}
+          // >
+          //   {categories.map((category) => (
+          //     <Chip
+          //       key={category}
+          //       label={category}
+          //       onClick={() => handleCategoryChange(category)}
+          //       color={category === selectedCategory ? "primary" : "default"}
+          //       variant={category === selectedCategory ? "filled" : "outlined"}
+          //       icon={category !== "All" ? categoryIcons[category] : undefined}
+          //       sx={{ m: 0.5 }}
+          //     />
+          //   ))}
+          // </Box>
           <Box
             sx={{
               mb: 3,
@@ -682,17 +706,32 @@ const Skills = () => {
               justifyContent: "center",
             }}
           >
-            {categories.map((category) => (
-              <Chip
-                key={category}
-                label={category}
-                onClick={() => handleCategoryChange(category)}
-                color={category === selectedCategory ? "primary" : "default"}
-                variant={category === selectedCategory ? "filled" : "outlined"}
-                icon={category !== "All" ? categoryIcons[category] : undefined}
-                sx={{ m: 0.5 }}
-              />
-            ))}
+            {/* Responsive Layout */}
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1}
+              alignItems="center"
+            >
+              <Grid container spacing={1} justifyContent="center">
+                {categories.map((category) => (
+                  <Grid item xs={12} sm={6} md={4} key={category}>
+                    <Chip
+                      label={category}
+                      onClick={() => handleCategoryChange(category)}
+                      color={
+                        category === selectedCategory ? "primary" : "default"
+                      }
+                      variant={
+                        category === selectedCategory ? "filled" : "outlined"
+                      }
+                      icon={
+                        category !== "All" ? categoryIcons[category] : undefined
+                      }
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Stack>
           </Box>
         )}
 
@@ -859,7 +898,6 @@ const Skills = () => {
             ))}
           </Grid>
         )}
-       
 
         {/* Periodic Table View */}
         {viewMode === "periodic" && (
@@ -877,18 +915,24 @@ const Skills = () => {
                   <Grid item xs={12} key={rowKey}>
                     <Box
                       sx={{
-                        display: "flex",                        
+                        display: "flex",
                         justifyContent: "center",
                         gap: { xs: 0.5, sm: 1 },
                       }}
                     >
                       {rowData.map((skill, cellIndex) => {
                         // Check if skill matches both the search term and category filter
-                        const matchesSearch = !searchTerm ||
-                          skill.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          skill.category.toLowerCase().includes(searchTerm.toLowerCase());
+                        const matchesSearch =
+                          !searchTerm ||
+                          skill.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
+                          skill.category
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase());
 
-                        const matchesCategory = !skill ||
+                        const matchesCategory =
+                          !skill ||
                           selectedCategory === "All" ||
                           skill.category === selectedCategory;
 
@@ -903,8 +947,9 @@ const Skills = () => {
                                 sm: 90,
                                 md: 110,
                                 lg: 120,
-                              },
+                              },                                                             
                               m: 0.5,
+                              borderRadius: 0.5,                              
                             }}
                           >
                             {skill && (
@@ -915,7 +960,9 @@ const Skills = () => {
                                 <Card
                                   elevation={2}
                                   sx={{
-                                    height: { xs: 90, sm: 110, md: 120 },
+                                    // height: { xs: 90, sm: 110, md: 120, lg: 150 },                                    
+                                    height: "100%",
+                                    
                                     display: "flex",
                                     flexDirection: "column",
                                     position: "relative",
@@ -970,6 +1017,24 @@ const Skills = () => {
                                         }}
                                       />
                                     )}
+                                    {/* Skill name */}
+                                    <Typography
+                                      variant="subtitle2"
+                                      component="h3"
+                                      align="center"
+                                      sx={{
+                                        mt: 0.5,
+                                        fontWeight: (theme) =>
+                                          theme.typography.fontWeightMedium,
+                                        fontSize: {
+                                          xs: "0.7rem",
+                                          sm: "0.75rem",
+                                        },
+                                      }}
+                                    >
+                                      {skill.name}
+                                    </Typography>
+                                      <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
 
                                     {/* Years Badge */}
                                     <Typography
@@ -1003,24 +1068,6 @@ const Skills = () => {
                                       {skill.years}yr
                                     </Typography>
 
-                                    {/* Skill name */}
-                                    <Typography
-                                      variant="subtitle2"
-                                      component="h3"
-                                      align="center"
-                                      sx={{
-                                        mt: 0.5,
-                                        fontWeight: (theme) =>
-                                          theme.typography.fontWeightMedium,
-                                        fontSize: {
-                                          xs: "0.7rem",
-                                          sm: "0.75rem",
-                                        },
-                                      }}
-                                    >
-                                      {skill.name}
-                                    </Typography>
-
                                     {/* Status */}
                                     <Chip
                                       label={
@@ -1043,6 +1090,8 @@ const Skills = () => {
                                         },
                                       }}
                                     />
+                                    </Box>
+
                                   </CardContent>
                                 </Card>
                               </Tooltip>
