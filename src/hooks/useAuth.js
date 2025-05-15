@@ -17,8 +17,9 @@ export function useAuth() {
       setLoading(true);
       setError(null);
 
-      // Get the auth server URL from config
-      const authServerUrl = config.auth.serverUrl;
+      // Get the auth server URL from config or runtime config
+      const authServerUrl = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) ||
+                           config.auth.serverUrl;
 
       // Use the direct URL to the auth server
       const sessionEndpoint = `${authServerUrl}/api/auth/session`;
@@ -69,13 +70,39 @@ export function useAuth() {
           // If response is not OK, clear the session
           setSession(null);
 
-          // Only set error for non-404 responses (404 just means not authenticated)
-          if (response.status !== 404) {
-            console.error('[Auth Debug] Error response:', response.status, response.statusText);
-            console.error('[Auth Debug] Response body:', responseText);
-            setError(`Error fetching session: ${response.status} ${response.statusText}`);
-          } else {
-            console.log('[Auth Debug] Not authenticated (404 response)');
+          // Check if the response contains an error message
+          try {
+            const errorData = JSON.parse(responseText);
+            if (errorData.error && errorData.message) {
+              console.error(`[Auth Debug] Server error: ${errorData.error} - ${errorData.message}`);
+
+              // Special handling for "handler.auth is not a function" error
+              if (errorData.message.includes("handler.auth is not a function")) {
+                console.error('[Auth Debug] This error suggests an issue with the Auth.js configuration on the server.');
+                console.error('[Auth Debug] Please check the AUTH_INTEGRATION_README.md file for instructions on fixing this issue.');
+                setError(`Server error: ${errorData.error} - ${errorData.message}. Please check the server configuration.`);
+              } else {
+                setError(`Server error: ${errorData.error} - ${errorData.message}`);
+              }
+            } else {
+              // Only set error for non-404 responses (404 just means not authenticated)
+              if (response.status !== 404) {
+                console.error('[Auth Debug] Error response:', response.status, response.statusText);
+                console.error('[Auth Debug] Response body:', responseText);
+                setError(`Error fetching session: ${response.status} ${response.statusText}`);
+              } else {
+                console.log('[Auth Debug] Not authenticated (404 response)');
+              }
+            }
+          } catch (e) {
+            // If we can't parse the error as JSON, just use the status
+            if (response.status !== 404) {
+              console.error('[Auth Debug] Error response:', response.status, response.statusText);
+              console.error('[Auth Debug] Response body:', responseText);
+              setError(`Error fetching session: ${response.status} ${response.statusText}`);
+            } else {
+              console.log('[Auth Debug] Not authenticated (404 response)');
+            }
           }
 
           return null;
@@ -102,17 +129,26 @@ export function useAuth() {
     const currentPath = window.location.pathname;
     sessionStorage.setItem('auth_redirect', currentPath);
 
-    // Get the auth server URL from config
-    const authServerUrl = config.auth.serverUrl;
+    // Get the auth server URL from runtime config or config
+    const authServerUrl = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) ||
+                         config.auth.serverUrl;
 
     // Get the client URL from config or use the current origin
     const clientUrl = config.auth.callbackUrl || window.location.origin;
 
-    // Use the client URL as the callback URL
-    const callbackUrl = encodeURIComponent(clientUrl);
+    // Use auth-callback as the callback URL - this is crucial for Auth.js to redirect back correctly
+    const callbackUrl = encodeURIComponent(`${window.location.origin}/auth-callback`);
 
-    // Construct the sign-in URL with the callback URL - use the direct auth server URL
-    const signInUrl = `${authServerUrl}/api/auth/signin/${provider}?callbackUrl=${callbackUrl}`;
+    // Get the client ID from runtime config, environment variables, or default to 'portfolio'
+    const clientId = (window.runtimeConfig && window.runtimeConfig.CLIENT_ID) ||
+                    process.env.REACT_APP_CLIENT_ID ||
+                    'portfolio';
+
+    // Include the origin as a query parameter
+    const origin = encodeURIComponent(window.location.origin);
+
+    // Construct the sign-in URL with the callback URL, client ID, and origin
+    const signInUrl = `${authServerUrl}/api/auth/signin/${provider}?callbackUrl=${callbackUrl}&clientId=${clientId}&origin=${origin}`;
 
     console.log('[Auth Debug] Signing in with provider:', provider);
     console.log('[Auth Debug] Current path:', currentPath);
@@ -131,8 +167,9 @@ export function useAuth() {
       setLoading(true);
       console.log('[Auth Debug] Starting sign out process');
 
-      // Get the auth server URL from config
-      const authServerUrl = config.auth.serverUrl;
+      // Get the auth server URL from runtime config or config
+      const authServerUrl = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) ||
+                           config.auth.serverUrl;
 
       // Get the client URL from config or use the current origin
       const clientUrl = config.auth.callbackUrl || window.location.origin;

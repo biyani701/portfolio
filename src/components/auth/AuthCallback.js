@@ -41,14 +41,29 @@ const AuthCallback = () => {
           return;
         }
 
+        // Add a small delay to ensure the session is established
+        console.log('[Auth] Waiting for session to be established...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         // Check the session to update the auth context
         const session = await checkSession();
 
+        console.log('[Auth] Session check result:', session);
+
         if (!session || !session.user) {
           console.warn('[Auth] No session found after authentication');
-          setError('No session found. Please try signing in again.');
-          setLoading(false);
-          return;
+
+          // Try one more time after a delay
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const retrySession = await checkSession();
+
+          if (!retrySession || !retrySession.user) {
+            setError('No session found. Please try signing in again.');
+            setLoading(false);
+            return;
+          }
+
+          console.log('[Auth] Session found on retry:', retrySession);
         }
 
         // Get the redirect path from sessionStorage

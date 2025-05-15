@@ -39,10 +39,14 @@ import AuthDebug from "./components/auth/AuthDebug";
 import ProfilePage from "./components/ProfilePage";
 import CreditsPage from "./components/credits/CreditsPage";
 import SimpleSignIn from "./components/auth/SimpleSignIn";
+import ModernSignIn from "./components/auth/ModernSignIn";
+import AuthTestPage from "./components/auth/AuthTestPage";
+import AuthDebugTool from "./components/auth/AuthDebugTool";
 import AuthServerDebug from "./components/auth/AuthServerDebug";
 import GoogleCallback from "./components/auth/GoogleCallback";
 import LogoutPage from "./components/auth/LogoutPage";
 import AuthCallback from "./components/auth/AuthCallback";
+import AuthCallbackPage from "./pages/auth-callback";
 import AuthProvider from "./context/AuthProvider";
 import { useAuthContext } from "./context/AuthProvider";
 
@@ -482,9 +486,14 @@ function App(props) {
 
             {/* Auth Routes */}
             <Route path="/login" element={<GitHubAuth />} />
-            <Route path="/signin" element={<SimpleSignIn />} />
+            <Route path="/signin" element={<ModernSignIn />} />
+            <Route path="/signin-legacy" element={<SimpleSignIn />} />
             <Route path="/logout" element={<LogoutPage />} />
             <Route path="/auth-debug" element={<AuthServerDebug />} />
+            <Route path="/auth-test" element={<AuthTestPage />} />
+            <Route path="/auth-debug-tool" element={<AuthDebugTool />} />
+            <Route path="/auth-callback" element={<AuthCallback />} />
+            <Route path="/auth-callback.html" element={<AuthCallbackPage />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<PrivacyPolicy initialTab={1} />} />
             {/* Auth.js callback routes */}

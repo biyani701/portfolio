@@ -747,6 +747,9 @@ const NavigationBar = ({
                     p: 1
                   },
                 }}
+                MenuListProps={{
+                  onClick: () => setKnowledgeAnchorEl(null) // Close menu when any item is clicked
+                }}
               >
                 <MenuItem
                   component={RouterLink}

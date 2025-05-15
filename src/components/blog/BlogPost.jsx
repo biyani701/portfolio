@@ -256,7 +256,14 @@ const BlogPost = () => {
   // Parse the blog content for the Slate editor
   let content = [];
   try {
-    content = JSON.parse(blog.content);
+    // Check if blog.content is already an object (pre-parsed)
+    if (typeof blog.content === 'object') {
+      content = blog.content;
+    } else {
+      content = JSON.parse(blog.content);
+    }
+
+    // Validate content is a proper array for Slate
     if (!Array.isArray(content) || content.length === 0) {
       // If content is not a valid array, use a default value
       content = [
@@ -266,6 +273,17 @@ const BlogPost = () => {
         }
       ];
     }
+
+    // Ensure each block has a children array with at least one text node
+    content = content.map(block => {
+      if (!block.children || !Array.isArray(block.children) || block.children.length === 0) {
+        return {
+          ...block,
+          children: [{ text: '' }]
+        };
+      }
+      return block;
+    });
   } catch (error) {
     console.error('Error parsing blog content:', error);
     content = [
@@ -368,7 +386,7 @@ const BlogPost = () => {
 
           {/* Blog content */}
           <Box sx={{ typography: 'body1' }}>
-            <Slate editor={editor} value={content} onChange={() => {}}>
+            <Slate editor={editor} initialValue={content} value={content} onChange={() => {}}>
               <Editable
                 readOnly
                 renderElement={props => <Element {...props} />}
