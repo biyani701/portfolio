@@ -66,18 +66,43 @@ const AuthCallback = () => {
           console.log('[Auth] Session found on retry:', retrySession);
         }
 
-        // Get the redirect path from sessionStorage
-        const redirectPath = sessionStorage.getItem('auth_redirect') || '/';
+        // Get the redirect path from localStorage
+        const redirectPath = localStorage.getItem('auth_redirect_path') || '/';
+        const redirectUrl = localStorage.getItem('auth_redirect_url') || '/';
+        const authTimestamp = localStorage.getItem('auth_timestamp');
+        const isGitHubPages = window.location.hostname.includes('github.io');
 
-        // Clear the stored path
-        sessionStorage.removeItem('auth_redirect');
+        console.log('[Auth] Redirect path from localStorage:', redirectPath);
+        console.log('[Auth] Redirect URL from localStorage:', redirectUrl);
+        console.log('[Auth] Auth timestamp:', authTimestamp);
+        console.log('[Auth] Is GitHub Pages:', isGitHubPages);
+
+        // Check if the stored redirect info is still valid (less than 10 minutes old)
+        const isValidTimestamp = authTimestamp &&
+                               (Date.now() - parseInt(authTimestamp, 10)) < 10 * 60 * 1000;
+
+        if (!isValidTimestamp) {
+          console.warn('[Auth] Stored redirect info is too old or missing, using default');
+        }
+
+        // Clear the stored path and timestamp
+        localStorage.removeItem('auth_redirect_path');
+        localStorage.removeItem('auth_redirect_url');
+        localStorage.removeItem('auth_timestamp');
 
         // Update status and redirect
         setStatus(`Authentication successful! Redirecting...`);
 
         // Redirect after a short delay
         setTimeout(() => {
-          window.location.href = redirectPath;
+          // For GitHub Pages, we need to handle the redirect differently
+          // The 404.html approach will handle the routing
+          const targetUrl = isValidTimestamp ? (redirectUrl || redirectPath) : '/';
+
+          console.log('[Auth] Redirecting to:', targetUrl);
+
+          // Use the full URL if available, otherwise use the path
+          window.location.href = targetUrl;
         }, 1500);
       } catch (err) {
         console.error('[Auth] Error during authentication:', err);

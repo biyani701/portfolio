@@ -47,8 +47,13 @@ import GoogleCallback from "./components/auth/GoogleCallback";
 import LogoutPage from "./components/auth/LogoutPage";
 import AuthCallback from "./components/auth/AuthCallback";
 import AuthCallbackPage from "./pages/auth-callback";
+import AuthSuccessPage from "./pages/auth-success";
+import AuthErrorPage from "./pages/auth-error";
 import AuthProvider from "./context/AuthProvider";
 import { useAuthContext } from "./context/AuthProvider";
+
+// Toolpad SignIn Page
+import ToolpadSignInPageWrapper from "./pages/toolpad-signin";
 
 // Knowledge Base components
 import KnowledgeBase from "./components/knowledge/KnowledgeBase";
@@ -488,12 +493,15 @@ function App(props) {
             <Route path="/login" element={<GitHubAuth />} />
             <Route path="/signin" element={<ModernSignIn />} />
             <Route path="/signin-legacy" element={<SimpleSignIn />} />
+            <Route path="/signin-toolpad" element={<ToolpadSignInPageWrapper />} />
             <Route path="/logout" element={<LogoutPage />} />
             <Route path="/auth-debug" element={<AuthServerDebug />} />
             <Route path="/auth-test" element={<AuthTestPage />} />
             <Route path="/auth-debug-tool" element={<AuthDebugTool />} />
             <Route path="/auth-callback" element={<AuthCallback />} />
             <Route path="/auth-callback.html" element={<AuthCallbackPage />} />
+            <Route path="/auth-success" element={<AuthSuccessPage />} />
+            <Route path="/auth-error" element={<AuthErrorPage />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<PrivacyPolicy initialTab={1} />} />
             {/* Auth.js callback routes */}
