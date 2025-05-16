@@ -51,6 +51,7 @@ import AuthSuccessPage from "./pages/auth-success";
 import AuthErrorPage from "./pages/auth-error";
 import AuthProvider from "./context/AuthProvider";
 import { useAuthContext } from "./context/AuthProvider";
+import AuthSessionCheck from "./components/AuthSessionCheck";
 
 // Toolpad SignIn Page
 import ToolpadSignInPageWrapper from "./pages/toolpad-signin";
@@ -136,81 +137,12 @@ function App(props) {
   const [mode, setMode] = useState("light"); // Default to 'light'
   const [paletteIndex, setPaletteIndex] = useState(0); // Default to 0
 
-  // New Code
-  useEffect(() => {
-    // Load theme preferences
-    const loadThemePreferences = () => {
-      try {
-        // First try to read from cookies (preferred when consent exists)
-        const cookieMode = getCookieValue('themeMode');
-        const cookiePaletteIndex = getCookieValue('themePaletteIndex');
-
-        if (cookieMode) {
-          setMode(cookieMode);
-        }
-
-        if (cookiePaletteIndex && !isNaN(parseInt(cookiePaletteIndex, 10))) {
-          setPaletteIndex(parseInt(cookiePaletteIndex, 10));
-        }
-
-        // If cookies don't exist, fall back to localStorage
-        if (!cookieMode) {
-          const localMode = localStorage.getItem('themeMode');
-          if (localMode) {
-            setMode(localMode);
-          }
-        }
-
-        if (!cookiePaletteIndex) {
-          const localPaletteIndex = localStorage.getItem('themePaletteIndex');
-          if (localPaletteIndex && !isNaN(parseInt(localPaletteIndex, 10))) {
-            setPaletteIndex(parseInt(localPaletteIndex, 10));
-          }
-        }
-      } catch (error) {
-        console.warn('Error loading theme preferences:', error);
-      }
-    };
-
-    // Helper function to get cookie value by name
-    const getCookieValue = (name) => {
-      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-      return match ? match[2] : null;
-    };
-
-    // Load theme preferences immediately on mount
-    loadThemePreferences();
-
-    // Check for consent changes
-    const handleConsentChange = () => {
-      try {
-        const manager = window.klaro?.getManager?.();
-        const consents = manager?.consents;
-
-        // If we have consent, save to cookies again to ensure they exist
-        if (consents?.essentialCookies === true) {
-          saveThemePreferences(mode, paletteIndex);
-        }
-      } catch (error) {
-        console.warn('Error handling consent change:', error);
-      }
-    };
-
-    // Listen for Klaro consent changes
-    document.addEventListener('klaro-consent-changed', handleConsentChange);
-
-    return () => {
-      document.removeEventListener('klaro-consent-changed', handleConsentChange);
-    };
-  }, []);
-
-  // Save theme preferences whenever they change
-  useEffect(() => {
-    saveThemePreferences(mode, paletteIndex);
-
-    // Apply data-theme attribute for any components that might need it
-    document.documentElement.setAttribute("data-theme", mode);
-  }, [mode, paletteIndex]);
+  // Theme persistence with cookies
+  // Helper function to get cookie value by name
+  const getCookieValue = (name) => {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+  };
 
   // Function to save theme preferences to both cookies and localStorage
   const saveThemePreferences = (currentMode, currentPaletteIndex) => {
@@ -229,77 +161,98 @@ function App(props) {
         // Set cookies with 365 days expiry
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 365);
-        document.cookie = `themeMode=${currentMode}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
-        document.cookie = `themePaletteIndex=${currentPaletteIndex}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
+
+        // Use secure cookies with proper attributes
+        const cookieOptions = `expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict${window.location.protocol === 'https:' ? '; Secure' : ''}`;
+        document.cookie = `themeMode=${currentMode}; ${cookieOptions}`;
+        document.cookie = `themePaletteIndex=${currentPaletteIndex}; ${cookieOptions}`;
+
+        console.log(`Theme preferences saved to cookies: mode=${currentMode}, paletteIndex=${currentPaletteIndex}`);
       }
     } catch (error) {
       console.warn('Error saving theme preferences:', error);
     }
   };
 
-  // End New Code
-
+  // Load theme preferences on mount
   useEffect(() => {
-    // Check if we have consent to use cookies
-    const checkConsent = () => {
+    const loadThemePreferences = () => {
       try {
-        const manager = window.klaro?.getManager?.();
-        const consents = manager?.consents;
-        const cookieConsent = consents?.essentialCookies === true;
+        // First try to read from cookies (preferred when consent exists)
+        const cookieMode = getCookieValue('themeMode');
+        const cookiePaletteIndex = getCookieValue('themePaletteIndex');
 
-        // If we have consent or no Klaro (development), load from cookies
-        if (cookieConsent || !window.klaro) {
-          const savedMode = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("themeMode="));
-          if (savedMode) {
-            setMode(savedMode.split("=")[1]);
-          }
+        console.log('Theme cookies found:', { cookieMode, cookiePaletteIndex });
 
-          const savedIndex = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("themePaletteIndex="));
-          if (savedIndex) {
-            setPaletteIndex(parseInt(savedIndex.split("=")[1], 10));
-          }
-        } else {
-          // Fallback to localStorage if no cookie consent
-          const savedMode = localStorage.getItem("themeMode");
-          if (savedMode) {
-            setMode(savedMode);
-          }
+        if (cookieMode) {
+          setMode(cookieMode);
+        }
 
-          const savedIndex = localStorage.getItem("themePaletteIndex");
-          if (savedIndex) {
-            setPaletteIndex(parseInt(savedIndex, 10));
+        if (cookiePaletteIndex && !isNaN(parseInt(cookiePaletteIndex, 10))) {
+          setPaletteIndex(parseInt(cookiePaletteIndex, 10));
+        }
+
+        // If cookies don't exist, fall back to localStorage
+        if (!cookieMode) {
+          const localMode = localStorage.getItem('themeMode');
+          if (localMode) {
+            console.log('Using theme mode from localStorage:', localMode);
+            setMode(localMode);
+          }
+        }
+
+        if (!cookiePaletteIndex) {
+          const localPaletteIndex = localStorage.getItem('themePaletteIndex');
+          if (localPaletteIndex && !isNaN(parseInt(localPaletteIndex, 10))) {
+            console.log('Using palette index from localStorage:', localPaletteIndex);
+            setPaletteIndex(parseInt(localPaletteIndex, 10));
           }
         }
       } catch (error) {
-        console.warn(
-          "Error checking consent or loading theme preferences:",
-          error
-        );
-        // Fallback to localStorage
-        const savedMode = localStorage.getItem("themeMode");
-        if (savedMode) {
-          setMode(savedMode);
-        }
+        console.warn('Error loading theme preferences:', error);
 
-        const savedIndex = localStorage.getItem("themePaletteIndex");
-        if (savedIndex) {
-          setPaletteIndex(parseInt(savedIndex, 10));
+        // Fallback to localStorage in case of error
+        try {
+          const localMode = localStorage.getItem('themeMode');
+          const localPaletteIndex = localStorage.getItem('themePaletteIndex');
+
+          if (localMode) {
+            setMode(localMode);
+          }
+
+          if (localPaletteIndex && !isNaN(parseInt(localPaletteIndex, 10))) {
+            setPaletteIndex(parseInt(localPaletteIndex, 10));
+          }
+        } catch (storageError) {
+          console.error('Failed to load theme from localStorage:', storageError);
         }
       }
     };
 
-    // Initial check
-    checkConsent();
+    // Load theme preferences immediately on mount
+    loadThemePreferences();
+
+    // Handle consent changes
+    const handleConsentChange = () => {
+      try {
+        const manager = window.klaro?.getManager?.();
+        const consents = manager?.consents;
+
+        // If we have consent, save to cookies again to ensure they exist
+        if (consents?.essentialCookies === true) {
+          console.log('Consent granted for essential cookies, saving theme preferences');
+          saveThemePreferences(mode, paletteIndex);
+        }
+      } catch (error) {
+        console.warn('Error handling consent change:', error);
+      }
+    };
 
     // Listen for Klaro consent changes
-    document.addEventListener("klaro-consent-changed", checkConsent);
+    document.addEventListener('klaro-consent-changed', handleConsentChange);
 
     return () => {
-      document.removeEventListener("klaro-consent-changed", checkConsent);
+      document.removeEventListener('klaro-consent-changed', handleConsentChange);
     };
   }, []);
 
@@ -371,32 +324,10 @@ function App(props) {
     AOS.refresh();
   }, [mode]);
 
-  // Save theme preferences to cookies or localStorage
+  // Save theme preferences whenever they change
   useEffect(() => {
-    try {
-      const manager = window.klaro?.getManager?.();
-      const consents = manager?.consents;
-      const cookieConsent = consents?.essentialCookies === true;
-
-
-      // If we have consent or no Klaro (development), save to cookies
-      if (cookieConsent || !window.klaro) {
-        // Set cookies with 365 days expiry
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 365);
-        document.cookie = `themeMode=${mode}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
-        document.cookie = `themePaletteIndex=${paletteIndex}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
-      }
-
-      // Always save to localStorage as fallback
-      localStorage.setItem("themeMode", mode);
-      localStorage.setItem("themePaletteIndex", paletteIndex);
-    } catch (error) {
-      console.warn("Error saving theme preferences:", error);
-      // Fallback to localStorage
-      localStorage.setItem("themeMode", mode);
-      localStorage.setItem("themePaletteIndex", paletteIndex);
-    }
+    // Save theme preferences using our unified function
+    saveThemePreferences(mode, paletteIndex);
 
     // Apply data-theme attribute for any components that might need it
     document.documentElement.setAttribute("data-theme", mode);
@@ -422,6 +353,7 @@ function App(props) {
       <CssBaseline />
       <div id="back-to-top-anchor" />
       <AuthProvider>
+        <AuthSessionCheck />
         <NavigationBar
           isDarkMode={mode === "dark"}
           toggleDarkMode={toggleThemeMode}

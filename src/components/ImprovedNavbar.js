@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
-import Fuse from "fuse.js";
+import { Document } from "flexsearch";
 import { styled, alpha, useTheme } from "@mui/material/styles";
 import {
   AppBar,
@@ -79,10 +79,15 @@ const itemVariants = {
   }),
 };
 
-// Initialize Fuse.js for search functionality
-const fuse = new Fuse(resumeData, {
-  keys: ["section", "content"],
-  threshold: 0.3, // lower is stricter
+// Initialize FlexSearch for search functionality
+const searchIndex = new Document({
+  document: {
+    id: "id",
+    index: ["section", "content"],
+    store: ["section", "content"]
+  },
+  tokenize: "forward",
+  resolution: 9
 });
 
 // Add skills data to search index
@@ -91,11 +96,13 @@ const addSkillsToSearchIndex = (skillSections) => {
 
   // Create skill search entries
   const skillEntries = [];
+  let entryId = resumeData.length;
 
   Object.entries(skillSections).forEach(([category, skills]) => {
     // Add category as a section
     const skillNames = skills.map((skill) => skill.name).join(", ");
     skillEntries.push({
+      id: `skill_category_${entryId++}`,
       section: category,
       content: `Skills in ${category}: ${skillNames}`,
     });
@@ -103,13 +110,14 @@ const addSkillsToSearchIndex = (skillSections) => {
     // Add individual skills with more details
     skills.forEach((skill) => {
       skillEntries.push({
+        id: `skill_${entryId++}`,
         section: "Skills",
         content: `${skill.name} (${skill.years}+ years experience) - ${category}`,
       });
     });
   });
 
-  // Add to fuse index
+  // Add to FlexSearch index
   skillEntries.forEach((entry) => {
     if (
       !resumeData.some(
@@ -120,6 +128,40 @@ const addSkillsToSearchIndex = (skillSections) => {
       resumeData.push(entry);
     }
   });
+};
+
+// Initialize the search index with data
+const initializeSearchIndex = () => {
+  // Add all resume data to the index
+  resumeData.forEach((item, index) => {
+    searchIndex.add({
+      id: item.id || `resume_${index}`,
+      section: item.section,
+      content: item.content
+    });
+  });
+
+  // Add domain knowledge data to the index
+  if (domainKnowledgeData && domainKnowledgeData.categories) {
+    domainKnowledgeData.categories.forEach((category, catIndex) => {
+      searchIndex.add({
+        id: `domain_category_${catIndex}`,
+        section: "Domain Knowledge",
+        content: `${category.title}: ${category.description}`
+      });
+
+      // Add topics within each category
+      if (category.topics) {
+        category.topics.forEach((topic, topicIndex) => {
+          searchIndex.add({
+            id: `domain_topic_${catIndex}_${topicIndex}`,
+            section: category.title,
+            content: `${topic.title}: ${topic.description}`
+          });
+        });
+      }
+    });
+  }
 };
 
 // Styled components - using theme properly
@@ -306,18 +348,79 @@ const NavigationBar = ({
   const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
   const [settingsHover, setSettingsHover] = useState(false);
   const [knowledgeAnchorEl, setKnowledgeAnchorEl] = useState(null);
-  // Add skills to search index
+  // State for search results
+  const [searchResults, setSearchResults] = useState([]);
+
+  // Initialize search index and add data
   React.useEffect(() => {
     // Add skills data to search index
     addSkillsToSearchIndex(skillSections);
+
+    // Initialize the search index with all data
+    initializeSearchIndex();
+
+    console.log("Search index initialized with FlexSearch");
   }, []);
 
-  const results = fuse.search(query);
-  const matches = query ? results.map((r) => r.item) : [];
+  // Perform search when query changes
+  React.useEffect(() => {
+    if (!query) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      // Search in both section and content fields
+      const results = searchIndex.search(query, {
+        enrich: true,
+        limit: 10
+      });
+
+      // Process and flatten results
+      const flatResults = [];
+      results.forEach(resultSet => {
+        if (resultSet.result) {
+          resultSet.result.forEach(item => {
+            flatResults.push({
+              section: item.doc.section,
+              content: item.doc.content
+            });
+          });
+        }
+      });
+
+      // Remove duplicates
+      const uniqueResults = [...new Map(flatResults.map(item =>
+        [`${item.section}-${item.content}`, item]
+      )).values()];
+
+      setSearchResults(uniqueResults);
+    } catch (error) {
+      console.error("Error searching with FlexSearch:", error);
+      setSearchResults([]);
+    }
+  }, [query]);
+
+  const matches = searchResults;
 
   // Get auth functions from both auth systems
-  const { user, isAuthenticated, signOut } = useAuthContext();
+  const { user, isAuthenticated, signOut, checkSession } = useAuthContext();
   const legacyAuth = useLegacyAuth();
+
+  // Force a session check when the navbar mounts
+  React.useEffect(() => {
+    const checkAuthStatus = async () => {
+      console.log('[Navbar] Checking authentication status');
+      try {
+        const session = await checkSession();
+        console.log('[Navbar] Authentication status:', { isAuthenticated, session });
+      } catch (error) {
+        console.error('[Navbar] Error checking authentication status:', error);
+      }
+    };
+
+    checkAuthStatus();
+  }, [checkSession]);
 
   // Create a simplified logout function that redirects to the logout page
   const combinedLogout = () => {
@@ -867,6 +970,33 @@ const NavigationBar = ({
                 )}
               </Search>
 
+              {/* Account Button */}
+              <Box sx={{ mr: 1, display: { xs: 'none', md: 'block' } }}>
+                {isAuthenticated ? (
+                  <ToolpadAccountComponent variant="preview" />
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={() => navigate('/signin')}
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      borderRadius: 1,
+                      boxShadow: 2,
+                      '&:hover': {
+                        boxShadow: 4,
+                        transform: 'translateY(-2px)'
+                      },
+                      transition: 'all 0.2s ease-in-out'
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                )}
+              </Box>
+
               {/* Settings Icon */}
               <IconButton
                 onClick={handleSettingsClick}
@@ -918,9 +1048,42 @@ const NavigationBar = ({
                     py: 1.5,
                     borderBottom: "1px solid",
                     borderColor: "divider",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    width: "100%"
                   }}
                 >
-                  <ToolpadAccountComponent variant="preview" />
+                  <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
+                    Account
+                  </Typography>
+                  {isAuthenticated ? (
+                    <ToolpadAccountComponent variant="default" />
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      onClick={() => {
+                        handleSettingsClose();
+                        navigate('/signin');
+                      }}
+                      sx={{
+                        py: 1,
+                        fontWeight: 'bold',
+                        textTransform: 'none',
+                        borderRadius: 1,
+                        boxShadow: 2,
+                        '&:hover': {
+                          boxShadow: 4,
+                          transform: 'translateY(-2px)'
+                        },
+                        transition: 'all 0.2s ease-in-out'
+                      }}
+                    >
+                      Sign In
+                    </Button>
+                  )}
                 </Box>
 
                 {/* Theme Toggle */}
@@ -1228,8 +1391,45 @@ const NavigationBar = ({
           <Divider />
 
           {/* Login/User Profile */}
-          <ListItem sx={{ py: 2 }}>
-            <ToolpadAccountComponent />
+          <ListItem>
+            <ListItemText
+              primary={
+                <Typography variant="subtitle2" color="text.secondary" sx={{ fontWeight: 600, mb: 1 }}>
+                  Account
+                </Typography>
+              }
+            />
+          </ListItem>
+          <ListItem sx={{ py: 2, display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ width: '100%', maxWidth: 200 }}>
+              {isAuthenticated ? (
+                <ToolpadAccountComponent />
+              ) : (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={() => {
+                    handleDrawerToggle();
+                    navigate('/signin');
+                  }}
+                  sx={{
+                    py: 1.5,
+                    fontWeight: 'bold',
+                    textTransform: 'none',
+                    borderRadius: 1,
+                    boxShadow: 2,
+                    '&:hover': {
+                      boxShadow: 4,
+                      transform: 'translateY(-2px)'
+                    },
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                >
+                  Sign In
+                </Button>
+              )}
+            </Box>
           </ListItem>
         </List>
       </Drawer>

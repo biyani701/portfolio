@@ -209,21 +209,49 @@ export function useAuth() {
     }
   }, []);
 
-  // Check the session when the component mounts
+  // Check the session when the component mounts and when the URL changes
   useEffect(() => {
-    checkSession();
+    const checkAndUpdateSession = async () => {
+      console.log('[Auth Debug] Checking session on mount or URL change');
+      await checkSession();
 
-    // Check if we need to redirect after authentication
-    const redirectPath = sessionStorage.getItem('auth_redirect');
-    if (redirectPath) {
-      // Clear the stored path
-      sessionStorage.removeItem('auth_redirect');
+      // Check if we need to redirect after authentication
+      const redirectPath = sessionStorage.getItem('auth_redirect');
+      if (redirectPath) {
+        console.log('[Auth Debug] Found redirect path:', redirectPath);
+        // Clear the stored path
+        sessionStorage.removeItem('auth_redirect');
 
-      // Only redirect if we're not already on that path
-      if (window.location.pathname !== redirectPath) {
-        window.location.href = redirectPath;
+        // Only redirect if we're not already on that path
+        if (window.location.pathname !== redirectPath) {
+          console.log('[Auth Debug] Redirecting to:', redirectPath);
+          window.location.href = redirectPath;
+        }
       }
-    }
+    };
+
+    // Check session immediately
+    checkAndUpdateSession();
+
+    // Also check when the URL hash changes (common after OAuth redirects)
+    const handleHashChange = () => {
+      console.log('[Auth Debug] URL hash changed, checking session');
+      checkAndUpdateSession();
+    };
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+
+    // Check session periodically (every 5 minutes)
+    const intervalId = setInterval(() => {
+      console.log('[Auth Debug] Periodic session check');
+      checkSession();
+    }, 5 * 60 * 1000);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      clearInterval(intervalId);
+    };
   }, [checkSession]);
 
   // Function to manually set the user data

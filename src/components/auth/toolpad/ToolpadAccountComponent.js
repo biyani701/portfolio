@@ -34,10 +34,10 @@ const ToolpadAccountComponent = ({ variant = 'default' }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Navigate to the sign-in page
       navigate('/signin-toolpad');
-      
+
       return { success: true };
     } catch (error) {
       console.error('[Auth Error]', error);
@@ -55,10 +55,10 @@ const ToolpadAccountComponent = ({ variant = 'default' }) => {
       setError(null);
 
       console.log('[Auth] Signing out');
-      
+
       // Call the signOut function from the auth context
       await signOut();
-      
+
       return { success: true };
     } catch (error) {
       console.error('[Auth Error]', error);
@@ -87,11 +87,32 @@ const ToolpadAccountComponent = ({ variant = 'default' }) => {
         variant={variant}
         slotProps={{
           signInButton: {
-            color: 'success',
+            color: 'primary',
+            variant: 'contained',
+            size: 'medium',
+            fullWidth: true,
+            sx: {
+              py: 1,
+              fontWeight: 'bold',
+              textTransform: 'none',
+              borderRadius: 1,
+              boxShadow: 2,
+              '&:hover': {
+                boxShadow: 4,
+                transform: 'translateY(-2px)'
+              },
+              transition: 'all 0.2s ease-in-out'
+            }
           },
           signOutButton: {
-            color: 'success',
+            color: 'primary',
             startIcon: <Logout />,
+            variant: 'outlined',
+            size: 'small',
+            sx: {
+              mt: 1,
+              textTransform: 'none'
+            }
           },
           preview: {
             variant: 'expanded',
@@ -104,7 +125,31 @@ const ToolpadAccountComponent = ({ variant = 'default' }) => {
               },
               avatar: {
                 variant: 'rounded',
+                sx: {
+                  width: 40,
+                  height: 40,
+                  border: '2px solid',
+                  borderColor: 'primary.main'
+                }
               },
+              userInfo: {
+                sx: {
+                  textAlign: 'center'
+                }
+              },
+              signInButton: {
+                color: 'primary',
+                variant: 'contained',
+                size: 'small',
+                sx: {
+                  textTransform: 'none',
+                  borderRadius: 1,
+                  boxShadow: 1,
+                  '&:hover': {
+                    boxShadow: 2
+                  }
+                }
+              }
             },
           },
         }}

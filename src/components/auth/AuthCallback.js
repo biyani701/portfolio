@@ -128,6 +128,11 @@ const AuthCallback = () => {
         // Update status and redirect
         setStatus(`Authentication successful! Redirecting...`);
 
+        // Store a flag in sessionStorage to indicate we just completed authentication
+        // This will be used by the home page to force a session check
+        sessionStorage.setItem('auth_just_completed', 'true');
+        sessionStorage.setItem('auth_timestamp', Date.now().toString());
+
         // Redirect after a short delay
         setTimeout(() => {
           // Always redirect to the home page

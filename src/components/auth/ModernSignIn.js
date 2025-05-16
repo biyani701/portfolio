@@ -17,10 +17,16 @@ import {
   CircularProgress
 } from '@mui/material';
 
+// MUI Toolpad Core components
+import { AppProvider } from '@toolpad/core/AppProvider';
+import { Account } from '@toolpad/core/Account';
+import { SignInPage } from '@toolpad/core/SignInPage';
+
 // Icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub, faGoogle, faFacebookF, faLinkedinIn } from '@fortawesome/free-brands-svg-icons';
 import { faLock, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+import { Logout, Login } from '@mui/icons-material';
 
 // Config
 import config from '../../config';
@@ -53,10 +59,24 @@ const ModernSignIn = () => {
   // Helper function to handle sign-in with a provider
   const handleSignIn = async (provider) => {
     try {
+      // Validate provider
+      if (!provider) {
+        console.error('[Auth] No provider specified for sign-in');
+        setSnackbarMessage('Error: No authentication provider specified');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        return;
+      }
+
       setLoading(true);
 
       // Store the redirect path in sessionStorage
       sessionStorage.setItem('auth_redirect', from);
+
+      // Also store a flag to indicate we're in the authentication process
+      sessionStorage.setItem('auth_in_progress', 'true');
+      sessionStorage.setItem('auth_provider', provider);
+      sessionStorage.setItem('auth_timestamp', Date.now().toString());
 
       // Show loading message
       setSnackbarMessage(`Redirecting to ${provider} authentication...`);
@@ -77,9 +97,14 @@ const ModernSignIn = () => {
 
       // Construct the sign-in URL with client ID and origin as query parameters
       const origin = encodeURIComponent(window.location.origin);
-      const signInUrl = `${authServerUrl}/api/auth/signin/${provider}?callbackUrl=${callbackUrl}&clientId=${clientId}&origin=${origin}`;
+
+      // Make sure provider is a string and properly formatted
+      const providerParam = encodeURIComponent(String(provider).toLowerCase().trim());
+
+      const signInUrl = `${authServerUrl}/api/auth/signin/${providerParam}?callbackUrl=${callbackUrl}&clientId=${clientId}&origin=${origin}`;
 
       console.log(`[Auth] Signing in with ${provider}`);
+      console.log(`[Auth] Provider parameter: ${providerParam}`);
       console.log(`[Auth] Auth server URL: ${authServerUrl}`);
       console.log(`[Auth] Callback URL: ${callbackUrl}`);
       console.log(`[Auth] Client ID: ${clientId}`);
@@ -96,6 +121,35 @@ const ModernSignIn = () => {
       setLoading(false);
     }
   };
+
+  // Define the branding for the Toolpad Account component
+  const branding = {
+    logo: (
+      <img
+        src="/logo192.png"
+        alt="Portfolio Logo"
+        style={{ height: 40 }}
+      />
+    ),
+    title: 'Portfolio',
+  };
+
+  // Define the providers for the Toolpad SignInPage component
+  const providers = [
+    { id: 'github', name: 'GitHub' },
+    { id: 'google', name: 'Google' },
+    { id: 'facebook', name: 'Facebook' },
+    { id: 'linkedin', name: 'LinkedIn' }
+  ];
+
+  // Prepare user data for the Account component if authenticated
+  const { user } = useAuthContext();
+  const userData = isAuthenticated && user ? {
+    id: user.id || user.sub,
+    name: user.name || user.login || 'User',
+    email: user.email || '',
+    avatarUrl: user.image || user.avatar_url || '',
+  } : null;
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
@@ -143,6 +197,51 @@ const ModernSignIn = () => {
           </Box>
         ) : (
           <Box sx={{ width: '100%', mt: 2 }}>
+            {/* MUI Toolpad Core Account Component */}
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+              <AppProvider branding={branding} authentication={{ signIn: (provider) => handleSignIn(provider.id) }}>
+                <Account
+                  user={userData}
+                  signIn={() => navigate('/signin-toolpad')}
+                  signOut={() => handleSignIn('signout')}
+                  loading={loading}
+                  variant="default"
+                  slotProps={{
+                    signInButton: {
+                      color: 'primary',
+                      variant: 'contained',
+                      startIcon: <Login />,
+                      sx: { width: '100%', py: 1.5 }
+                    },
+                    signOutButton: {
+                      color: 'primary',
+                      startIcon: <Logout />,
+                    },
+                    preview: {
+                      variant: 'expanded',
+                      slotProps: {
+                        avatarIconButton: {
+                          sx: {
+                            width: 'fit-content',
+                            margin: 'auto',
+                          },
+                        },
+                        avatar: {
+                          variant: 'rounded',
+                        },
+                      },
+                    },
+                  }}
+                />
+              </AppProvider>
+            </Box>
+
+            <Divider sx={{ my: 3 }}>
+              <Typography variant="body2" color="text.secondary">
+                OR SIGN IN WITH
+              </Typography>
+            </Divider>
+
             {/* Social Sign-in Buttons */}
             <Box sx={{ mb: 3 }}>
               <Button

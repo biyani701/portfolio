@@ -13,7 +13,7 @@ import {
   Tooltip,
   Badge,
   Divider,
-  Stack,  
+  Stack,
 } from '@mui/material';
 import Icon from '@mui/material/Icon';
 import glossaryData from '../../data/glossaryData';
@@ -174,99 +174,116 @@ const Glossary = () => {
         </Paper>
 
         {/* Glossary content */}
-        {Object.entries(groupedItems).map(([letter, items]) => (
-  <Box key={letter} sx={{ mb: 4 }}>
-    <Typography
-      variant="h5"
-      component="h2"
-      sx={{
-        mb: 2,
-        fontWeight: 500,
-        color: 'text.primary',
-        borderBottom: `2px solid ${theme.palette.primary.main}`,
-        pb: 1,
-      }}
-    >
-      {letter}
-    </Typography>
-
-    <Grid container spacing={2}>
-      {items.map((item) => {
-        const isFlipped = flippedCards[item.id];
-        return (
-          <Grid item xs={12} sm={6} md={4} key={item.id}>
-            <Box sx={{ perspective: 1000 }}>
-              <Box
-                onClick={() =>
-                  setFlippedCards((prev) => ({
-                    ...prev,
-                    [item.id]: !prev[item.id],
-                  }))
-                }
+        {Object.keys(groupedItems).length > 0 ? (
+          Object.entries(groupedItems).map(([letter, items]) => (
+            <Box key={letter} sx={{ mb: 4 }}>
+              <Typography
+                variant="h5"
+                component="h2"
                 sx={{
-                  position: 'relative',
-                  width: '100%',
-                  height: 200,
-                  transformStyle: 'preserve-3d',
-                  transition: 'transform 0.6s',
-                  transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                  mb: 2,
+                  fontWeight: 500,
+                  color: 'text.primary',
+                  borderBottom: `2px solid ${theme.palette.primary.main}`,
+                  pb: 1,
                 }}
               >
-                {/* Front */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    backfaceVisibility: 'hidden',
-                    bgcolor: 'background.paper',
-                    border: `1px solid ${theme.palette.divider}`,
-                    borderRadius: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    p: 2,
-                  }}
-                >
-                  <Typography variant="h6" color="text.primary">
-                    {item.acronym}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 1 }}>
-                    {item.fullForm}
-                  </Typography>
-                </Box>
+                {letter}
+              </Typography>
 
-                {/* Back */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    backfaceVisibility: 'hidden',
-                    bgcolor: 'background.paper',
-                    border: `1px solid ${theme.palette.divider}`,
-                    borderRadius: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    p: 2,
-                    transform: 'rotateY(180deg)',
-                  }}
-                >
-                  <Typography variant="body2" color="text.primary" align="center">
-                    {item.details}
-                  </Typography>
-                </Box>
-              </Box>
+              <Grid container spacing={2}>
+                {items.map((item) => {
+                  const isFlipped = flippedCards[item.id];                 
+                  return (
+                    <Grid item xs={12} sm={6} md={4} key={item.id}>
+                      <Card
+                        elevation={3}
+                        sx={{
+                          height: 200,
+                          position: 'relative',
+                          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                          '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: 6
+                          },
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => handleCardFlip(item.id)}
+                      >
+                        <Box sx={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                          overflow: 'hidden',
+                          borderRadius: 1
+                        }}>
+                          {/* Front */}
+                          <CardContent
+                            sx={{
+                              position: 'relative',
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              p: 2,
+                              opacity: isFlipped ? 0 : 1,
+                              transition: 'opacity 0.3s ease',
+                              pointerEvents: isFlipped ? 'none' : 'auto',
+                            }}
+                          >
+                            <Typography variant="h6" color="primary" gutterBottom>
+                              {item.acronym}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" align="center">
+                              {item.fullForm}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 2, opacity: 0.7 }}>
+                              (Click to see details)
+                            </Typography>
+                          </CardContent>
+
+                          {/* Back */}
+                          <CardContent
+                            sx={{
+                              position: 'relative',
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              p: 2,
+                              opacity: isFlipped ? 1 : 0,                              
+                              transition: 'opacity 0.3s ease',
+                              pointerEvents: isFlipped ? 'auto' : 'none',
+                              bgcolor: theme.palette.mode === 'dark' ? 'primary.dark' : 'primary.light',
+                              color: theme.palette.mode === 'dark' ? 'white' : 'text.primary',
+                            }}
+                          >
+                            <Typography variant="body2" align="center">
+                              {item.details}
+                            </Typography>
+                            <Typography variant="caption" sx={{ mt: 2, opacity: 0.7 }}>
+                              (Click to go back)
+                            </Typography>
+                          </CardContent>
+                        </Box>
+                      </Card>
+                    </Grid>
+                  );
+                })}
+              </Grid>
             </Box>
-          </Grid>
-        );
-      })}
-    </Grid>
-  </Box>
-))}
+          ))
+        ) : (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Typography variant="h6" color="text.secondary">
+              Loading glossary items...
+            </Typography>
+          </Box>
+        )}
 
 
 
