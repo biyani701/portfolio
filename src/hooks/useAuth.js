@@ -226,6 +226,27 @@ export function useAuth() {
     }
   }, [checkSession]);
 
+  // Function to manually set the user data
+  const setUser = useCallback((userData) => {
+    if (!userData) {
+      setSession(null);
+      return;
+    }
+
+    // If we already have a session, update the user data
+    if (session) {
+      setSession({
+        ...session,
+        user: userData
+      });
+    } else {
+      // Create a new session with the user data
+      setSession({
+        user: userData
+      });
+    }
+  }, [session]);
+
   return {
     session,
     user: session?.user || null,
@@ -235,6 +256,7 @@ export function useAuth() {
     signIn,
     signOut,
     checkSession,
+    setUser,
   };
 }
 

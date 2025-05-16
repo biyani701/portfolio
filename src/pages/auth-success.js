@@ -34,12 +34,19 @@ const AuthSuccessPage = () => {
         const redirectPath = localStorage.getItem('auth_redirect_path') || '/';
         const redirectUrl = localStorage.getItem('auth_redirect_url') || '/';
         const authTimestamp = localStorage.getItem('auth_timestamp');
+        const authEnvironment = localStorage.getItem('auth_environment') || 'localhost';
+
+        // Determine the current environment
         const isGitHubPages = window.location.hostname.includes('github.io');
+        const isVercel = window.location.hostname.includes('vercel.app');
+        const currentEnvironment = isGitHubPages ? 'github-pages' :
+                                 isVercel ? 'vercel' : 'localhost';
 
         console.log('[Auth Success] Redirect path from localStorage:', redirectPath);
         console.log('[Auth Success] Redirect URL from localStorage:', redirectUrl);
         console.log('[Auth Success] Auth timestamp:', authTimestamp);
-        console.log('[Auth Success] Is GitHub Pages:', isGitHubPages);
+        console.log('[Auth Success] Auth environment:', authEnvironment);
+        console.log('[Auth Success] Current environment:', currentEnvironment);
 
         // Check if the stored redirect info is still valid (less than 10 minutes old)
         const isValidTimestamp = authTimestamp &&
@@ -49,19 +56,20 @@ const AuthSuccessPage = () => {
           console.warn('[Auth Success] Stored redirect info is too old or missing, using default');
         }
 
-        // Clear the stored path and timestamp
+        // Clear the stored auth data
         localStorage.removeItem('auth_redirect_path');
         localStorage.removeItem('auth_redirect_url');
         localStorage.removeItem('auth_timestamp');
+        localStorage.removeItem('auth_environment');
 
-        // For GitHub Pages, we need to handle the redirect differently
-        // The 404.html approach will handle the routing
-        const targetUrl = isValidTimestamp ? (redirectUrl || redirectPath) : '/';
+        // Always redirect to the home page
+        const targetUrl = '/';
 
         // Redirect after a short delay
         setTimeout(() => {
-          console.log('[Auth Success] Redirecting to:', targetUrl);
-          window.location.href = targetUrl;
+          console.log('[Auth Success] Redirecting to home page');
+          // Use the full URL with origin to ensure proper redirection
+          window.location.href = `${window.location.origin}${targetUrl}`;
         }, 1500);
       } catch (error) {
         console.error('[Auth Success] Error:', error);

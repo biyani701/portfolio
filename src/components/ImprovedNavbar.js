@@ -62,6 +62,7 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import SettingsIcon from "@mui/icons-material/Settings";
 import config from "../config";
 import domainKnowledgeData from "../data/domainKnowledgeData";
+import ToolpadAccountComponent from "./auth/toolpad/ToolpadAccountComponent";
 
 const itemVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -5 },
@@ -919,56 +920,7 @@ const NavigationBar = ({
                     borderColor: "divider",
                   }}
                 >
-                  {isAuthenticated ? (
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      {user?.avatar_url ? (
-                        <Avatar
-                          src={user.avatar_url}
-                          alt={user.login}
-                          sx={{ width: 40, height: 40, mr: 1.5 }}
-                        />
-                      ) : (
-                        <Avatar sx={{ width: 40, height: 40, mr: 1.5 }}>
-                          <PersonIcon />
-                        </Avatar>
-                      )}
-                      <Box>
-                        <Typography
-                          variant="subtitle1"
-                          sx={{ fontWeight: "bold" }}
-                        >
-                          {user?.name || user?.login || "User"}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {user?.email || "Authenticated"}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  ) : (
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Avatar sx={{ width: 40, height: 40, mr: 1.5 }}>
-                        <PersonIcon />
-                      </Avatar>
-                      <Box>
-                        <Typography
-                          variant="subtitle1"
-                          sx={{ fontWeight: "bold" }}
-                        >
-                          Guest User
-                        </Typography>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => {
-                            handleSettingsClose();
-                            navigate("/signin");
-                          }}
-                        >
-                          Sign In
-                        </Button>
-                      </Box>
-                    </Box>
-                  )}
+                  <ToolpadAccountComponent variant="preview" />
                 </Box>
 
                 {/* Theme Toggle */}
@@ -1276,54 +1228,9 @@ const NavigationBar = ({
           <Divider />
 
           {/* Login/User Profile */}
-          {isAuthenticated ? (
-            <>
-              <ListItem
-                button
-                component={RouterLink}
-                to="/profile"
-                onClick={handleDrawerToggle}
-              >
-                <ListItemIcon>
-                  {user?.avatar_url ? (
-                    <Avatar
-                      src={user.avatar_url}
-                      alt={user.login}
-                      sx={{ width: 24, height: 24 }}
-                    />
-                  ) : (
-                    <PersonIcon />
-                  )}
-                </ListItemIcon>
-                <ListItemText primary="Profile" />
-              </ListItem>
-              <ListItem
-                button
-                onClick={() => {
-                  handleDrawerToggle();
-                  combinedLogout();
-                }}
-              >
-                <ListItemIcon>
-                  <LogoutIcon />
-                </ListItemIcon>
-                <ListItemText primary="Logout" />
-              </ListItem>
-            </>
-          ) : (
-            <ListItem
-              button
-              onClick={() => {
-                handleDrawerToggle();
-                navigate("/signin");
-              }}
-            >
-              <ListItemIcon>
-                <PersonIcon />
-              </ListItemIcon>
-              <ListItemText primary="Sign In" />
-            </ListItem>
-          )}
+          <ListItem sx={{ py: 2 }}>
+            <ToolpadAccountComponent />
+          </ListItem>
         </List>
       </Drawer>
     </Box>

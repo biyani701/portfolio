@@ -45,22 +45,24 @@ const ToolpadSignInPage = () => {
       const authServerUrl = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) ||
                            config.auth.serverUrl;
 
-      // Store the current URL to redirect back after authentication
-      // For GitHub Pages compatibility, we need to store the full path including the origin
-      const currentPath = window.location.pathname;
-      const currentUrl = window.location.href;
+      // Determine the environment (GitHub Pages, Vercel, localhost)
       const isGitHubPages = window.location.hostname.includes('github.io');
+      const isVercel = window.location.hostname.includes('vercel.app');
+      const environment = isGitHubPages ? 'github-pages' :
+                         isVercel ? 'vercel' : 'localhost';
 
-      // Store both the path and full URL for flexibility
-      localStorage.setItem('auth_redirect_path', currentPath);
-      localStorage.setItem('auth_redirect_url', currentUrl);
+      // Store the redirect information
+      // Instead of storing the current URL, store '/' to redirect to home page
+      localStorage.setItem('auth_redirect_path', '/');
+      localStorage.setItem('auth_redirect_url', `${window.location.origin}/`);
       localStorage.setItem('auth_timestamp', Date.now().toString());
+      localStorage.setItem('auth_environment', environment);
 
-      console.log('[Auth] Stored redirect URL:', currentUrl);
-      console.log('[Auth] Is GitHub Pages:', isGitHubPages);
+      console.log('[Auth] Will redirect to home page after authentication');
+      console.log('[Auth] Environment:', environment);
 
       // Use auth-callback as the callback URL
-      // For GitHub Pages, we need to use the full URL
+      // This needs to work across all environments
       const callbackUrl = encodeURIComponent(`${window.location.origin}/auth-callback`);
 
       // Always use 'portfolio' as the client ID

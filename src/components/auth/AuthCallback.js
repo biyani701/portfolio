@@ -1,5 +1,5 @@
 // src/components/auth/AuthCallback.js
-import  React,{ useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Typography,
@@ -19,7 +19,7 @@ import { useAuthContext } from '../../context/AuthProvider';
 const AuthCallback = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { checkSession } = useAuthContext();
+  const { checkSession, setUser } = useAuthContext();
   const [status, setStatus] = useState('Processing authentication...');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -64,18 +64,52 @@ const AuthCallback = () => {
           }
 
           console.log('[Auth] Session found on retry:', retrySession);
+
+          // Use the retry session
+          if (retrySession.user && setUser) {
+            // Ensure we have all the user data properly formatted
+            const userData = {
+              id: retrySession.user.id || retrySession.user.sub,
+              name: retrySession.user.name || retrySession.user.login || 'User',
+              email: retrySession.user.email || '',
+              image: retrySession.user.image || retrySession.user.avatar_url || '',
+              provider: retrySession.user.provider || 'unknown'
+            };
+
+            console.log('[Auth] Setting user data in context from retry session:', userData);
+            setUser(userData);
+          }
+        } else if (session.user && setUser) {
+          // Ensure we have all the user data properly formatted
+          const userData = {
+            id: session.user.id || session.user.sub,
+            name: session.user.name || session.user.login || 'User',
+            email: session.user.email || '',
+            image: session.user.image || session.user.avatar_url || '',
+            provider: session.user.provider || 'unknown'
+          };
+
+          console.log('[Auth] Setting user data in context:', userData);
+          setUser(userData);
         }
 
         // Get the redirect path from localStorage
         const redirectPath = localStorage.getItem('auth_redirect_path') || '/';
         const redirectUrl = localStorage.getItem('auth_redirect_url') || '/';
         const authTimestamp = localStorage.getItem('auth_timestamp');
+        const authEnvironment = localStorage.getItem('auth_environment') || 'localhost';
+
+        // Determine the current environment
         const isGitHubPages = window.location.hostname.includes('github.io');
+        const isVercel = window.location.hostname.includes('vercel.app');
+        const currentEnvironment = isGitHubPages ? 'github-pages' :
+                                 isVercel ? 'vercel' : 'localhost';
 
         console.log('[Auth] Redirect path from localStorage:', redirectPath);
         console.log('[Auth] Redirect URL from localStorage:', redirectUrl);
         console.log('[Auth] Auth timestamp:', authTimestamp);
-        console.log('[Auth] Is GitHub Pages:', isGitHubPages);
+        console.log('[Auth] Auth environment:', authEnvironment);
+        console.log('[Auth] Current environment:', currentEnvironment);
 
         // Check if the stored redirect info is still valid (less than 10 minutes old)
         const isValidTimestamp = authTimestamp &&
@@ -85,24 +119,26 @@ const AuthCallback = () => {
           console.warn('[Auth] Stored redirect info is too old or missing, using default');
         }
 
-        // Clear the stored path and timestamp
+        // Clear the stored auth data
         localStorage.removeItem('auth_redirect_path');
         localStorage.removeItem('auth_redirect_url');
         localStorage.removeItem('auth_timestamp');
+        localStorage.removeItem('auth_environment');
 
         // Update status and redirect
         setStatus(`Authentication successful! Redirecting...`);
 
         // Redirect after a short delay
         setTimeout(() => {
+          // Always redirect to the home page
           // For GitHub Pages, we need to handle the redirect differently
           // The 404.html approach will handle the routing
-          const targetUrl = isValidTimestamp ? (redirectUrl || redirectPath) : '/';
+          const targetUrl = '/';
 
-          console.log('[Auth] Redirecting to:', targetUrl);
+          console.log('[Auth] Redirecting to home page');
 
-          // Use the full URL if available, otherwise use the path
-          window.location.href = targetUrl;
+          // Use the full URL with origin to ensure proper redirection
+          window.location.href = `${window.location.origin}${targetUrl}`;
         }, 1500);
       } catch (err) {
         console.error('[Auth] Error during authentication:', err);
