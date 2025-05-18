@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio Documentation</title>
+    <script type="text/javascript">
+      (function () {
+        console.log("📚 Docs fallback index.html loaded");
+
+        // Check if we have a stored path from 404.html
+        const docusaurusPath = sessionStorage.getItem("docusaurusPath");
+        if (docusaurusPath) {
+          console.log("🔄 Restoring path from session storage:", docusaurusPath);
+          sessionStorage.removeItem("docusaurusPath");
+
+          // Redirect to the stored path
+          setTimeout(() => {
+            window.location.href = docusaurusPath;
+          }, 300);
+        } else {
+          console.log("📄 No stored path, staying on docs index");
+        }
+      })();
+    </script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -48,15 +67,15 @@
 </head>
 <body>
     <h1>Portfolio Documentation</h1>
-    
+
     <div class="card">
         <h2>Documentation is Coming Soon</h2>
         <p>The documentation site is currently being set up. Please check back later for comprehensive documentation on the portfolio project.</p>
     </div>
-    
+
     <h2>Project Overview</h2>
     <p>The Portfolio project is a personal website built with React and Material-UI. It showcases skills, experience, projects, and blog posts. The site is designed to be responsive, accessible, and user-friendly.</p>
-    
+
     <h2>Key Features</h2>
     <ul>
         <li><strong>Resume Sections</strong>: Display professional information including skills, experience, education, and certifications</li>
@@ -65,7 +84,7 @@
         <li><strong>Authentication</strong>: Secure access to protected routes with Auth.js</li>
         <li><strong>Responsive Design</strong>: Optimized for all screen sizes</li>
     </ul>
-    
+
     <h2>Technology Stack</h2>
     <ul>
         <li><strong>Frontend</strong>: React, Material-UI, Slate.js</li>
@@ -73,7 +92,7 @@
         <li><strong>Deployment</strong>: GitHub Pages</li>
         <li><strong>Documentation</strong>: Docusaurus</li>
     </ul>
-    
+
     <div class="footer">
         <p>© 2023 Vishal Biyani. All rights reserved.</p>
         <p>Return to <a href="https://vishal.biyani.xyz">main site</a>.</p>
