@@ -7,7 +7,7 @@ Set-Location -Path "docs-test"
 
 # Initialize a new Docusaurus site
 Write-Host "Creating Docusaurus site..." -ForegroundColor Cyan
-npx create-docusaurus@latest . classic --skip-install --yes
+npx create-docusaurus@latest . classic --skip-install
 
 # Copy configuration and content
 Write-Host "Copying configuration and content..." -ForegroundColor Cyan
