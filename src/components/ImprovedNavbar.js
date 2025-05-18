@@ -355,6 +355,8 @@ const NavigationBar = ({
   const [blogAnchorEl, setBlogAnchorEl] = useState(null);
   // State for search results
   const [searchResults, setSearchResults] = useState([]);
+  // State for keyboard navigation in search results
+  const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
 
   // Initialize search index and add data
   React.useEffect(() => {
@@ -484,6 +486,8 @@ const NavigationBar = ({
     setQuery(event.target.value);
     if (event.target.value) {
       setSearchAnchorEl(event.currentTarget);
+      // Reset selected index when search query changes
+      setSelectedResultIndex(-1);
     } else {
       setSearchAnchorEl(null);
     }
@@ -492,6 +496,40 @@ const NavigationBar = ({
   const handleSearchClose = () => {
     setSearchAnchorEl(null);
     setQuery("");
+    setSelectedResultIndex(-1);
+  };
+
+  // Handle keyboard navigation in search results
+  const handleSearchKeyDown = (event) => {
+    // Only handle keyboard navigation when search results are visible
+    if (!searchAnchorEl || matches.length === 0) return;
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        setSelectedResultIndex(prevIndex =>
+          prevIndex < matches.length - 1 ? prevIndex + 1 : prevIndex
+        );
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        setSelectedResultIndex(prevIndex =>
+          prevIndex > 0 ? prevIndex - 1 : 0
+        );
+        break;
+      case 'Enter':
+        event.preventDefault();
+        if (selectedResultIndex >= 0 && selectedResultIndex < matches.length) {
+          handleSearchResultClick(matches[selectedResultIndex].section);
+        }
+        break;
+      case 'Escape':
+        event.preventDefault();
+        handleSearchClose();
+        break;
+      default:
+        break;
+    }
   };
 
   const handleSearchResultClick = (section) => {
@@ -975,13 +1013,13 @@ const NavigationBar = ({
                   onClick={handleBlogMenuClose}
                   sx={{ py: 1.2, px: 2, gap: 1 }}
                 >
-                                   
+
                   <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
                     <VisibilityIcon fontSize="small" />
                   </ListItemIcon>
                   <ListItemText primary="View All" />
-                  
-                  
+
+
                 </MenuItem>
 
                 {isAuthenticated && (
@@ -1040,6 +1078,7 @@ const NavigationBar = ({
                   inputProps={{ "aria-label": "search" }}
                   value={query}
                   onChange={handleSearchChange}
+                  onKeyDown={handleSearchKeyDown}
                   onFocus={(e) =>
                     e.target.value && setSearchAnchorEl(e.currentTarget)
                   }
@@ -1052,6 +1091,17 @@ const NavigationBar = ({
                           key={index}
                           button
                           onClick={() => handleSearchResultClick(item.section)}
+                          selected={index === selectedResultIndex}
+                          sx={{
+                            backgroundColor: index === selectedResultIndex
+                              ? theme.palette.action.selected
+                              : 'transparent',
+                            '&:hover': {
+                              backgroundColor: index === selectedResultIndex
+                                ? theme.palette.action.selected
+                                : theme.palette.action.hover,
+                            }
+                          }}
                         >
                           <SearchResultSection>
                             {item.section}

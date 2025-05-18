@@ -684,7 +684,7 @@ export default function CareerTimeline() {
     </Box>
   );
 
-  // Renders zigzag horizontal timeline (CodePen example 2)
+  // Renders zigzag horizontal timeline with ribbon effects (CodePen example 2)
   const ZigzagTimeline = () => (
     <Box
       sx={{
@@ -694,240 +694,260 @@ export default function CareerTimeline() {
         mx: 'auto',
         maxWidth: 1200,
         overflow: 'hidden',
+        '--col-gap': '2rem',
+        '--row-gap': '2rem',
+        '--line-w': '0.25rem',
       }}
     >
-      {/* Horizontal zigzag line */}
+      {/* Timeline list with ribbon effects */}
       <Box
+        component="ul"
         sx={{
-          position: 'relative',
-          height: 100,
-          display: { xs: 'none', md: 'block' },
-          mb: 4,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'var(--line-w) 1fr', md: '1fr var(--line-w) 1fr' },
+          gridAutoColumns: 'max-content',
+          columnGap: 'var(--col-gap)',
+          listStyle: 'none',
+          width: 'min(60rem, 90%)',
+          marginInline: 'auto',
+          // Line
           '&::before': {
             content: '""',
-            position: 'absolute',
-            height: '4px',
-            background: `linear-gradient(to right, ${theme.palette.primary.main}, ${theme.palette.secondary.main || theme.palette.primary.light})`,
-            top: '50%',
-            left: '5%',
-            right: '5%',
-            zIndex: 1,
-            borderRadius: '4px',
-            boxShadow: `0 0 8px ${theme.palette.primary.main}`,
-            transform: 'translateY(-50%)',
+            gridColumn: { xs: 1, md: 2 },
+            gridRow: '1 / span 20',
+            background: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgb(225, 225, 225)',
+            borderRadius: 'calc(var(--line-w) / 2)',
           },
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            width: '100%',
-            height: 50,
-            background: `repeating-linear-gradient(-45deg, transparent, transparent 10px, ${theme.palette.primary.main}20 10px, ${theme.palette.primary.main}20 20px)`,
-            top: '50%',
-            left: 0,
-            right: 0,
-            zIndex: 0,
-            transform: 'translateY(-50%)',
-            opacity: 0.3,
-          }
+          // Row gaps
+          '& li:not(:last-child)': {
+            marginBottom: 'var(--row-gap)',
+          },
         }}
-      />
+      >
+        {careerData.map((item, index) => {
+          // Generate a unique accent color for each item
+          const accentColors = ['#41516C', '#FBCA3E', '#E24A68', '#1B5F8C', '#4CADAD'];
+          const accentColor = accentColors[index % accentColors.length];
 
-      {/* Timeline items */}
-      <Grid container spacing={4} justifyContent="space-around" alignItems="flex-start">
-        {careerData.map((item, index) => (
-          <Grid
-            item
-            key={index}
-            xs={12}
-            md={4}
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              opacity: animatedItems.includes(index) ? 1 : 0,
-              transform: animatedItems.includes(index)
-                ? 'translateY(0)'
-                : 'translateY(20px)',
-              transition: 'opacity 0.5s ease, transform 0.5s ease',
-              mt: { md: index % 2 === 0 ? 0 : 8 }, // Zigzag effect
-            }}
-          >
+          return (
             <Box
+              component="li"
+              key={index}
               sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                position: 'relative',
-                zIndex: 2,
-                width: '100%',
-                maxWidth: 300,
+                gridColumn: {
+                  xs: 2,
+                  md: index % 2 === 0 ? 1 : 3
+                },
+                // Start second card
+                gridRow: {
+                  md: index === 1 ? '2/4' : 'auto'
+                },
+                '--inlineP': '1.5rem',
+                marginInline: 'var(--inlineP)',
+                gridRow: 'span 2',
+                display: 'grid',
+                gridTemplateRows: 'min-content min-content min-content',
+                opacity: animatedItems.includes(index) ? 1 : 0,
+                transform: animatedItems.includes(index)
+                  ? 'translateY(0)'
+                  : 'translateY(20px)',
+                transition: 'opacity 0.5s ease, transform 0.5s ease',
+                // Define accent color as a custom property
+                '--accent-color': accentColor,
               }}
-              onMouseEnter={() => setActiveIndex(index)}
-              onMouseLeave={() => setActiveIndex(null)}
             >
-              {/* Timeline node with pulse animation */}
+              {/* Date with ribbon effect */}
               <Box
+                className="date"
                 sx={{
-                  width: 24,
-                  height: 24,
-                  bgcolor: theme.palette.primary.main,
-                  borderRadius: '50%',
-                  zIndex: 2,
-                  mb: 2,
-                  position: 'relative',
-                  boxShadow: `0 0 0 4px ${theme.palette.background.paper}, 0 0 0 6px ${theme.palette.primary.main}30`,
-                  display: { xs: 'none', md: 'block' },
-                  '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '50%',
-                    animation: 'pulse 2s infinite',
-                    backgroundColor: theme.palette.primary.main,
-                    opacity: 0.6,
-                    top: 0,
-                    left: 0,
-                    zIndex: -1,
-                  },
-                  '@keyframes pulse': {
-                    '0%': {
-                      transform: 'scale(1)',
-                      opacity: 0.6,
-                    },
-                    '70%': {
-                      transform: 'scale(2)',
-                      opacity: 0,
-                    },
-                    '100%': {
-                      transform: 'scale(2.5)',
-                      opacity: 0,
-                    },
-                  },
-                }}
-              />
-
-              {/* Card */}
-              <Paper
-                elevation={activeIndex === index ? 8 : 4}
-                sx={{
-                  p: 3,
-                  borderRadius: 2,
-                  width: '100%',
+                  '--dateH': '3rem',
+                  height: 'var(--dateH)',
+                  marginInline: 'calc(var(--inlineP) * -1)',
                   textAlign: 'center',
-                  transform: activeIndex === index ? 'scale(1.05)' : 'scale(1)',
-                  transition: 'all 0.3s ease',
-                  bgcolor: theme.palette.mode === 'dark'
-                    ? 'rgba(45, 45, 45, 0.9)'
-                    : 'background.paper',
-                  border: theme.palette.mode === 'dark'
-                    ? '1px solid rgba(255, 255, 255, 0.1)'
-                    : 'none',
+                  backgroundColor: 'var(--accent-color)',
+                  color: 'white',
+                  fontSize: '1.25rem',
+                  fontWeight: 700,
+                  display: 'grid',
+                  placeContent: 'center',
                   position: 'relative',
-                  overflow: 'hidden',
+                  borderRadius: {
+                    xs: 'calc(var(--dateH) / 2) 0 0 calc(var(--dateH) / 2)',
+                    md: index % 2 === 0
+                      ? 'calc(var(--dateH) / 2) 0 0 calc(var(--dateH) / 2)'
+                      : '0 calc(var(--dateH) / 2) calc(var(--dateH) / 2) 0'
+                  },
+                  // Date flap (ribbon effect)
                   '&::before': {
                     content: '""',
+                    width: 'var(--inlineP)',
+                    aspectRatio: 1,
+                    background: 'var(--accent-color)',
+                    backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.2) 100%, transparent)',
                     position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '4px',
-                    background: `linear-gradient(to right, ${theme.palette.primary.main}, ${theme.palette.secondary.main || theme.palette.primary.light})`,
+                    top: '100%',
+                    clipPath: {
+                      xs: 'polygon(0 0, 100% 0, 0 100%)',
+                      md: index % 2 === 0
+                        ? 'polygon(0 0, 100% 0, 0 100%)'
+                        : 'polygon(0 0, 100% 0, 100% 100%)'
+                    },
+                    right: { xs: 0, md: index % 2 === 0 ? 0 : 'auto' },
+                    left: { xs: 'auto', md: index % 2 === 0 ? 'auto' : 0 },
                   },
-                  // Zigzag connector line
+                  // Circle on timeline
                   '&::after': {
                     content: '""',
                     position: 'absolute',
-                    width: '2px',
-                    height: { xs: 0, md: index % 2 === 0 ? '50px' : '0' },
-                    background: theme.palette.primary.main,
-                    top: { xs: 0, md: index % 2 === 0 ? '-50px' : 'auto' },
-                    bottom: { xs: 0, md: index % 2 === 0 ? 'auto' : '-50px' },
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    display: { xs: 'none', md: 'block' },
+                    width: '2rem',
+                    aspectRatio: 1,
+                    background: theme.palette.background.paper,
+                    border: '0.3rem solid var(--accent-color)',
+                    borderRadius: '50%',
+                    top: '50%',
+                    transform: {
+                      xs: 'translate(50%, -50%)',
+                      md: index % 2 === 0
+                        ? 'translate(50%, -50%)'
+                        : 'translate(-50%, -50%)'
+                    },
+                    right: {
+                      xs: 'calc(100% + var(--col-gap) + var(--line-w) / 2)',
+                      md: index % 2 === 0
+                        ? 'calc(100% + var(--col-gap) + var(--line-w) / 2)'
+                        : 'auto'
+                    },
+                    left: {
+                      xs: 'auto',
+                      md: index % 2 === 0
+                        ? 'auto'
+                        : 'calc(100% + var(--col-gap) + var(--line-w) / 2)'
+                    },
+                    zIndex: 1,
+                    boxShadow: '0 0 0 4px rgba(0,0,0,0.1)',
                   },
                 }}
               >
-                {/* Logo */}
-                <Box
-                  sx={{
-                    width: 70,
-                    height: 70,
-                    bgcolor: theme.palette.mode === 'dark'
-                      ? 'rgba(30, 30, 30, 0.8)'
-                      : 'rgba(245, 245, 245, 0.8)',
+                {item.duration.split(' – ')[0]}
+              </Box>
+
+              {/* Title with shadow effect */}
+              <Box
+                className="title"
+                sx={{
+                  background: theme.palette.background.paper,
+                  position: 'relative',
+                  paddingInline: '1.5rem',
+                  overflow: 'hidden',
+                  paddingBlockStart: '1.5rem',
+                  paddingBlockEnd: '1rem',
+                  fontWeight: 500,
+                  // Shadow effect
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    width: '90%',
+                    height: '0.5rem',
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    left: '50%',
                     borderRadius: '50%',
-                    mx: 'auto',
-                    mb: 2,
-                    p: 1.5,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    overflow: 'hidden',
-                    boxShadow: `0 4px 8px rgba(0,0,0,0.1)`,
-                    border: `1px solid ${theme.palette.divider}`,
-                  }}
-                >
-                  {(item.logoLight || item.logoDark) ? (
-                    <img
-                      src={theme.palette.mode === 'dark' ? item.logoDark : item.logoLight}
-                      alt={`${item.company} logo`}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'contain',
-                        filter: theme.palette.mode === 'dark' ? 'brightness(1.2)' : 'none',
-                      }}
-                    />
-                  ) : (
-                    <WorkIcon
-                      color="primary"
-                      sx={{
-                        fontSize: 36,
-                        filter: `drop-shadow(0 2px 2px ${theme.palette.primary.main}40)`,
-                      }}
-                    />
-                  )}
+                    filter: 'blur(4px)',
+                    transform: 'translate(-50%, 50%)',
+                    bottom: 'calc(100% + 0.125rem)',
+                    zIndex: -1,
+                  },
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {/* Logo */}
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      bgcolor: theme.palette.mode === 'dark'
+                        ? 'rgba(30, 30, 30, 0.8)'
+                        : 'rgba(245, 245, 245, 0.8)',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      p: 0.5,
+                      overflow: 'hidden',
+                      boxShadow: `0 4px 8px rgba(0,0,0,0.1)`,
+                      border: `1px solid ${theme.palette.divider}`,
+                    }}
+                  >
+                    {(item.logoLight || item.logoDark) ? (
+                      <img
+                        src={theme.palette.mode === 'dark' ? item.logoDark : item.logoLight}
+                        alt={`${item.company} logo`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'contain',
+                          filter: theme.palette.mode === 'dark' ? 'brightness(1.2)' : 'none',
+                        }}
+                      />
+                    ) : (
+                      <WorkIcon
+                        color="primary"
+                        sx={{
+                          fontSize: 24,
+                          filter: `drop-shadow(0 2px 2px ${theme.palette.primary.main}40)`,
+                        }}
+                      />
+                    )}
+                  </Box>
+
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: 'var(--accent-color)',
+                      fontWeight: 600,
+                      fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                    }}
+                  >
+                    {item.company}
+                  </Typography>
                 </Box>
 
-                {/* Content */}
-                <Typography
-                  variant="h6"
-                  color="primary"
-                  gutterBottom
-                  sx={{
-                    fontWeight: 600,
-                    mb: 1,
-                    textShadow: theme.palette.mode === 'dark'
-                      ? '0 2px 4px rgba(0,0,0,0.5)'
-                      : 'none',
-                  }}
-                >
-                  {item.company}
-                </Typography>
                 <Typography
                   variant="body1"
-                  gutterBottom
                   sx={{
-                    color: theme.palette.mode === 'dark'
-                      ? 'rgba(255, 255, 255, 0.9)'
-                      : 'text.primary',
+                    color: theme.palette.text.primary,
                     fontWeight: 500,
-                    mb: 1,
+                    mt: 1,
                   }}
                 >
                   {item.title}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: theme.palette.text.secondary,
-                    mb: 1.5,
-                    fontStyle: 'italic',
-                  }}
-                >
-                  {item.duration}
-                </Typography>
+              </Box>
+
+              {/* Description with shadow effect */}
+              <Box
+                className="descr"
+                sx={{
+                  background: theme.palette.background.paper,
+                  position: 'relative',
+                  paddingInline: '1.5rem',
+                  paddingBlockEnd: '1.5rem',
+                  fontWeight: 300,
+                  // Shadow effect
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    width: '90%',
+                    height: '0.5rem',
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    left: '50%',
+                    borderRadius: '50%',
+                    filter: 'blur(4px)',
+                    transform: 'translate(-50%, 50%)',
+                    bottom: '0.25rem',
+                    zIndex: -1,
+                  },
+                }}
+              >
                 <Typography
                   variant="body2"
                   color="text.secondary"
@@ -938,11 +958,11 @@ export default function CareerTimeline() {
                 >
                   {item.description}
                 </Typography>
-              </Paper>
+              </Box>
             </Box>
-          </Grid>
-        ))}
-      </Grid>
+          );
+        })}
+      </Box>
     </Box>
   );
 
