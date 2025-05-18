@@ -56,7 +56,7 @@ export default function CareerTimeline() {
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const [activeIndex, setActiveIndex] = useState(null);
   const [animatedItems, setAnimatedItems] = useState([]);
-  const [timelineVariant, setTimelineVariant] = useState('default'); // 'default', 'alternating', or 'zigzag'
+  const [timelineVariant, setTimelineVariant] = useState('zigzag'); // 'default', 'alternating', or 'zigzag'
 
   // Animation effect for staggered item appearance
   useEffect(() => {
@@ -737,6 +737,7 @@ export default function CareerTimeline() {
               sx={{
                 gridColumn: {
                   xs: 2,
+                  // Ensure the most recent experience (index 0) is on the left
                   md: index % 2 === 0 ? 1 : 3
                 },
                 // Start second card
@@ -816,14 +817,14 @@ export default function CareerTimeline() {
                     right: {
                       xs: 'calc(100% + var(--col-gap) + var(--line-w) / 2)',
                       md: index % 2 === 0
-                        ? 'calc(100% + var(--col-gap))'
+                        ? 'calc(100% + var(--col-gap) + var(--line-w) / 2)'
                         : 'auto'
                     },
                     left: {
                       xs: 'auto',
                       md: index % 2 === 0
                         ? 'auto'
-                        : 'calc(100% + var(--col-gap))'
+                        : 'calc(100% + var(--col-gap) + var(--line-w) / 2)'
                     },
                     zIndex: 1,
                     boxShadow: '0 0 0 4px rgba(0,0,0,0.1)',
