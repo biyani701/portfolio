@@ -83,27 +83,25 @@ jobs:
           if [ ! -f "docs-site/docs/intro.md" ]; then
             echo "Creating basic intro.md..."
             mkdir -p docs-site/docs
-            cat > docs-site/docs/intro.md << EOF
-            ---
-            sidebar_position: 1
-            ---
-            
-            # Portfolio Documentation
-            
-            Welcome to the documentation for the Portfolio project.
-            
-            ## Overview
-            
-            The Portfolio project is a personal website built with React and Material-UI.
-            
-            ## Features
-            
-            - Resume Sections
-            - Blog
-            - Knowledge Base
-            - Authentication
-            - Responsive Design
-            EOF
+            echo '---' > docs-site/docs/intro.md
+            echo 'sidebar_position: 1' >> docs-site/docs/intro.md
+            echo '---' >> docs-site/docs/intro.md
+            echo '' >> docs-site/docs/intro.md
+            echo '# Portfolio Documentation' >> docs-site/docs/intro.md
+            echo '' >> docs-site/docs/intro.md
+            echo 'Welcome to the documentation for the Portfolio project.' >> docs-site/docs/intro.md
+            echo '' >> docs-site/docs/intro.md
+            echo '## Overview' >> docs-site/docs/intro.md
+            echo '' >> docs-site/docs/intro.md
+            echo 'The Portfolio project is a personal website built with React and Material-UI.' >> docs-site/docs/intro.md
+            echo '' >> docs-site/docs/intro.md
+            echo '## Features' >> docs-site/docs/intro.md
+            echo '' >> docs-site/docs/intro.md
+            echo '- Resume Sections' >> docs-site/docs/intro.md
+            echo '- Blog' >> docs-site/docs/intro.md
+            echo '- Knowledge Base' >> docs-site/docs/intro.md
+            echo '- Authentication' >> docs-site/docs/intro.md
+            echo '- Responsive Design' >> docs-site/docs/intro.md
           fi
 
           # List directories for debugging
