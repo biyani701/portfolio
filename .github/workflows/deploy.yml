@@ -103,7 +103,7 @@ jobs:
       - name: Setup Docusaurus
         run: |
           echo "Creating Docusaurus site..."          
-          echo "JavaScript" | npx create-docusaurus@latest docs-site classic --skip-install 
+          npx create-docusaurus@latest docs-site classic --skip-install --javascript
           echo "Creating necessary directories..."
           mkdir -p docs-site/docs
           mkdir -p docs-site/static/img
@@ -359,6 +359,7 @@ jobs:
           echo "Docusaurus build completed."
           echo "Contents of build directory:"
           pwd
+          ls -la
           ls -la build || { echo "❌ build/ directory does not exist. Build likely failed."; exit 1; }
 
           # Create .nojekyll file to prevent GitHub Pages processing
