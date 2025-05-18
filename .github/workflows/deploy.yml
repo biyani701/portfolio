@@ -60,19 +60,19 @@ jobs:
             # Create a basic config with correct baseUrl
             echo "Creating basic docusaurus.config.js..."
             cat > docs-site/docusaurus.config.js << 'EOF'
-const config = {
-  title: 'Portfolio Documentation',
-  tagline: 'Documentation for the portfolio project',
-  url: 'https://vishal.biyani.xyz',
-  baseUrl: '/docs/',
-  trailingSlash: false,
-  onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
-  organizationName: 'biyani701',
-  projectName: 'portfolio',
-};
-module.exports = config;
-EOF
+            const config = {
+              title: 'Portfolio Documentation',
+              tagline: 'Documentation for the portfolio project',
+              url: 'https://vishal.biyani.xyz',
+              baseUrl: '/docs/',
+              trailingSlash: false,
+              onBrokenLinks: 'warn',
+              onBrokenMarkdownLinks: 'warn',
+              organizationName: 'biyani701',
+              projectName: 'portfolio',
+            };
+            module.exports = config;
+            EOF
           fi
 
           if [ -f "docs/sidebars.js" ]; then
@@ -87,112 +87,112 @@ EOF
             echo "Creating basic intro.md..."
             mkdir -p docs-site/docs
             cat > docs-site/docs/intro.md << 'EOF'
----
-sidebar_position: 1
----
+          ---
+          sidebar_position: 1
+          ---
 
-# Portfolio Documentation
+          # Portfolio Documentation
 
-Welcome to the documentation for the Portfolio project.
+          Welcome to the documentation for the Portfolio project.
 
-## Overview
+          ## Overview
 
-The Portfolio project is a personal website built with React and Material-UI.
+          The Portfolio project is a personal website built with React and Material-UI.
 
-## Features
+          ## Features
 
-- Resume Sections
-- Blog
-- Knowledge Base
-- Authentication
-- Responsive Design
-EOF
-          fi
+          - Resume Sections
+          - Blog
+          - Knowledge Base
+          - Authentication
+          - Responsive Design
+          EOF
+                    fi
 
-          # List directories for debugging
-          echo "Final contents of docs-site directory:"
-          find docs-site -type f | sort
+                    # List directories for debugging
+                    echo "Final contents of docs-site directory:"
+                    find docs-site -type f | sort
 
-      - name: Install Docusaurus dependencies
-        run: |
-          cd docs-site
-          echo "Installing Docusaurus dependencies..."
-          npm install
+                - name: Install Docusaurus dependencies
+                  run: |
+                    cd docs-site
+                    echo "Installing Docusaurus dependencies..."
+                    npm install
 
-      - name: Build Docusaurus
-        run: |
-          cd docs-site
-          echo "Building Docusaurus site..."
-          npm run build || echo "Docusaurus build failed but continuing deployment"
+                - name: Build Docusaurus
+                  run: |
+                    cd docs-site
+                    echo "Building Docusaurus site..."
+                    npm run build || echo "Docusaurus build failed but continuing deployment"
 
-          if [ -d "build" ]; then
-            echo "Docusaurus build succeeded. Contents of build directory:"
-            find build -type f | sort
-          else
-            echo "WARNING: Docusaurus build directory not found"
-          fi
+                    if [ -d "build" ]; then
+                      echo "Docusaurus build succeeded. Contents of build directory:"
+                      find build -type f | sort
+                    else
+                      echo "WARNING: Docusaurus build directory not found"
+                    fi
 
-      # Combined Deployment
-      - name: Prepare combined deployment
-        run: |
-          # Create docs directory in build
-          mkdir -p build/docs
+                # Combined Deployment
+                - name: Prepare combined deployment
+                  run: |
+                    # Create docs directory in build
+                    mkdir -p build/docs
 
-          # Check if Docusaurus build exists and copy it
-          if [ -d "docs-site/build" ]; then
-            echo "Copying Docusaurus build to build/docs"
-            # Important: Copy the contents correctly - this is a key step
-            cp -r docs-site/build/* build/docs/ || echo "Warning: Could not copy Docusaurus build"
+                    # Check if Docusaurus build exists and copy it
+                    if [ -d "docs-site/build" ]; then
+                      echo "Copying Docusaurus build to build/docs"
+                      # Important: Copy the contents correctly - this is a key step
+                      cp -r docs-site/build/* build/docs/ || echo "Warning: Could not copy Docusaurus build"
 
-            # Verify the copy worked
-            echo "Verifying copied files:"
-            find build/docs -type f | sort
+                      # Verify the copy worked
+                      echo "Verifying copied files:"
+                      find build/docs -type f | sort
 
-            # Check if index.html exists in the root of build/docs
-            if [ ! -f "build/docs/index.html" ]; then
-              echo "WARNING: index.html not found in build/docs"
+                      # Check if index.html exists in the root of build/docs
+                      if [ ! -f "build/docs/index.html" ]; then
+                        echo "WARNING: index.html not found in build/docs"
 
-              # Try to find where index.html might be
-              echo "Searching for index.html in build/docs:"
-              find build/docs -name "index.html" | sort
+                        # Try to find where index.html might be
+                        echo "Searching for index.html in build/docs:"
+                        find build/docs -name "index.html" | sort
 
-              # If index.html is in a subdirectory, copy it to the root
-              INDEX_HTML=$(find build/docs -name "index.html" | head -n 1)
-              if [ -n "$INDEX_HTML" ]; then
-                echo "Found index.html at $INDEX_HTML, copying to build/docs/"
-                cp "$INDEX_HTML" build/docs/
-              fi
-            fi
-          else
-            echo "Warning: Docusaurus build directory not found"
-            # Use fallback index.html if it exists
-            if [ -f "docs/fallback-index.html" ]; then
-              echo "Using fallback index.html"
-              cp docs/fallback-index.html build/docs/index.html
-            else
-              # Create a simple placeholder page
-              echo "<html><head><title>Documentation</title></head><body><h1>Documentation</h1><p>Documentation is being set up. Please check back later.</p></body></html>" > build/docs/index.html
-            fi
-          fi
+                        # If index.html is in a subdirectory, copy it to the root
+                        INDEX_HTML=$(find build/docs -name "index.html" | head -n 1)
+                        if [ -n "$INDEX_HTML" ]; then
+                          echo "Found index.html at $INDEX_HTML, copying to build/docs/"
+                          cp "$INDEX_HTML" build/docs/
+                        fi
+                      fi
+                    else
+                      echo "Warning: Docusaurus build directory not found"
+                      # Use fallback index.html if it exists
+                      if [ -f "docs/fallback-index.html" ]; then
+                        echo "Using fallback index.html"
+                        cp docs/fallback-index.html build/docs/index.html
+                      else
+                        # Create a simple placeholder page
+                        echo "<html><head><title>Documentation</title></head><body><h1>Documentation</h1><p>Documentation is being set up. Please check back later.</p></body></html>" > build/docs/index.html
+                      fi
+                    fi
 
-          # Ensure there's an index.html in the docs directory
-          if [ ! -f "build/docs/index.html" ]; then
-            echo "WARNING: No index.html found in build/docs after all steps"
-            echo "Creating a basic index.html"
-            cat > build/docs/index.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0;url=./docs/">
-  <title>Portfolio Documentation</title>
-</head>
-<body>
-  <p>If you are not redirected automatically, follow this <a href="./docs/">link to the documentation</a>.</p>
-</body>
-</html>
-EOF
-          fi
+                    # Ensure there's an index.html in the docs directory
+                    if [ ! -f "build/docs/index.html" ]; then
+                      echo "WARNING: No index.html found in build/docs after all steps"
+                      echo "Creating a basic index.html"
+                      cat > build/docs/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="refresh" content="0;url=./docs/">
+            <title>Portfolio Documentation</title>
+          </head>
+          <body>
+            <p>If you are not redirected automatically, follow this <a href="./docs/">link to the documentation</a>.</p>
+          </body>
+          </html>
+          EOF
+                    fi
 
           # List contents for debugging
           echo "Final contents of build/docs directory:"
