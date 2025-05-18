@@ -102,9 +102,8 @@ jobs:
       # Docusaurus Setup and Build
       - name: Setup Docusaurus
         run: |
-          echo "Creating Docusaurus site..."
-          npx create-docusaurus@latest docs-site classic --skip-install
-
+          echo "Creating Docusaurus site..."          
+          echo "JavaScript" | npx create-docusaurus@latest docs-site classic --skip-install 
           echo "Creating necessary directories..."
           mkdir -p docs-site/docs
           mkdir -p docs-site/static/img
