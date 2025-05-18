@@ -358,6 +358,7 @@ jobs:
           npm run build
           echo "Docusaurus build completed."
           echo "Contents of build directory:"
+          pwd
           ls -la build || { echo "❌ build/ directory does not exist. Build likely failed."; exit 1; }
 
           # Create .nojekyll file to prevent GitHub Pages processing
@@ -457,5 +458,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          publish_dir: ./docs-site/build
           cname: vishal.biyani.xyz
+          publish_branch: gh-pages
