@@ -19,10 +19,23 @@
         // Check if this is a docs path
         const isDocsPath = window.location.pathname.startsWith('/docs/');
 
+        // Store the full path for the original URL
+        sessionStorage.setItem("redirect", window.location.href);
+        
         if (isDocsPath) {
           console.log("📚 Docs path detected:", window.location.pathname);
-          // Store the path for Docusaurus to handle
-          sessionStorage.setItem("docusaurusPath", window.location.pathname);
+          
+          // Extract the path after /docs/
+          const docsSubPath = window.location.pathname.substring(5); // Remove '/docs'
+          
+          // Save the specific docs path for proper handling
+          sessionStorage.setItem("docusaurusPath", docsSubPath);
+          
+          if (docsSubPath === "/" || docsSubPath === "") {
+            console.log("⏩ At docs root");
+          } else {
+            console.log("⏩ Docs subpath:", docsSubPath);
+          }
         }
 
         if (code || error) {
@@ -41,41 +54,37 @@
           // We'll let the main app handle the redirect to avoid loops
         }
 
-        const finalRedirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
-
-        if (finalRedirect && finalRedirect !== location.href) {
-          history.replaceState(null, null, finalRedirect);
-        }
-
         if (!debug) {
-          // Handle docs paths
+          // Handle docs paths correctly - without creating redirect loops
           if (isDocsPath) {
-            console.log("⏩ Docs path detected, redirecting to docs home...");
-            setTimeout(() => {
-              window.location.href = "/docs/";
-            }, 500);
+            const docsPath = window.location.pathname;
+            const isDocsIndex = docsPath === "/docs/" || docsPath === "/docs";
+            
+            if (!isDocsIndex) {
+              // We're trying to access a specific docs page, don't redirect to root
+              console.log("⏩ Redirecting to docs home with path information...");
+              const targetUrl = "/docs/?path=" + encodeURIComponent(docsPath.substring(6));
+              setTimeout(() => {
+                window.location.href = targetUrl;
+              }, 100);
+            } else {
+              // We're already at docs index, don't redirect
+              console.log("✅ Already at docs index");
+            }
           }
           // Always redirect to home page for OAuth flows
           else if (code) {
             console.log("⏩ OAuth flow detected, redirecting to home page...");
             setTimeout(() => {
               window.location.href = "/";
-            }, 500);
+            }, 100);
           }
-          // For other 404s, use the stored redirect if available
-          else if (finalRedirect) {
-            console.log("⏩ Redirecting to", finalRedirect, "now...");
-            setTimeout(() => {
-              window.location.href = finalRedirect;
-            }, 500);
-          }
-          // Default fallback
+          // For other 404s, redirect to home
           else {
-            console.log("⏩ No redirect found, going to home page...");
+            console.log("⏩ No special case, going to home page...");
             setTimeout(() => {
               window.location.href = "/";
-            }, 500);
+            }, 100);
           }
         } else {
           console.log("🛑 Debug mode — staying on this page.");
@@ -84,6 +93,12 @@
     </script>
   </head>
   <body>
-    <p>Redirecting... open DevTools console to inspect logs and stored data.</p>
+    <p>Redirecting... If you are not redirected automatically, <a href="/">click here</a>.</p>
+    <script>
+      // Add support for handling internal Docusaurus navigation after initial load
+      if (window.location.pathname.startsWith('/docs/')) {
+        document.write('<script src="/docs/docusaurus.js" defer><\/script>');
+      }
+    </script>
   </body>
 </html>
