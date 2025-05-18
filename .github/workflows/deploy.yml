@@ -34,7 +34,7 @@ jobs:
             cp public/404.html build/
           else
             echo "Creating 404.html in build directory"
-            cat > build/404.html <<-EOF
+            cat > build/404.html <<"EOF"
             <!DOCTYPE html>
             <html>
               <head>
@@ -60,7 +60,7 @@ jobs:
       - name: Create basic docs index
         run: |
           mkdir -p build/docs
-          cat > build/docs/index.html <<-EOF
+          cat > build/docs/index.html <<"EOF"
           <!DOCTYPE html>
           <html>
           <head>
@@ -112,7 +112,7 @@ jobs:
           mkdir -p docs-site/static/js
 
           # Create docusaurus-router.js for handling navigation
-          cat > docs-site/static/js/docusaurus-router.js <<-EOF
+          cat > docs-site/static/js/docusaurus-router.js <<"EOF"
           // This script helps with handling client-side routing within Docusaurus
           (function() {
             console.log('📚 Docusaurus router script loaded');
@@ -163,7 +163,7 @@ jobs:
           fi
 
           # Update docusaurus.config.js with proper settings
-          cat > docs-site/docusaurus.config.js <<-EOF
+          cat > docs-site/docusaurus.config.js <<"EOF"
           // @ts-check
           // `@type` JSDoc annotations allow editor autocompletion and type checking
           // (when paired with `@ts-check`).
@@ -273,7 +273,7 @@ jobs:
           EOF
 
           # Create basic custom.css file
-          cat > docs-site/src/css/custom.css <<-EOF
+          cat > docs-site/src/css/custom.css <<"EOF"
           /**
           * Any CSS included here will be global. The classic template
           * bundles Infima by default. Infima is a CSS framework designed to
@@ -307,7 +307,7 @@ jobs:
           EOF
 
           # Create basic sidebars.js file
-          cat > docs-site/sidebars.js <<-EOF
+          cat > docs-site/sidebars.js <<"EOF"
           /**
           * Creating a sidebar enables you to:
           - create an ordered group of docs
@@ -334,7 +334,7 @@ jobs:
           mkdir -p docs-site/static/img
 
           # Create a simple logo.svg
-          cat > docs-site/static/img/logo.svg <<-EOF
+          cat > docs-site/static/img/logo.svg <<"EOF"
           <?xml version="1.0" encoding="UTF-8" standalone="no"?>
           <svg width="200" height="200" viewBox="0 0 200 200" version="1.1" id="portfolio-logo" xmlns="http://www.w3.org/2000/svg">
             <rect style="fill:#2e8555;fill-opacity:1;stroke:none" width="200" height="200" x="0" y="0" rx="20" ry="20" />
@@ -359,10 +359,10 @@ jobs:
           npm run build
           echo "Docusaurus build completed."
           echo "Contents of build directory:"
-          ls -la
+          ls -la build || { echo "❌ build/ directory does not exist. Build likely failed."; exit 1; }
 
           # Create .nojekyll file to prevent GitHub Pages processing
-          touch build/.nojekyll
+          touch ./build/.nojekyll
 
           # Copy built files to the main build/docs directory
           echo "Copying built files to main build/docs directory..."
@@ -380,7 +380,7 @@ jobs:
       # Add a debugging script to help diagnose issues
       - name: Add diagnostics script
         run: |
-          cat > build/docs/diagnostics.js <<-EOF
+          cat > build/docs/diagnostics.js <<"EOF"
           // Diagnostic script to help troubleshoot Docusaurus issues
           console.log('📊 Running diagnostics for Docusaurus site');
 
@@ -439,7 +439,7 @@ jobs:
       - name: Create redirect for common paths
         run: |
           # Create a placeholder for /docs
-          cat > build/docs.html <<-EOF
+          cat > build/docs.html <<"EOF"
             <!DOCTYPE html>
             <html>
             <head>
