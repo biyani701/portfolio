@@ -536,6 +536,29 @@ const EnhancedBlogEditor = ({ editMode = false }) => {
     });
   };
 
+  // Function to toggle block type
+  const toggleBlock = (event, format) => {
+    event.preventDefault();
+
+    // Check if the current block has the format
+    const [match] = Editor.nodes(editor, {
+      match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format,
+    });
+    const isActive = !!match;
+
+    // Handle lists specially
+    if (format === 'bulleted-list' || format === 'numbered-list') {
+      // Implementation for lists is in the BlockButton component
+    } else {
+      // For other block types, set the node type
+      Transforms.setNodes(
+        editor,
+        { type: isActive ? 'paragraph' : format },
+        { match: n => Editor.isBlock(editor, n) }
+      );
+    }
+  };
+
   const inputColor = theme.palette.text.primary;
 const labelColor = theme.palette.text.secondary;
 
@@ -789,7 +812,29 @@ const labelColor = theme.palette.text.secondary;
                     </Select>
                   </Box>
 
-                  <BlockButton format="block-quote" icon={<FormatQuote />} />
+                  <ToolbarButton
+                    format="block-quote"
+                    icon={<FormatQuote />}
+                    isBlock={true}
+                    isActive={
+                      Editor.nodes(editor, {
+                        match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'block-quote',
+                      }).length > 0
+                    }
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      const [match] = Editor.nodes(editor, {
+                        match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'block-quote',
+                      });
+                      const isActive = !!match;
+
+                      Transforms.setNodes(
+                        editor,
+                        { type: isActive ? 'paragraph' : 'block-quote' },
+                        { match: n => Editor.isBlock(editor, n) }
+                      );
+                    }}
+                  />
                   <BlockButton
                     format="bulleted-list"
                     icon={<FormatListBulleted />}
@@ -798,71 +843,107 @@ const labelColor = theme.palette.text.secondary;
                     format="numbered-list"
                     icon={<FormatListNumbered />}
                   />
-                  <BlockButton format="code-block" icon={<Code />} />
+                  <ToolbarButton
+                    format="code-block"
+                    icon={<Code />}
+                    isBlock={true}
+                    isActive={
+                      Editor.nodes(editor, {
+                        match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'code-block',
+                      }).length > 0
+                    }
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      const [match] = Editor.nodes(editor, {
+                        match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'code-block',
+                      });
+                      const isActive = !!match;
+
+                      Transforms.setNodes(
+                        editor,
+                        { type: isActive ? 'paragraph' : 'code-block' },
+                        { match: n => Editor.isBlock(editor, n) }
+                      );
+                    }}
+                  />
 
                   <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
 
                   {/* Text Alignment Buttons */}
-                  <Tooltip title="Align Left">
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
+                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    <ToolbarButton
+                      format="align-left"
+                      icon={<FormatAlignLeft />}
+                      isActive={
+                        Editor.marks(editor) && Editor.marks(editor)['align'] === 'left'
+                      }
+                      onMouseDown={(e) => {
                         e.preventDefault();
+                        Editor.removeMark(editor, 'align-center');
+                        Editor.removeMark(editor, 'align-right');
+                        Editor.removeMark(editor, 'align-justify');
                         Transforms.setNodes(
                           editor,
                           { align: 'left' },
                           { match: n => Editor.isBlock(editor, n) }
                         );
                       }}
-                    >
-                      <FormatAlignLeft />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Align Center">
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
+                    />
+                    <ToolbarButton
+                      format="align-center"
+                      icon={<FormatAlignCenter />}
+                      isActive={
+                        Editor.marks(editor) && Editor.marks(editor)['align'] === 'center'
+                      }
+                      onMouseDown={(e) => {
                         e.preventDefault();
+                        Editor.removeMark(editor, 'align-left');
+                        Editor.removeMark(editor, 'align-right');
+                        Editor.removeMark(editor, 'align-justify');
                         Transforms.setNodes(
                           editor,
                           { align: 'center' },
                           { match: n => Editor.isBlock(editor, n) }
                         );
                       }}
-                    >
-                      <FormatAlignCenter />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Align Right">
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
+                    />
+                    <ToolbarButton
+                      format="align-right"
+                      icon={<FormatAlignRight />}
+                      isActive={
+                        Editor.marks(editor) && Editor.marks(editor)['align'] === 'right'
+                      }
+                      onMouseDown={(e) => {
                         e.preventDefault();
+                        Editor.removeMark(editor, 'align-left');
+                        Editor.removeMark(editor, 'align-center');
+                        Editor.removeMark(editor, 'align-justify');
                         Transforms.setNodes(
                           editor,
                           { align: 'right' },
                           { match: n => Editor.isBlock(editor, n) }
                         );
                       }}
-                    >
-                      <FormatAlignRight />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Justify">
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
+                    />
+                    <ToolbarButton
+                      format="align-justify"
+                      icon={<FormatAlignJustify />}
+                      isActive={
+                        Editor.marks(editor) && Editor.marks(editor)['align'] === 'justify'
+                      }
+                      onMouseDown={(e) => {
                         e.preventDefault();
+                        Editor.removeMark(editor, 'align-left');
+                        Editor.removeMark(editor, 'align-center');
+                        Editor.removeMark(editor, 'align-right');
                         Transforms.setNodes(
                           editor,
                           { align: 'justify' },
                           { match: n => Editor.isBlock(editor, n) }
                         );
                       }}
-                    >
-                      <FormatAlignJustify />
-                    </IconButton>
-                  </Tooltip>
+                    />
+                  </Box>
 
                   <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
                   <Tooltip title="Insert Image">

@@ -23,7 +23,9 @@ import {
   useTheme,
   Pagination,
   Stack,
-  Alert
+  Alert,
+  Drawer,
+  useMediaQuery
 } from '@mui/material';
 import {
   Search,
@@ -36,10 +38,12 @@ import {
   Visibility,
   CalendarToday,
   Category,
-  Label
+  Label,
+  Menu as MenuIcon
 } from '@mui/icons-material';
 import { useAuthContext } from '../../context/AuthProvider';
 import sampleBlogData from '../../data/sampleBlogData';
+import BlogSidebar from './BlogSidebar';
 
 // Helper function to format dates
 const formatDate = (dateString) => {
@@ -51,6 +55,7 @@ const formatDate = (dateString) => {
 const BlogList = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   // For demo purposes, set isAuthenticated to true
   // const { isAuthenticated } = useAuthContext();
   const isAuthenticated = true;
@@ -63,6 +68,9 @@ const BlogList = () => {
   const [sortOrder, setSortOrder] = useState('newest');
   const [page, setPage] = useState(1);
   const [blogsPerPage] = useState(6);
+
+  // State for sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
   // State for filter and sort menus
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
@@ -171,6 +179,11 @@ const BlogList = () => {
     }
   };
 
+  // Toggle sidebar
+  const toggleSidebar = () => {
+    setSidebarOpen(prev => !prev);
+  };
+
   // Get unique categories for filter
   const categories = ['all', ...new Set(blogs.map(blog => blog.category))];
 
@@ -185,17 +198,26 @@ const BlogList = () => {
     >
       <Container maxWidth="lg">
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography
-            variant="h3"
-            component="h1"
-            sx={{
-              fontWeight: 600,
-              color: 'primary.main'
-            }}
-            data-aos="fade-right"
-          >
-            Blog & Insights
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton
+              color="primary"
+              onClick={toggleSidebar}
+              sx={{ display: { xs: 'flex', md: 'none' } }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              variant="h3"
+              component="h1"
+              sx={{
+                fontWeight: 600,
+                color: 'primary.main'
+              }}
+              data-aos="fade-right"
+            >
+              Blog & Insights
+            </Typography>
+          </Box>
 
           {isAuthenticated && (
             <Button
@@ -210,221 +232,256 @@ const BlogList = () => {
           )}
         </Box>
 
-        <Paper
-          elevation={3}
-          sx={{ p: 2, mb: 4, borderRadius: 2 }}
-          data-aos="fade-up"
-        >
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                placeholder="Search blogs by title or tags..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search />
-                    </InputAdornment>
-                  ),
-                }}
-                variant="outlined"
-                size="small"
-              />
-            </Grid>
-            <Grid item xs={6} md={3}>
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<FilterList />}
-                onClick={handleFilterClick}
-                size="medium"
-              >
-                Filter: {categoryFilter === 'all' ? 'All Categories' : categoryFilter}
-              </Button>
-              <Menu
-                anchorEl={filterAnchorEl}
-                open={Boolean(filterAnchorEl)}
-                onClose={handleFilterClose}
-              >
-                {categories.map((category) => (
-                  <MenuItem
-                    key={category}
-                    onClick={() => {
-                      setCategoryFilter(category);
-                      handleFilterClose();
-                    }}
-                    selected={categoryFilter === category}
-                  >
-                    <ListItemIcon>
-                      <Category fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>
-                      {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
-                    </ListItemText>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Grid>
-            <Grid item xs={6} md={3}>
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<Sort />}
-                onClick={handleSortClick}
-                size="medium"
-              >
-                Sort: {sortOrder === 'newest' ? 'Newest First' : 'Oldest First'}
-              </Button>
-              <Menu
-                anchorEl={sortAnchorEl}
-                open={Boolean(sortAnchorEl)}
-                onClose={handleSortClose}
-              >
-                <MenuItem
-                  onClick={() => {
-                    setSortOrder('newest');
-                    handleSortClose();
-                  }}
-                  selected={sortOrder === 'newest'}
-                >
-                  <ListItemIcon>
-                    <Sort fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Newest First</ListItemText>
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    setSortOrder('oldest');
-                    handleSortClose();
-                  }}
-                  selected={sortOrder === 'oldest'}
-                >
-                  <ListItemIcon>
-                    <Sort fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Oldest First</ListItemText>
-                </MenuItem>
-              </Menu>
-            </Grid>
-          </Grid>
-        </Paper>
-
-        {blogs.length === 0 ? (
-          <Alert
-            severity="info"
-            sx={{ mt: 4 }}
-            data-aos="fade-up"
+        <Grid container spacing={3}>
+          {/* Sidebar for desktop */}
+          <Grid
+            item
+            md={3}
+            sx={{
+              display: { xs: 'none', md: 'block' },
+              transition: 'all 0.3s ease',
+              width: sidebarOpen ? '25%' : '0%',
+              overflow: 'hidden'
+            }}
           >
-            No blog posts yet. {isAuthenticated ? 'Click "New Blog Post" to create your first blog!' : 'Check back later for new content.'}
-          </Alert>
-        ) : (
-          <>
-            <Grid container spacing={4}>
-              {currentBlogs.map((blog, index) => (
-                <Grid item xs={12} md={6} lg={4} key={blog.id} data-aos="fade-up" data-aos-delay={index * 100}>
-                  <Card
-                    elevation={3}
-                    sx={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      transition: 'transform 0.3s, box-shadow 0.3s',
-                      '&:hover': {
-                        transform: 'translateY(-8px)',
-                        boxShadow: 6
-                      },
-                      borderRadius: 2,
-                      overflow: 'hidden'
-                    }}
-                  >
-                    <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                        <Chip
-                          label={blog.category}
-                          color="primary"
-                          size="small"
-                        />
-                        {isAuthenticated && (
-                          <IconButton
-                            size="small"
-                            onClick={(e) => handleActionClick(e, blog.id)}
-                          >
-                            <MoreVert fontSize="small" />
-                          </IconButton>
-                        )}
-                      </Box>
+            <BlogSidebar blogs={blogs} open={sidebarOpen} />
+          </Grid>
 
-                      <Typography
-                        variant="h5"
-                        component="h2"
-                        gutterBottom
+          {/* Main content */}
+          <Grid item xs={12} md={sidebarOpen ? 9 : 12}>
+            <Paper
+              elevation={3}
+              sx={{ p: 2, mb: 4, borderRadius: 2 }}
+              data-aos="fade-up"
+            >
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    placeholder="Search blogs by title or tags..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                      ),
+                    }}
+                    variant="outlined"
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<FilterList />}
+                    onClick={handleFilterClick}
+                    size="medium"
+                  >
+                    Filter: {categoryFilter === 'all' ? 'All Categories' : categoryFilter}
+                  </Button>
+                  <Menu
+                    anchorEl={filterAnchorEl}
+                    open={Boolean(filterAnchorEl)}
+                    onClose={handleFilterClose}
+                  >
+                    {categories.map((category) => (
+                      <MenuItem
+                        key={category}
+                        onClick={() => {
+                          setCategoryFilter(category);
+                          handleFilterClose();
+                        }}
+                        selected={categoryFilter === category}
+                      >
+                        <ListItemIcon>
+                          <Category fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>
+                          {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
+                        </ListItemText>
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<Sort />}
+                    onClick={handleSortClick}
+                    size="medium"
+                  >
+                    Sort: {sortOrder === 'newest' ? 'Newest First' : 'Oldest First'}
+                  </Button>
+                  <Menu
+                    anchorEl={sortAnchorEl}
+                    open={Boolean(sortAnchorEl)}
+                    onClose={handleSortClose}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        setSortOrder('newest');
+                        handleSortClose();
+                      }}
+                      selected={sortOrder === 'newest'}
+                    >
+                      <ListItemIcon>
+                        <Sort fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Newest First</ListItemText>
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        setSortOrder('oldest');
+                        handleSortClose();
+                      }}
+                      selected={sortOrder === 'oldest'}
+                    >
+                      <ListItemIcon>
+                        <Sort fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Oldest First</ListItemText>
+                    </MenuItem>
+                  </Menu>
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {blogs.length === 0 ? (
+              <Alert
+                severity="info"
+                sx={{ mt: 4 }}
+                data-aos="fade-up"
+              >
+                No blog posts yet. {isAuthenticated ? 'Click "New Blog Post" to create your first blog!' : 'Check back later for new content.'}
+              </Alert>
+            ) : (
+              <>
+                <Grid container spacing={4}>
+                  {currentBlogs.map((blog, index) => (
+                    <Grid item xs={12} sm={6} lg={4} key={blog.id} data-aos="fade-up" data-aos-delay={index * 100}>
+                      <Card
+                        elevation={3}
                         sx={{
-                          fontWeight: 600,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          height: '3.6em'
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          transition: 'transform 0.3s, box-shadow 0.3s',
+                          '&:hover': {
+                            transform: 'translateY(-8px)',
+                            boxShadow: 6
+                          },
+                          borderRadius: 2,
+                          overflow: 'hidden'
                         }}
                       >
-                        {blog.title}
-                      </Typography>
+                        <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                            <Chip
+                              label={blog.category}
+                              color="primary"
+                              size="small"
+                            />
+                            {isAuthenticated && (
+                              <IconButton
+                                size="small"
+                                onClick={(e) => handleActionClick(e, blog.id)}
+                              >
+                                <MoreVert fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Box>
 
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, color: 'text.secondary' }}>
-                        <CalendarToday fontSize="small" sx={{ mr: 0.5 }} />
-                        <Typography variant="body2">
-                          {formatDate(blog.createdAt)}
-                        </Typography>
-                      </Box>
+                          <Typography
+                            variant="h5"
+                            component="h2"
+                            gutterBottom
+                            sx={{
+                              fontWeight: 600,
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              height: '3.6em'
+                            }}
+                          >
+                            {blog.title}
+                          </Typography>
 
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
-                        {blog.tags.map((tag, i) => (
-                          <Chip
-                            key={i}
-                            label={tag}
-                            size="small"
-                            variant="outlined"
-                          />
-                        ))}
-                      </Box>
-                    </CardContent>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, color: 'text.secondary' }}>
+                            <CalendarToday fontSize="small" sx={{ mr: 0.5 }} />
+                            <Typography variant="body2">
+                              {formatDate(blog.createdAt)}
+                            </Typography>
+                          </Box>
 
-                    <Divider />
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
+                            {blog.tags.map((tag, i) => (
+                              <Chip
+                                key={i}
+                                label={tag}
+                                size="small"
+                                variant="outlined"
+                              />
+                            ))}
+                          </Box>
+                        </CardContent>
 
-                    <CardActions sx={{ p: 2 }}>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        component={RouterLink}
-                        to={`/blogs/${blog.id}`}
-                        startIcon={<Visibility />}
-                      >
-                        Read More
-                      </Button>
-                    </CardActions>
-                  </Card>
+                        <Divider />
+
+                        <CardActions sx={{ p: 2 }}>
+                          <Button
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            component={RouterLink}
+                            to={`/blogs/${blog.id}`}
+                            startIcon={<Visibility />}
+                          >
+                            Read More
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    </Grid>
+                  ))}
                 </Grid>
-              ))}
-            </Grid>
 
-            {filteredBlogs.length > blogsPerPage && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <Pagination
-                  count={Math.ceil(filteredBlogs.length / blogsPerPage)}
-                  page={page}
-                  onChange={handlePageChange}
-                  color="primary"
-                  size="large"
-                />
-              </Box>
+                {filteredBlogs.length > blogsPerPage && (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                    <Pagination
+                      count={Math.ceil(filteredBlogs.length / blogsPerPage)}
+                      page={page}
+                      onChange={handlePageChange}
+                      color="primary"
+                      size="large"
+                    />
+                  </Box>
+                )}
+              </>
             )}
-          </>
-        )}
+          </Grid>
+        </Grid>
       </Container>
+
+      {/* Mobile Drawer for Sidebar */}
+      <Drawer
+        anchor="left"
+        open={isMobile && sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: '80%',
+            maxWidth: 300,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        <BlogSidebar blogs={blogs} open={true} onClose={() => setSidebarOpen(false)} />
+      </Drawer>
 
       {/* Action menu for blog items */}
       <Menu

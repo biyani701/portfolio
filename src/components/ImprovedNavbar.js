@@ -53,6 +53,10 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { resumeData } from "./resumeData";
 import { skillSections } from "./Skills"; // Import skillSections from Skills component
 
@@ -348,6 +352,7 @@ const NavigationBar = ({
   const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
   const [settingsHover, setSettingsHover] = useState(false);
   const [knowledgeAnchorEl, setKnowledgeAnchorEl] = useState(null);
+  const [blogAnchorEl, setBlogAnchorEl] = useState(null);
   // State for search results
   const [searchResults, setSearchResults] = useState([]);
 
@@ -524,6 +529,15 @@ const NavigationBar = ({
 
   const handlePaletteMenuClose = () => {
     setPaletteAnchorEl(null);
+  };
+
+  // Blog menu handlers
+  const handleBlogMenuOpen = (event) => {
+    setBlogAnchorEl(event.currentTarget);
+  };
+
+  const handleBlogMenuClose = () => {
+    setBlogAnchorEl(null);
   };
 
   // Settings menu handlers
@@ -848,11 +862,10 @@ const NavigationBar = ({
                     minWidth: 220,
                     bgcolor: theme.palette.background.paper,
                     boxShadow: theme.shadows[4],
-                    p: 1
+                    p: 1,
+                    maxHeight: '80vh',
+                    overflowY: 'auto'
                   },
-                }}
-                MenuListProps={{
-                  onClick: () => setKnowledgeAnchorEl(null) // Close menu when any item is clicked
                 }}
               >
                 <MenuItem
@@ -899,29 +912,109 @@ const NavigationBar = ({
                 >
                   Domain Knowledge
                 </Typography>
-                {domainKnowledgeData.categories.map((category) => (
-                  <MenuItem
-                    key={category.id}
-                    component={RouterLink}
-                    to={`/knowledge/domain/${category.id}`}
-                    onClick={() => setKnowledgeAnchorEl(null)}
-                    sx={{
-                      py: 1.2,
-                      px: 2,
-                      gap: 1,
-                    }}
-                  >
-                    <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
-                      <Icon>{category.icon}</Icon>
-                    </ListItemIcon>
-                    <ListItemText primary={category.name} />
-                  </MenuItem>
-                ))}
+                <Box sx={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  {domainKnowledgeData.categories.map((category) => (
+                    <MenuItem
+                      key={category.id}
+                      component={RouterLink}
+                      to={`/knowledge/domain/${category.id}`}
+                      onClick={() => setKnowledgeAnchorEl(null)}
+                      sx={{
+                        py: 1.2,
+                        px: 2,
+                        gap: 1,
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                        <Icon>{category.icon}</Icon>
+                      </ListItemIcon>
+                      <ListItemText primary={category.name} />
+                    </MenuItem>
+                  ))}
+                </Box>
               </Menu>
 
-              <Button component={RouterLink} to="/blogs">
+              {/* Blog Menu */}
+              <Button
+                id="blog-button"
+                onClick={handleBlogMenuOpen}
+                endIcon={<KeyboardArrowDownIcon />}
+                aria-controls="blog-menu"
+                aria-haspopup="true"
+                aria-expanded={Boolean(blogAnchorEl) ? "true" : undefined}
+              >
                 Blog
               </Button>
+              <Menu
+                id="blog-menu"
+                anchorEl={blogAnchorEl}
+                open={Boolean(blogAnchorEl)}
+                onClose={handleBlogMenuClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                PaperProps={{
+                  elevation: 4,
+                  sx: {
+                    borderRadius: 2,
+                    minWidth: 180,
+                    bgcolor: theme.palette.background.paper,
+                    boxShadow: theme.shadows[4],
+                    p: 1
+                  },
+                }}
+              >
+                <MenuItem
+                  component={RouterLink}
+                  to="/blogs"
+                  onClick={handleBlogMenuClose}
+                  sx={{ py: 1.2, px: 2, gap: 1 }}
+                >
+                  <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                    <VisibilityIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="View All" />
+                </MenuItem>
+
+                {isAuthenticated && (
+                  <>
+                    <MenuItem
+                      component={RouterLink}
+                      to="/blog/new"
+                      onClick={handleBlogMenuClose}
+                      sx={{ py: 1.2, px: 2, gap: 1 }}
+                    >
+                      <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                        <AddIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary="Create New" />
+                    </MenuItem>
+
+                    <MenuItem
+                      component={RouterLink}
+                      to="/blogs"
+                      onClick={handleBlogMenuClose}
+                      sx={{ py: 1.2, px: 2, gap: 1 }}
+                    >
+                      <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                        <EditIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary="Edit" />
+                    </MenuItem>
+
+                    <MenuItem
+                      component={RouterLink}
+                      to="/blogs"
+                      onClick={handleBlogMenuClose}
+                      sx={{ py: 1.2, px: 2, gap: 1 }}
+                    >
+                      <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                        <DeleteIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary="Delete" />
+                    </MenuItem>
+                  </>
+                )}
+              </Menu>
               <Button
                 onClick={() => navigate("/contact")}
                 startIcon={<ContactMailIcon />}

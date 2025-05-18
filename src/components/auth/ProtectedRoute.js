@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthProvider';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
 
 /**
  * ProtectedRoute component that redirects to the sign-in page if the user is not authenticated
@@ -41,6 +41,38 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
+  // Create a wrapper component that adds the lock icon
+  const ProtectedContent = () => {
+    return (
+      <Box sx={{ position: 'relative' }}>
+        {children}
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 10,
+            right: 10,
+            zIndex: 1000,
+            backgroundColor: isAuthenticated ? 'success.light' : 'warning.light',
+            borderRadius: '50%',
+            width: 28,
+            height: 28,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: 2,
+            opacity: 0.9,
+          }}
+        >
+          <FontAwesomeIcon
+            icon={isAuthenticated ? faLockOpen : faLock}
+            size="sm"
+            style={{ color: '#fff' }}
+          />
+        </Box>
+      </Box>
+    );
+  };
+
   // If we have a child component with its own authentication status indicator,
   // add lock/unlock icon to it
   const childrenWithAuthStatus = React.Children.map(children, child => {
@@ -49,15 +81,15 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
       return React.cloneElement(child, {
         authStatus: {
           isAuthenticated,
-          icon: isAuthenticated ? faUnlock : faLock,
+          icon: isAuthenticated ? faLockOpen : faLock,
         },
       });
     }
     return child;
   });
 
-  // If authenticated or auth not required, render the children
-  return childrenWithAuthStatus || children;
+  // If authenticated or auth not required, render the children with lock icon
+  return <ProtectedContent>{childrenWithAuthStatus || children}</ProtectedContent>;
 };
 
 export default ProtectedRoute;
