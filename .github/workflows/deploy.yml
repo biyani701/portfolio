@@ -215,7 +215,7 @@ jobs:
         run: |
           cd docs-site
           echo "Building Docusaurus site..."
-          npm run build -- --out-dir=build/docs || echo "Docusaurus build failed but continuing deployment"
+          npm run build || echo "Docusaurus build failed but continuing deployment"
 
           if [ -d "build" ]; then
             echo "Docusaurus build succeeded. Contents of build directory:"
@@ -224,16 +224,19 @@ jobs:
             echo "WARNING: Docusaurus build directory not found"
           fi
 
-      # Combined Deployment
+      # Prepare combined deployment
       - name: Prepare combined deployment
         run: |
           # Create docs directory in build
           mkdir -p build/docs
 
           # Check if Docusaurus build exists and copy it
-          if [ -d "docs-site/build/docs" ]; then
+          if [ -d "docs-site/build" ]; then
             echo "Copying Docusaurus build to build/docs"
-            cp -r docs-site/build/docs/* build/docs/ || echo "Warning: Could not copy Docusaurus build"
+            cp -r docs-site/build/* build/docs/ || echo "Warning: Could not copy Docusaurus build"
+
+            # Create a .nojekyll file to prevent GitHub Pages from processing the site with Jekyll
+            touch build/docs/.nojekyll
 
             # Verify the copy worked
             echo "Verifying copied files:"
@@ -250,11 +253,55 @@ jobs:
             fi
           fi
 
+          # Create a special router.js file in the docs directory to handle navigation
+          echo "Creating router.js for docs navigation"
+          cat > build/docs/router.js << 'EOF'
+          // This script handles routing within the docs subdirectory
+          (function() {
+            console.log('📚 Docs router.js loaded');
+
+            // Check if we're in the docs directory
+            if (window.location.pathname.startsWith('/docs/')) {
+              // Get the path after /docs/
+              const path = window.location.pathname.substring(6);
+
+              // If we're at the root of docs, we're good
+              if (path === '' || path === 'index.html') {
+                console.log('📍 At docs root, no redirect needed');
+                return;
+              }
+
+              // Check if the requested file exists
+              fetch(path)
+                .then(response => {
+                  if (response.ok) {
+                    console.log(`✅ File ${path} exists, no redirect needed`);
+                  } else {
+                    console.log(`❌ File ${path} not found, redirecting to index.html`);
+                    window.location.href = '/docs/';
+                  }
+                })
+                .catch(error => {
+                  console.error('Error checking file:', error);
+                  // On error, redirect to docs home
+                  window.location.href = '/docs/';
+                });
+            }
+          })();
+          EOF
+
+          # Add the router script to the docs index.html
+          if [ -f "build/docs/index.html" ]; then
+            echo "Adding router script to docs/index.html"
+            sed -i 's/<\/head>/<script src="router.js"><\/script><\/head>/' build/docs/index.html
+          fi
+
           # List contents for debugging
           echo "Final contents of build/docs directory:"
           find build/docs -type f | head -n 20 || echo "Could not list build/docs directory"
 
-      - name: Deploy to production server
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
