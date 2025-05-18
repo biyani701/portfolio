@@ -357,6 +357,9 @@ jobs:
           cd docs-site
           echo "Building Docusaurus site..."
           npm run build
+          echo "Docusaurus build completed."
+          echo "Contents of build directory:"
+          ls -la
 
           # Create .nojekyll file to prevent GitHub Pages processing
           touch build/.nojekyll
