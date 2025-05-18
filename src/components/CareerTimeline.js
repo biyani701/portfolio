@@ -724,7 +724,8 @@ export default function CareerTimeline() {
           },
         }}
       >
-        {careerData.map((item, index) => {
+        {/* Reverse the array to show most recent experience first */}
+        {[...careerData].reverse().map((item, index) => {
           // Generate a unique accent color for each item
           const accentColors = ['#41516C', '#FBCA3E', '#E24A68', '#1B5F8C', '#4CADAD'];
           const accentColor = accentColors[index % accentColors.length];
@@ -789,8 +790,8 @@ export default function CareerTimeline() {
                     clipPath: {
                       xs: 'polygon(0 0, 100% 0, 0 100%)',
                       md: index % 2 === 0
-                        ? 'polygon(0 0, 100% 0, 0 100%)'
-                        : 'polygon(0 0, 100% 0, 100% 100%)'
+                        ? 'polygon(0 0, 100% 0, 100% 100%)' // Right side points to circle
+                        : 'polygon(0 0, 100% 0, 0 100%)' // Left side points to circle
                     },
                     right: { xs: 0, md: index % 2 === 0 ? 0 : 'auto' },
                     left: { xs: 'auto', md: index % 2 === 0 ? 'auto' : 0 },
@@ -811,17 +812,18 @@ export default function CareerTimeline() {
                         ? 'translate(50%, -50%)'
                         : 'translate(-50%, -50%)'
                     },
+                    // Position the circle directly on the timeline
                     right: {
                       xs: 'calc(100% + var(--col-gap) + var(--line-w) / 2)',
                       md: index % 2 === 0
-                        ? 'calc(100% + var(--col-gap) + var(--line-w) / 2)'
+                        ? 'calc(100% + var(--col-gap))'
                         : 'auto'
                     },
                     left: {
                       xs: 'auto',
                       md: index % 2 === 0
                         ? 'auto'
-                        : 'calc(100% + var(--col-gap) + var(--line-w) / 2)'
+                        : 'calc(100% + var(--col-gap))'
                     },
                     zIndex: 1,
                     boxShadow: '0 0 0 4px rgba(0,0,0,0.1)',
@@ -1197,6 +1199,7 @@ export default function CareerTimeline() {
 
   return (
     <Box
+      id="timeline"
       sx={{
         maxWidth: 1200,
         mx: 'auto',
