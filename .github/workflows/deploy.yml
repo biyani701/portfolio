@@ -30,7 +30,7 @@ jobs:
       - name: Setup Docusaurus
         run: |
           echo "Creating Docusaurus site..."
-          npx create-docusaurus@latest docs-site classic --skip-install --yes
+          npx create-docusaurus@latest docs-site classic --skip-install
 
           echo "Creating necessary directories..."
           mkdir -p docs-site/docs
