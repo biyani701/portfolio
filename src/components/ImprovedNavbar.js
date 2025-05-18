@@ -975,10 +975,13 @@ const NavigationBar = ({
                   onClick={handleBlogMenuClose}
                   sx={{ py: 1.2, px: 2, gap: 1 }}
                 >
+                                   
                   <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
                     <VisibilityIcon fontSize="small" />
                   </ListItemIcon>
                   <ListItemText primary="View All" />
+                  
+                  
                 </MenuItem>
 
                 {isAuthenticated && (

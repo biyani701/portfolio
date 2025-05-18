@@ -71,6 +71,16 @@ const BlogList = () => {
 
   // State for sidebar
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+  const [sidebarPinned, setSidebarPinned] = useState(!isMobile);
+
+  // Handle sidebar pin toggle
+  const handlePinToggle = () => {
+    setSidebarPinned(prev => !prev);
+    // If unpinning, keep sidebar open if it was open
+    if (sidebarPinned) {
+      setSidebarOpen(true);
+    }
+  };
 
   // State for filter and sort menus
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
@@ -96,6 +106,17 @@ const BlogList = () => {
       setBlogs(sampleBlogData);
     }
   }, []);
+
+  // Update sidebar state based on screen size
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false);
+      setSidebarPinned(false);
+    } else {
+      setSidebarPinned(true);
+      setSidebarOpen(true);
+    }
+  }, [isMobile]);
 
   // Apply filters and sorting
   useEffect(() => {
@@ -191,64 +212,88 @@ const BlogList = () => {
     <Box
       component="section"
       sx={{
-        py: 6,
-        minHeight: 'calc(100vh - 64px)',
-        bgcolor: 'background.default'
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 'calc(100vh - 64px)', // Adjust based on your header height
+        bgcolor: 'background.default',
+        position: 'relative'
       }}
     >
-      <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton
-              color="primary"
-              onClick={toggleSidebar}
-              sx={{ display: { xs: 'flex', md: 'none' } }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              variant="h3"
-              component="h1"
-              sx={{
-                fontWeight: 600,
-                color: 'primary.main'
-              }}
-              data-aos="fade-right"
-            >
-              Blog & Insights
-            </Typography>
+      {/* Fixed sidebar for desktop */}
+      <Box
+        sx={{
+          display: { xs: 'none', md: 'block' },
+          position: 'fixed',
+          left: 0,
+          top: 64, // Adjust based on your header height
+          bottom: 60, // Adjust based on your footer height
+          width: sidebarPinned ? '280px' : (sidebarOpen ? '280px' : '60px'),
+          transition: 'all 0.3s ease',
+          zIndex: 10,
+          overflow: 'hidden',
+          borderRight: '1px solid',
+          borderColor: 'divider',
+          boxShadow: 2,
+          height: 'calc(100vh - 124px)', // 64px header + 60px footer
+        }}
+      >
+        <BlogSidebar
+          blogs={blogs}
+          open={sidebarOpen}
+          isPinned={sidebarPinned}
+          onPinToggle={handlePinToggle}
+        />
+      </Box>
+
+      {/* Main content area with padding to account for sidebar */}
+      <Box
+        sx={{
+          flexGrow: 1,
+          ml: { xs: 0, md: sidebarPinned ? '280px' : (sidebarOpen ? '280px' : '60px') },
+          transition: 'all 0.3s ease',
+          py: 4,
+          px: { xs: 2, sm: 3 },
+          minHeight: 'calc(100vh - 124px)', // Match sidebar height
+        }}
+      >
+        <Container maxWidth="xl" disableGutters>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <IconButton
+                color="primary"
+                onClick={toggleSidebar}
+                sx={{ display: { xs: 'flex', md: 'none' } }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography
+                variant="h3"
+                component="h1"
+                sx={{
+                  fontWeight: 600,
+                  color: 'primary.main'
+                }}
+                data-aos="fade-right"
+              >
+                Blog & Insights
+              </Typography>
+            </Box>
+
+            {isAuthenticated && (
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<Add />}
+                onClick={() => navigate('/blog/new')}
+                data-aos="fade-left"
+              >
+                New Blog Post
+              </Button>
+            )}
           </Box>
 
-          {isAuthenticated && (
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<Add />}
-              onClick={() => navigate('/blog/new')}
-              data-aos="fade-left"
-            >
-              New Blog Post
-            </Button>
-          )}
-        </Box>
-
-        <Grid container spacing={3}>
-          {/* Sidebar for desktop */}
-          <Grid
-            item
-            md={3}
-            sx={{
-              display: { xs: 'none', md: 'block' },
-              transition: 'all 0.3s ease',
-              width: sidebarOpen ? '25%' : '0%',
-              overflow: 'hidden'
-            }}
-          >
-            <BlogSidebar blogs={blogs} open={sidebarOpen} />
-          </Grid>
-
-          {/* Main content */}
-          <Grid item xs={12} md={sidebarOpen ? 9 : 12}>
+          {/* Main content grid */}
+          <Grid container spacing={3}>
             <Paper
               elevation={3}
               sx={{ p: 2, mb: 4, borderRadius: 2 }}
@@ -464,8 +509,8 @@ const BlogList = () => {
               </>
             )}
           </Grid>
-        </Grid>
-      </Container>
+        </Container>
+      </Box>
 
       {/* Mobile Drawer for Sidebar */}
       <Drawer
@@ -477,10 +522,17 @@ const BlogList = () => {
             width: '80%',
             maxWidth: 300,
             boxSizing: 'border-box',
+            height: '100%',
           },
         }}
       >
-        <BlogSidebar blogs={blogs} open={true} onClose={() => setSidebarOpen(false)} />
+        <BlogSidebar
+          blogs={blogs}
+          open={true}
+          onClose={() => setSidebarOpen(false)}
+          isPinned={false}
+          onPinToggle={() => {}} // No pin functionality on mobile
+        />
       </Drawer>
 
       {/* Action menu for blog items */}

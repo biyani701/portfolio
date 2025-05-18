@@ -9,314 +9,82 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "20"
-
-      # Portfolio Build and Setup
+          node-version: '20'
       - name: Install portfolio dependencies
         run: npm ci
-
       - name: Build the portfolio project
         run: npm run build
         env:
-          REACT_APP_GITHUB_CLIENT_ID: ${{ vars.REACT_APP_GITHUB_CLIENT_ID }}
-          REACT_APP_REDIRECT_URI: ${{ vars.REACT_APP_REDIRECT_URI }}
-          REACT_APP_TOKEN_PROXY_URL: ${{ vars.REACT_APP_TOKEN_PROXY_URL }}
-
-      # Docusaurus Setup and Build
-      - name: Setup Docusaurus
+          REACT_APP_GITHUB_CLIENT_ID: '${{ vars.REACT_APP_GITHUB_CLIENT_ID }}'
+          REACT_APP_REDIRECT_URI: '${{ vars.REACT_APP_REDIRECT_URI }}'
+          REACT_APP_TOKEN_PROXY_URL: '${{ vars.REACT_APP_TOKEN_PROXY_URL }}'
+      - name: Copy 404.html for main site
+        run: "if [ -f \"public/404.html\" ]; then\necho \"Copying 404.html from public directory\"\ncp public/404.html build/\nelse\n    echo \"Creating 404.html in build directory\"\n    cat > build/404.html << 'EOF'\n        <!DOCTYPE html>\n        <html>\n          <head>\n            <meta charset=\"utf-8\" />\n            <script type=\"text/javascript\">\n              (function () {\n                const search = window.location.search;\n                const params = new URLSearchParams(search);\n                const debug = params.get(\"debug\") === \"true\";\n                const code = params.get(\"code\");\n                const state = params.get(\"state\");\n                const error = params.get(\"error\");\n\n                console.log(\"\U0001F680 404.html loaded\");\n                console.log(\"\U0001F50D Query params:\", Object.fromEntries(params.entries()));\n                console.log(\"\U0001F41E Debug mode:\", debug);\n                console.log(\"\U0001F4CD Current path:\", window.location.pathname);\n\n                // Check if this is a docs path\n                const isDocsPath = window.location.pathname.startsWith('/docs/');\n                \n                // Store the full path for the original URL\n                sessionStorage.setItem(\"redirect\", window.location.href);\n                \n                if (isDocsPath) {\n                  console.log(\"\U0001F4DA Docs path detected:\", window.location.pathname);\n                  \n                  // For docs paths, simply redirect to the docs index\n                  // Let Docusaurus handle internal routing\n                  if (!debug) {\n                    console.log(\"⏩ Redirecting to docs home page...\");\n                    window.location.href = \"/docs/\";\n                  }\n                } else if (code || error) {\n                  localStorage.setItem(\"oauth.code\", code ?? \"\");\n                  localStorage.setItem(\"oauth.state\", state ?? \"\");\n                  localStorage.setItem(\"oauth.error\", error ?? \"\");\n                  console.log(\"\U0001F4BE Stored OAuth info in localStorage\");\n                  \n                  if (!debug) {\n                    console.log(\"⏩ OAuth flow detected, redirecting to home page...\");\n                    window.location.href = \"/\";\n                  }\n                } else {\n                  // For all other paths, redirect to React app\n                  if (!debug) {\n                    console.log(\"⏩ Regular path, redirecting to home page...\");\n                    window.location.href = \"/\";\n                  }\n                }\n                \n                if (debug) {\n                  console.log(\"\U0001F6D1 Debug mode — staying on this page.\");\n                }\n              })();\n            </script>\n          </head>\n          <body>\n            <p>Redirecting... If you are not redirected automatically, <a href=\"/\">click here</a>.</p>\n          </body>\n        </html>\n    EOF\nfi\n"
+      - name: Create basic docs index
         run: |
-          echo "Creating Docusaurus site..."
-          npx create-docusaurus@latest docs-site classic --skip-install
-
-          echo "Creating necessary directories..."
-          mkdir -p docs-site/docs
-          mkdir -p docs-site/static/img
-          mkdir -p docs-site/src/css
-
-          echo "Examining docs directory structure..."
-          find docs -type f | sort
-
-          # Copy docs content if it exists
-          if [ -d "docs/docs" ]; then
-            echo "Copying docs content..."
-            cp -r docs/docs/* docs-site/docs/
-            echo "Contents of docs-site/docs after copying:"
-            find docs-site/docs -type f | sort
-          else
-            echo "WARNING: docs/docs directory not found"
-          fi
-
-          # Copy config files if they exist
-          if [ -f "docs/docusaurus.config.js" ]; then
-            echo "Copying docusaurus.config.js..."
-            cp docs/docusaurus.config.js docs-site/
-            echo "Contents of copied docusaurus.config.js:"
-            grep -n "baseUrl\|trailingSlash" docs-site/docusaurus.config.js || echo "baseUrl or trailingSlash not found"
-          else
-            echo "WARNING: docs/docusaurus.config.js not found"
-            # Create a basic config with correct baseUrl
-            echo "const config = {"                                  > docs-site/docusaurus.config.js
-            echo "  title: 'Portfolio Documentation',"              >> docs-site/docusaurus.config.js
-            echo "  tagline: 'Documentation for the portfolio',"   >> docs-site/docusaurus.config.js
-            echo "  url: 'https://vishal.biyani.xyz',"              >> docs-site/docusaurus.config.js
-            echo "  baseUrl: '/docs/',"                             >> docs-site/docusaurus.config.js
-            echo "  trailingSlash: false,"                          >> docs-site/docusaurus.config.js
-            echo "  onBrokenLinks: 'warn',"                         >> docs-site/docusaurus.config.js
-            echo "  onBrokenMarkdownLinks: 'warn',"                 >> docs-site/docusaurus.config.js
-            echo "  organizationName: 'biyani701',"                 >> docs-site/docusaurus.config.js
-            echo "  projectName: 'portfolio',"                      >> docs-site/docusaurus.config.js
-            echo "};"                                               >> docs-site/docusaurus.config.js
-            echo "module.exports = config;"                         >> docs-site/docusaurus.config.js
-          fi
-
-          if [ -f "docs/sidebars.js" ]; then
-            echo "Copying sidebars.js..."
-            cp docs/sidebars.js docs-site/
-          else
-            echo "WARNING: docs/sidebars.js not found"
-          fi
-
-          # Copy custom CSS file if it exists
-          if [ -f "docs/src/css/custom.css" ]; then
-            echo "Copying custom.css..."
-            cp docs/src/css/custom.css docs-site/src/css/
-          else
-            echo "WARNING: docs/src/css/custom.css not found"
-            # Create a basic custom.css file
-            echo "Creating basic custom.css..."
-            echo '/**
-            * Any CSS included here will be global. The classic template
-            * bundles Infima by default. Infima is a CSS framework designed to
-            * work well for content-centric websites.
-            */
-
-          /* You can override the default Infima variables here. */
-          :root {
-            --ifm-color-primary: #2e8555;
-            --ifm-color-primary-dark: #29784c;
-            --ifm-color-primary-darker: #277148;
-            --ifm-color-primary-darkest: #205d3b;
-            --ifm-color-primary-light: #33925d;
-            --ifm-color-primary-lighter: #359962;
-            --ifm-color-primary-lightest: #3cad6e;
-            --ifm-code-font-size: 95%;
-            --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-          }
-
-          /* For readability concerns, you should choose a lighter palette in dark mode. */
-          [data-theme="dark"] {
-            --ifm-color-primary: #25c2a0;
-            --ifm-color-primary-dark: #21af90;
-            --ifm-color-primary-darker: #1fa588;
-            --ifm-color-primary-darkest: #1a8870;
-            --ifm-color-primary-light: #29d5b0;
-            --ifm-color-primary-lighter: #32d8b4;
-            --ifm-color-primary-lightest: #4fddbf;
-            --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
-          }' > docs-site/src/css/custom.css
-          fi
-
-          # Copy package.json if it exists
-          if [ -f "docs/package.json" ]; then
-            echo "Copying package.json..."
-            cp docs/package.json docs-site/
-            echo "Contents of copied package.json:"
-            grep -n "homepage" docs-site/package.json || echo "homepage not found in package.json"
-          else
-            echo "WARNING: docs/package.json not found"
-            # Create a basic package.json with correct homepage
-            echo "Creating basic package.json..."
-            echo '{
-            "name": "portfolio-docs",
-            "version": "0.1.0",
-            "private": true,
-            "homepage": "/docs/",
-            "scripts": {
-              "docusaurus": "docusaurus",
-              "start": "docusaurus start",
-              "build": "docusaurus build",
-              "swizzle": "docusaurus swizzle",
-              "deploy": "docusaurus deploy",
-              "clear": "docusaurus clear",
-              "serve": "docusaurus serve",
-              "write-translations": "docusaurus write-translations",
-              "write-heading-ids": "docusaurus write-heading-ids"
-            }
-          }' > docs-site/package.json
-          fi
-
-          # Copy static files if they exist
-          if [ -d "docs/static" ]; then
-            echo "Copying static files..."
-            cp -r docs/static/* docs-site/static/
-            echo "Contents of static directory after copying:"
-            find docs-site/static -type f | sort
-          else
-            echo "WARNING: docs/static directory not found"
-            # Create basic static files
-            echo "Creating basic static files..."
-            mkdir -p docs-site/static/img
-
-            # Create a simple logo.svg
-            echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-            <svg width="200" height="200" viewBox="0 0 200 200" version="1.1" id="portfolio-logo" xmlns="http://www.w3.org/2000/svg">
-              <rect style="fill:#2e8555;fill-opacity:1;stroke:none" width="200" height="200" x="0" y="0" rx="20" ry="20" />
-              <text style="font-size:120px;fill:#ffffff" x="50" y="140">V</text>
-            </svg>' > docs-site/static/img/logo.svg
-
-            # Create empty placeholder files for other required static assets
-            touch docs-site/static/img/favicon.ico
-            touch docs-site/static/img/docusaurus-social-card.jpg
-
-            echo "Created basic static files:"
-            find docs-site/static -type f | sort
-          fi
-
-          # Create a basic intro file if it doesn't exist
-          if [ ! -f "docs-site/docs/intro.md" ]; then
-            echo "Creating basic intro.md..."
-            mkdir -p docs-site/docs
-            echo '---' > docs-site/docs/intro.md
-            echo 'sidebar_position: 1' >> docs-site/docs/intro.md
-            echo '---' >> docs-site/docs/intro.md
-            echo '' >> docs-site/docs/intro.md
-            echo '# Portfolio Documentation' >> docs-site/docs/intro.md
-            echo '' >> docs-site/docs/intro.md
-            echo 'Welcome to the documentation for the Portfolio project.' >> docs-site/docs/intro.md
-            echo '' >> docs-site/docs/intro.md
-            echo '## Overview' >> docs-site/docs/intro.md
-            echo '' >> docs-site/docs/intro.md
-            echo 'The Portfolio project is a personal website built with React and Material-UI.' >> docs-site/docs/intro.md
-            echo '' >> docs-site/docs/intro.md
-            echo '## Features' >> docs-site/docs/intro.md
-            echo '' >> docs-site/docs/intro.md
-            echo '- Resume Sections' >> docs-site/docs/intro.md
-            echo '- Blog' >> docs-site/docs/intro.md
-            echo '- Knowledge Base' >> docs-site/docs/intro.md
-            echo '- Authentication' >> docs-site/docs/intro.md
-            echo '- Responsive Design' >> docs-site/docs/intro.md
-          fi
-
-          # List directories for debugging
-          echo "Final contents of docs-site directory:"
-          find docs-site -type f | sort
-
-      - name: Verify docusaurus config
-        run: |
-          # Explicitly check and update docusaurus configuration
-          cd docs-site
-          echo "Checking docusaurus.config.js..."
-          if grep -q "baseUrl: '/docs/'" docusaurus.config.js; then
-            echo "baseUrl is correctly set to '/docs/'"
-          else
-            echo "Updating baseUrl in docusaurus.config.js"
-            sed -i "s|baseUrl: '.*'|baseUrl: '/docs/'|" docusaurus.config.js
-          fi
-          
-          if grep -q "trailingSlash: false" docusaurus.config.js; then
-            echo "trailingSlash is correctly set to false"
-          else
-            echo "Setting trailingSlash to false in docusaurus.config.js"
-            sed -i "s|trailingSlash: .*,|trailingSlash: false,|" docusaurus.config.js
-            # If trailingSlash is not found, add it
-            if ! grep -q "trailingSlash" docusaurus.config.js; then
-              sed -i "/baseUrl: '\/docs\/'/a \  trailingSlash: false," docusaurus.config.js
-            fi
-          fi
-          
-          # Show the updated configuration
-          echo "Updated docusaurus.config.js:"
-          cat docusaurus.config.js
-
-      - name: Install Docusaurus dependencies
-        run: |
-          cd docs-site
-          echo "Installing Docusaurus dependencies..."
-          npm install
-
-      - name: Build Docusaurus
-        run: |
-          cd docs-site
-          echo "Building Docusaurus site..."
-          npx docusaurus build --out-dir ../build/docs
-          
-          # Create a .nojekyll file to prevent GitHub Pages from processing the site with Jekyll
-          touch ../build/docs/.nojekyll
-          
-          echo "Docusaurus build completed. Contents of build/docs directory:"
-          find ../build/docs -type f | head -n 20
-
-      # Create main site index.html with proper /docs link
-      - name: Add docs link to main site
-        run: |
-          # Create a simple HTML file at the root to link to the docs
-          echo "<script>
-          // Add a link to docs in the main site if it doesn't exist already
-          if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-            document.addEventListener('DOMContentLoaded', function() {
-              // Check if navigation exists and add docs link if appropriate
-              setTimeout(function() {
-                const nav = document.querySelector('nav');
-                if (nav) {
-                  const docsLinkExists = Array.from(nav.querySelectorAll('a')).some(a => 
-                    a.href.includes('/docs') || a.textContent.toLowerCase().includes('docs')
-                  );
-                  
-                  if (!docsLinkExists) {
-                    const docsLink = document.createElement('a');
-                    docsLink.href = '/docs/';
-                    docsLink.textContent = 'Docs';
-                    docsLink.style.marginLeft = '1rem';
-                    nav.appendChild(docsLink);
-                  }
+          mkdir -p build/docs
+          cat > build/docs/index.html << 'EOF'
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <meta http-equiv="refresh" content="0;url=/docs/">
+              <title>Portfolio Documentation</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  margin: 0;
+                  padding: 20px;
+                  text-align: center;
                 }
-              }, 1000);
-            });
-          }
-          </script>" > docs-link.html
-          
-          # Check if index.html exists and append our script
-          if [ -f "build/index.html" ]; then
-            echo "Adding docs link script to main index.html"
-            cat docs-link.html >> build/index.html
-          fi
-
-      # Create .htaccess file for potential fallback
-      - name: Create .htaccess file
+                .loading {
+                  display: inline-block;
+                  margin-top: 20px;
+                }
+                .loading:after {
+                  content: " .";
+                  animation: dots 1.5s steps(5, end) infinite;
+                }
+                @keyframes dots {
+                  0%, 20% { content: " ."; }
+                  40% { content: " .."; }
+                  60% { content: " ..."; }
+                  80%, 100% { content: " ...."; }
+                }
+              </style>
+            </head>
+            <body>
+              <h1>Portfolio Documentation</h1>
+              <p>Loading documentation<span class="loading"></span></p>
+              <p>If you are not redirected automatically, <a href="/docs/">click here</a>.</p>
+            </body>
+            </html>
+            EOF
+      - name: Setup Docusaurus
+        run: "echo \"Creating Docusaurus site...\"\nnpx create-docusaurus@latest docs-site classic --skip-install\n\necho \"Creating necessary directories...\"\nmkdir -p docs-site/docs\nmkdir -p docs-site/static/img\nmkdir -p docs-site/src/css\nmkdir -p docs-site/static/js\n\n# Create docusaurus-router.js for handling navigation\ncat > docs-site/static/js/docusaurus-router.js << 'EOF'\n  // This script helps with handling client-side routing within Docusaurus\n  (function() {\n    console.log('\U0001F4DA Docusaurus router script loaded');\n    \n    // Check if we're in the docs section\n    if (window.location.pathname.startsWith('/docs/')) {\n      console.log('✅ Initialized docusaurus router');\n      \n      // Add a listener for handle Docusaurus navigation\n      window.addEventListener('load', function() {\n        console.log('\U0001F504 Docusaurus page loaded completely');\n      });\n    }\n  })();\n  EOF\n\necho \"Examining docs directory structure...\"\nfind docs -type f | sort || echo \"No docs directory found\"\n\n# Copy docs content if it exists\nif [ -d \"docs/docs\" ]; then\n  echo \"Copying docs content...\"\n  cp -r docs/docs/* docs-site/docs/\nelse\n  echo \"Creating basic docs content...\"\n  \n  # Create a basic intro file\n  mkdir -p docs-site/docs\n  echo '---' > docs-site/docs/intro.md\n  echo 'sidebar_position: 1' >> docs-site/docs/intro.md\n  echo '---' >> docs-site/docs/intro.md\n  echo '' >> docs-site/docs/intro.md\n  echo '# Portfolio Documentation' >> docs-site/docs/intro.md\n  echo '' >> docs-site/docs/intro.md\n  echo 'Welcome to the documentation for the Portfolio project.' >> docs-site/docs/intro.md\n  echo '' >> docs-site/docs/intro.md\n  echo '## Overview' >> docs-site/docs/intro.md\n  echo '' >> docs-site/docs/intro.md\n  echo 'The Portfolio project is a personal website built with React and Material-UI.' >> docs-site/docs/intro.md\n  echo '' >> docs-site/docs/intro.md\n  echo '## Features' >> docs-site/docs/intro.md\n  echo '' >> docs-site/docs/intro.md\n  echo '- Resume Sections' >> docs-site/docs/intro.md\n  echo '- Blog' >> docs-site/docs/intro.md\n  echo '- Knowledge Base' >> docs-site/docs/intro.md\n  echo '- Authentication' >> docs-site/docs/intro.md\n  echo '- Responsive Design' >> docs-site/docs/intro.md\nfi\n\n# Update docusaurus.config.js with proper settings\ncat > docs-site/docusaurus.config.js << 'EOF'\n  // @ts-check\n  // `@type` JSDoc annotations allow editor autocompletion and type checking\n  // (when paired with `@ts-check`).\n  \n  /** @type {import('@docusaurus/types').Config} */\n  const config = {\n    title: 'Portfolio Documentation',\n    tagline: 'Documentation for the portfolio project',\n    url: 'https://vishal.biyani.xyz',\n    baseUrl: '/docs/',\n    trailingSlash: false,\n    onBrokenLinks: 'warn',\n    onBrokenMarkdownLinks: 'warn',\n    favicon: 'img/favicon.ico',\n    organizationName: 'biyani701',\n    projectName: 'portfolio',\n  \n    // Add scripts to include on every page\n    scripts: [\n      {\n        src: '/docs/js/docusaurus-router.js',\n        async: false,\n      },\n    ],\n  \n    presets: [\n      [\n        'classic',\n        /** @type {import('@docusaurus/preset-classic').Options} */\n        ({\n          docs: {\n            routeBasePath: '/',\n            sidebarPath: require.resolve('./sidebars.js'),\n            editUrl: 'https://github.com/biyani701/portfolio/tree/main/docs/',\n          },\n          theme: {\n            customCss: require.resolve('./src/css/custom.css'),\n          },\n        }),\n      ],\n    ],\n  \n    themeConfig:\n      /** @type {import('@docusaurus/preset-classic').ThemeConfig} */\n      ({\n        navbar: {\n          title: 'Portfolio Docs',\n          logo: {\n            alt: 'Portfolio Logo',\n            src: 'img/logo.svg',\n          },\n          items: [\n            {\n              type: 'docSidebar',\n              sidebarId: 'tutorialSidebar',\n              position: 'left',\n              label: 'Documentation',\n            },\n            {\n              href: '/',\n              label: 'Back to Portfolio',\n              position: 'right',\n            },\n            {\n              href: 'https://github.com/biyani701/portfolio',\n              label: 'GitHub',\n              position: 'right',\n            },\n          ],\n        },\n        footer: {\n          style: 'dark',\n          links: [\n            {\n              title: 'Docs',\n              items: [\n                {\n                  label: 'Getting Started',\n                  to: '/',\n                },\n              ],\n            },\n            {\n              title: 'More',\n              items: [\n                {\n                  label: 'Portfolio',\n                  href: '/',\n                },\n                {\n                  label: 'GitHub',\n                  href: 'https://github.com/biyani701/portfolio',\n                },\n              ],\n            },\n          ],\n          copyright: `Copyright © ${new Date().getFullYear()} Vishal Biyani. Built with Docusaurus.`,\n        },\n        prism: {\n          theme: require('prism-react-renderer').themes.github,\n          darkTheme: require('prism-react-renderer').themes.dracula,\n        },\n      }),\n  };\n  \n  module.exports = config;\n  EOF\n  \n            # Create basic custom.css file\n            cat > docs-site/src/css/custom.css << 'EOF'\n  /**\n   * Any CSS included here will be global. The classic template\n   * bundles Infima by default. Infima is a CSS framework designed to\n   * work well for content-centric websites.\n   */\n  \n  /* You can override the default Infima variables here. */\n  :root {\n    --ifm-color-primary: #2e8555;\n    --ifm-color-primary-dark: #29784c;\n    --ifm-color-primary-darker: #277148;\n    --ifm-color-primary-darkest: #205d3b;\n    --ifm-color-primary-light: #33925d;\n    --ifm-color-primary-lighter: #359962;\n    --ifm-color-primary-lightest: #3cad6e;\n    --ifm-code-font-size: 95%;\n    --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);\n  }\n  \n  /* For readability concerns, you should choose a lighter palette in dark mode. */\n  [data-theme=\"dark\"] {\n    --ifm-color-primary: #25c2a0;\n    --ifm-color-primary-dark: #21af90;\n    --ifm-color-primary-darker: #1fa588;\n    --ifm-color-primary-darkest: #1a8870;\n    --ifm-color-primary-light: #29d5b0;\n    --ifm-color-primary-lighter: #32d8b4;\n    --ifm-color-primary-lightest: #4fddbf;\n    --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);\n  }\n  EOF\n  \n            # Create basic sidebars.js file\n            cat > docs-site/sidebars.js << 'EOF'\n  /**\n   * Creating a sidebar enables you to:\n   - create an ordered group of docs\n   - render a sidebar for each doc of that group\n   - provide next/previous navigation\n  \n   The sidebars can be generated from the filesystem, or explicitly defined here.\n  \n   Create as many sidebars as you want.\n   */\n  \n  // @ts-check\n  \n  /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */\n  const sidebars = {\n    // By default, Docusaurus generates a sidebar from the docs folder structure\n    tutorialSidebar: [{type: 'autogenerated', dirName: '.'}],\n  };\n  \n  module.exports = sidebars;\n  EOF\n  \n            # Create basic static files\n            mkdir -p docs-site/static/img\n            \n            # Create a simple logo.svg\n            cat > docs-site/static/img/logo.svg << 'EOF'\n  <?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n  <svg width=\"200\" height=\"200\" viewBox=\"0 0 200 200\" version=\"1.1\" id=\"portfolio-logo\" xmlns=\"http://www.w3.org/2000/svg\">\n    <rect style=\"fill:#2e8555;fill-opacity:1;stroke:none\" width=\"200\" height=\"200\" x=\"0\" y=\"0\" rx=\"20\" ry=\"20\" />\n    <text style=\"font-size:120px;fill:#ffffff\" x=\"50\" y=\"140\">V</text>\n  </svg>\n  EOF\n  \n            # Create empty placeholder files for other required static assets\n            touch docs-site/static/img/favicon.ico\n            touch docs-site/static/img/docusaurus-social-card.jpg\n  \n        - name: Install Docusaurus dependencies\n          run: |\n            cd docs-site\n            echo \"Installing Docusaurus dependencies...\"\n            npm install\n  \n        - name: Build Docusaurus\n          run: |\n            cd docs-site\n            echo \"Building Docusaurus site...\"\n            npm run build\n            \n            # Create .nojekyll file to prevent GitHub Pages processing\n            touch build/.nojekyll\n            \n            # Copy built files to the main build/docs directory\n            echo \"Copying built files to main build/docs directory...\"\n            cp -r build/* ../build/docs/\n            \n            # Ensure the router script is available\n            if [ -f \"../build/docs/js/docusaurus-router.js\" ]; then\n              echo \"✅ Router script exists at the correct location\"\n            else\n              echo \"⚠️ Router script not found, creating it...\"\n              mkdir -p ../build/docs/js\n              cp static/js/docusaurus-router.js ../build/docs/js/\n            fi\n  \n        # Add a debugging script to help diagnose issues\n        - name: Add diagnostics script\n          run: |\n            cat > build/docs/diagnostics.js << 'EOF'\n  // Diagnostic script to help troubleshoot Docusaurus issues\n  console.log('\U0001F4CA Running diagnostics for Docusaurus site');\n  \n  // List all loaded scripts\n  const scripts = document.querySelectorAll('script');\n  console.log('\U0001F4DC Loaded scripts:');\n  scripts.forEach((script, index) => {\n    console.log(`${index + 1}. ${script.src || '(inline script)'}`);\n  });\n  \n  // Check if key Docusaurus elements exist\n  console.log('\U0001F50D Checking for key Docusaurus elements:');\n  const navbar = document.querySelector('nav.navbar');\n  console.log(`Navbar: ${navbar ? '✅ Found' : '❌ Not found'}`);\n  \n  const sidebar = document.querySelector('div.theme-doc-sidebar-container');\n  console.log(`Sidebar: ${sidebar ? '✅ Found' : '❌ Not found'}`);\n  \n  const mainContent = document.querySelector('main.container');\n  console.log(`Main content: ${mainContent ? '✅ Found' : '❌ Not found'}`);\n  \n  // Check for stylesheets\n  const stylesheets = document.querySelectorAll('link[rel=\"stylesheet\"]');\n  console.log('\U0001F3A8 Loaded stylesheets:');\n  stylesheets.forEach((stylesheet, index) => {\n    console.log(`${index + 1}. ${stylesheet.href}`);\n  });\n  \n  // List all resources that failed to load\n  console.log('❌ Failed resources:');\n  if (window.performance) {\n    const resources = window.performance.getEntriesByType('resource');\n    let failedCount = 0;\n    resources.forEach(resource => {\n      // Approximation: resources with very small transfer sizes might have failed\n      if (resource.transferSize < 100 && !resource.name.includes('favicon')) {\n        console.log(`- ${resource.name}`);\n        failedCount++;\n      }\n    });\n    if (failedCount === 0) {\n      console.log('None detected');\n    }\n  }\n  \n  console.log('\U0001F4CA Diagnostics complete');\n  EOF\n\n# Add the diagnostics script to the docs index.html\nif [ -f \"build/docs/index.html\" ]; then\n  echo \"Adding diagnostics script to docs/index.html\"\n  sed -i 's/<\\/body>/<script src=\"diagnostics.js\"><\\/script><\\/body>/' build/docs/index.html\nfi\n"
+      - name: Create redirect for common paths
         run: |
-          # Create .htaccess file to handle potential routing issues
-          echo "# Enable rewrite engine
-          <IfModule mod_rewrite.c>
-            RewriteEngine On
-            
-            # If the request is for a file that exists, serve it
-            RewriteCond %{REQUEST_FILENAME} -f
-            RewriteRule ^ - [L]
-            
-            # For /docs/ paths
-            RewriteRule ^docs/$ docs/index.html [L]
-            RewriteCond %{REQUEST_URI} ^/docs/
-            RewriteCond %{REQUEST_FILENAME} !-f
-            RewriteRule ^docs/(.*)$ docs/index.html [L]
-            
-            # For root site (React app)
-            RewriteCond %{REQUEST_URI} !^/docs/
-            RewriteCond %{REQUEST_FILENAME} !-f
-            RewriteRule ^ index.html [L]
-          </IfModule>" > build/.htaccess
-          
-          # Create also a _redirects file for Netlify-like services
-          echo "/* /index.html 200
-          /docs/* /docs/index.html 200" > build/_redirects
-
-      # Deploy to GitHub Pages
+          # Create a placeholder for /docs
+          cat > build/docs.html << 'EOF'
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta http-equiv="refresh" content="0;url=/docs/">
+              <title>Redirecting to Documentation</title>
+            </head>
+            <body>
+              <p>Redirecting to documentation... <a href="/docs/">Click here if you're not redirected</a></p>
+            </body>
+            </html>
+            EOF
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: '${{ secrets.GITHUB_TOKEN }}'
           publish_dir: ./build
           cname: vishal.biyani.xyz
