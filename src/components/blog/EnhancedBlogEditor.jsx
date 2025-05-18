@@ -1,10 +1,15 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { useAuthContext } from '../../context/AuthProvider';
-import { createEditor, Editor, Transforms, Element as SlateElement } from 'slate';
-import { Slate, Editable, withReact, useSlate } from 'slate-react';
-import { withHistory } from 'slate-history';
+import React, { useCallback, useMemo, useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import PropTypes from "prop-types";
+import { useAuthContext } from "../../context/AuthProvider";
+import {
+  createEditor,
+  Editor,
+  Transforms,
+  Element as SlateElement,
+} from "slate";
+import { Slate, Editable, withReact, useSlate } from "slate-react";
+import { withHistory } from "slate-history";
 import {
   Box,
   Chip,
@@ -27,8 +32,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
-} from '@mui/material';
+  DialogActions,
+} from "@mui/material";
 import {
   Edit,
   FormatBold,
@@ -40,63 +45,42 @@ import {
   FormatListNumbered,
   LooksOne,
   LooksTwo,
+  LooksThree,
+  Looks4,
+  Looks5,
+  Looks6,
   Image,
   Save,
   ArrowBack,
   Delete,
-  Preview
-} from '@mui/icons-material';
+  Preview,
+  FormatAlignLeft,
+  FormatAlignCenter,
+  FormatAlignRight,
+  FormatAlignJustify,
+  ArrowDropDown
+} from "@mui/icons-material";
 
 // Initial value for the editor
-// const initialValue = [
-//   {
-//     type: 'heading-one',
-//     children: [{ text: 'Blog Title' }],
-//   },
-//   {
-//     type: 'paragraph',
-//     children: [{ text: 'Start writing your blog content here...' }],
-//   },
-// ];
-
 const initialValue = [
   {
-    type: 'paragraph',
-    children: [
-      { text: 'This is editable ' },
-      { text: 'rich', bold: true },
-      { text: ' text, ' },
-      { text: 'much', italic: true },
-      { text: ' better than a ' },
-      { text: '<textarea>', code: true },
-      { text: '!' },
-    ],
+    type: "heading-one",
+    children: [{ text: "Blog Title" }],
   },
   {
-    type: 'paragraph',
-    children: [
-      {
-        text: "Since it's rich text, you can do things like turn a selection of text ",
-      },
-      { text: 'bold', bold: true },
-      {
-        text: ', or add a semantically rendered block quote in the middle of the page, like this:',
-      },
-    ],
+    type: "paragraph",
+    children: [{ text: "Start writing your blog content here..." }],
   },
-  {
-    type: 'block-quote',
-    children: [{ text: 'A wise quote.' }],
-  },
-  {
-    type: 'paragraph',
-    align: 'center',
-    children: [{ text: 'Try it out for yourself!' }],
-  },
-]
+];
 
 // Custom toolbar button component
-const ToolbarButton = ({ format, icon, isBlock = false, isActive, onMouseDown }) => {
+const ToolbarButton = ({
+  format,
+  icon,
+  isBlock = false,
+  isActive,
+  onMouseDown,
+}) => {
   const theme = useTheme();
 
   return (
@@ -104,12 +88,23 @@ const ToolbarButton = ({ format, icon, isBlock = false, isActive, onMouseDown })
       <IconButton
         onMouseDown={(event) => onMouseDown(event, format, isBlock)}
         sx={{
-          color: isActive ? 'primary.main' : 'text.secondary',
-          '&:hover': {
-            backgroundColor: theme.palette.mode === 'dark'
-              ? 'rgba(255, 255, 255, 0.08)'
-              : 'rgba(0, 0, 0, 0.04)'
-          }
+          color: isActive ? "primary.main" : "text.secondary",
+          backgroundColor: isActive
+            ? (theme.palette.mode === 'dark'
+                ? 'rgba(25, 118, 210, 0.15)'
+                : 'rgba(25, 118, 210, 0.08)')
+            : 'transparent',
+          "&:hover": {
+            backgroundColor: isActive
+              ? (theme.palette.mode === 'dark'
+                  ? 'rgba(25, 118, 210, 0.25)'
+                  : 'rgba(25, 118, 210, 0.15)')
+              : (theme.palette.mode === 'dark'
+                  ? 'rgba(255, 255, 255, 0.08)'
+                  : 'rgba(0, 0, 0, 0.04)'),
+          },
+          transition: 'all 0.2s ease',
+          borderRadius: 1
         }}
         size="small"
       >
@@ -133,7 +128,19 @@ const BlockButton = ({ format, icon }) => {
 
   const isBlockActive = (editor, format) => {
     const [match] = Editor.nodes(editor, {
-      match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format,
+      match: (n) =>
+        !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format,
+    });
+    return !!match;
+  };
+
+  // Helper function to check if we're in a list
+  const isInList = () => {
+    const [match] = Editor.nodes(editor, {
+      match: n =>
+        !Editor.isEditor(n) &&
+        SlateElement.isElement(n) &&
+        (n.type === "bulleted-list" || n.type === "numbered-list"),
     });
     return !!match;
   };
@@ -142,18 +149,69 @@ const BlockButton = ({ format, icon }) => {
     event.preventDefault();
     const isActive = isBlockActive(editor, format);
 
-    Transforms.setNodes(
-      editor,
-      { type: isActive ? 'paragraph' : format },
-      { match: n => Editor.isBlock(editor, n) }
-    );
+    // Special handling for lists
+    if (format === "bulleted-list" || format === "numbered-list") {
+      // If the list is already active, convert list items back to paragraphs
+      if (isActive) {
+        Transforms.unwrapNodes(editor, {
+          match: n =>
+            !Editor.isEditor(n) &&
+            SlateElement.isElement(n) &&
+            (n.type === "bulleted-list" || n.type === "numbered-list"),
+          split: true
+        });
 
-    // Handle special cases for lists
-    if (!isActive && (format === 'bulleted-list' || format === 'numbered-list')) {
-      Transforms.wrapNodes(
+        Transforms.setNodes(
+          editor,
+          { type: "paragraph" },
+          { match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === "list-item" }
+        );
+      } else {
+        // If a different type of list is active, unwrap it first
+        const otherListFormat = format === "bulleted-list" ? "numbered-list" : "bulleted-list";
+        const isOtherListActive = isBlockActive(editor, otherListFormat);
+
+        if (isOtherListActive) {
+          Transforms.unwrapNodes(editor, {
+            match: n =>
+              !Editor.isEditor(n) &&
+              SlateElement.isElement(n) &&
+              n.type === otherListFormat,
+            split: true
+          });
+        }
+
+        // Convert the current blocks to list items
+        Transforms.setNodes(
+          editor,
+          { type: "list-item" },
+          { match: n => Editor.isBlock(editor, n) && n.type !== "list-item" }
+        );
+
+        // Wrap in the appropriate list type
+        Transforms.wrapNodes(editor, {
+          type: format,
+          children: []
+        });
+      }
+    } else {
+      // If we're in a list and trying to apply a non-list block format,
+      // we need to unwrap from the list first
+      if (isInList()) {
+        Transforms.unwrapNodes(editor, {
+          match: n =>
+            !Editor.isEditor(n) &&
+            SlateElement.isElement(n) &&
+            (n.type === "bulleted-list" || n.type === "numbered-list"),
+          split: true
+        });
+      }
+
+      // Handle other block types normally
+      Transforms.setNodes(
         editor,
-        { type: format, children: [] },
-        { match: n => Editor.isBlock(editor, n) && n.type === 'list-item' }
+        { type: isActive ? "paragraph" : format },
+        { match: n => Editor.isBlock(editor, n) }
       );
     }
   };
@@ -211,40 +269,101 @@ MarkButton.propTypes = {
 
 // Element renderer
 const Element = ({ attributes, children, element }) => {
+  // Get alignment style if it exists
+  const textAlign = element.align || 'left';
+  const alignStyle = { textAlign };
+
   switch (element.type) {
-    case 'block-quote':
-      return <blockquote style={{ borderLeft: '2px solid #ddd', paddingLeft: '10px', color: '#666' }} {...attributes}>{children}</blockquote>;
-    case 'bulleted-list':
-      return <ul {...attributes}>{children}</ul>;
-    case 'heading-one':
-      return <h1 style={{ fontSize: '2em', fontWeight: 'bold' }} {...attributes}>{children}</h1>;
-    case 'heading-two':
-      return <h2 style={{ fontSize: '1.5em', fontWeight: 'bold' }} {...attributes}>{children}</h2>;
-    case 'list-item':
-      return <li {...attributes}>{children}</li>;
-    case 'numbered-list':
-      return <ol {...attributes}>{children}</ol>;
-    case 'image':
+    case "block-quote":
+      return (
+        <blockquote
+          style={{
+            borderLeft: "2px solid #ddd",
+            paddingLeft: "10px",
+            color: "#666",
+            ...alignStyle
+          }}
+          {...attributes}
+        >
+          {children}
+        </blockquote>
+      );
+    case "bulleted-list":
+      return <ul style={alignStyle} {...attributes}>{children}</ul>;
+    case "heading-one":
+      return (
+        <h1 style={{ fontSize: "2em", fontWeight: "bold", ...alignStyle }} {...attributes}>
+          {children}
+        </h1>
+      );
+    case "heading-two":
+      return (
+        <h2 style={{ fontSize: "1.5em", fontWeight: "bold", ...alignStyle }} {...attributes}>
+          {children}
+        </h2>
+      );
+    case "heading-three":
+      return (
+        <h3 style={{ fontSize: "1.3em", fontWeight: "bold", ...alignStyle }} {...attributes}>
+          {children}
+        </h3>
+      );
+    case "heading-four":
+      return (
+        <h4 style={{ fontSize: "1.2em", fontWeight: "bold", ...alignStyle }} {...attributes}>
+          {children}
+        </h4>
+      );
+    case "heading-five":
+      return (
+        <h5 style={{ fontSize: "1.1em", fontWeight: "bold", ...alignStyle }} {...attributes}>
+          {children}
+        </h5>
+      );
+    case "heading-six":
+      return (
+        <h6 style={{ fontSize: "1em", fontWeight: "bold", ...alignStyle }} {...attributes}>
+          {children}
+        </h6>
+      );
+    case "list-item":
+      return <li style={alignStyle} {...attributes}>{children}</li>;
+    case "numbered-list":
+      return <ol style={alignStyle} {...attributes}>{children}</ol>;
+    case "image":
       return (
         <div {...attributes}>
-          <div contentEditable={false} style={{ textAlign: 'center' }}>
+          <div contentEditable={false} style={{ textAlign: "center" }}>
             <img
               src={element.url}
-              alt={element.alt || 'Blog image'}
-              style={{ maxWidth: '100%', maxHeight: '20em', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}
+              alt={element.alt || "Blog image"}
+              style={{
+                maxWidth: "100%",
+                maxHeight: "20em",
+                boxShadow: "0 0 5px rgba(0,0,0,0.1)",
+              }}
             />
           </div>
           {children}
         </div>
       );
-    case 'code-block':
+    case "code-block":
       return (
-        <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px', overflowX: 'auto' }} {...attributes}>
+        <pre
+          style={{
+            backgroundColor: "#f0f0f0",
+            padding: "10px",
+            borderRadius: "5px",
+            overflowX: "auto",
+            ...alignStyle
+          }}
+          {...attributes}
+        >
           <code>{children}</code>
         </pre>
       );
     default:
-      return <p {...attributes}>{children}</p>;
+      return <p style={alignStyle} {...attributes}>{children}</p>;
   }
 };
 
@@ -255,6 +374,7 @@ Element.propTypes = {
     type: PropTypes.string.isRequired,
     url: PropTypes.string,
     alt: PropTypes.string,
+    align: PropTypes.string,
   }).isRequired,
 };
 
@@ -270,7 +390,17 @@ const Leaf = ({ attributes, children, leaf }) => {
     children = <u>{children}</u>;
   }
   if (leaf.code) {
-    children = <code style={{ backgroundColor: '#f0f0f0', padding: '2px 4px', borderRadius: '3px' }}>{children}</code>;
+    children = (
+      <code
+        style={{
+          backgroundColor: "#f0f0f0",
+          padding: "2px 4px",
+          borderRadius: "3px",
+        }}
+      >
+        {children}
+      </code>
+    );
   }
   return <span {...attributes}>{children}</span>;
 };
@@ -292,9 +422,9 @@ const EnhancedBlogEditor = ({ editMode = false }) => {
   const isAuthenticated = true;
 
   // State for blog metadata
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('technology');
-  const [tags, setTags] = useState('');
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("technology");
+  const [tags, setTags] = useState("");
   const [previewMode, setPreviewMode] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
@@ -308,29 +438,29 @@ const EnhancedBlogEditor = ({ editMode = false }) => {
       // In a real app, you would fetch the blog data from an API or storage
       // For now, we'll simulate loading from localStorage
       try {
-        const savedBlogs = JSON.parse(localStorage.getItem('blogs') || '[]');
-        const blog = savedBlogs.find(b => b.id === blogId);
+        const savedBlogs = JSON.parse(localStorage.getItem("blogs") || "[]");
+        const blog = savedBlogs.find((b) => b.id === blogId);
 
         if (blog) {
           setTitle(blog.title);
           setCategory(blog.category);
-          setTags(blog.tags.join(', '));
+          setTags(blog.tags.join(", "));
           setContent(JSON.parse(blog.content));
         }
       } catch (error) {
-        console.error('Error loading blog data:', error);
+        console.error("Error loading blog data:", error);
       }
     }
   }, [editMode, blogId]);
 
   // Render element and leaf components
-  const renderElement = useCallback(props => <Element {...props} />, []);
-  const renderLeaf = useCallback(props => <Leaf {...props} />, []);
+  const renderElement = useCallback((props) => <Element {...props} />, []);
+  const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
 
   // Handle saving the blog
   const handleSaveBlog = () => {
     if (!title.trim()) {
-      alert('Please enter a blog title');
+      alert("Please enter a blog title");
       return;
     }
 
@@ -338,20 +468,23 @@ const EnhancedBlogEditor = ({ editMode = false }) => {
       id: editMode && blogId ? blogId : Date.now().toString(),
       title,
       category,
-      tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+      tags: tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag),
       content: JSON.stringify(content),
       createdAt: editMode && blogId ? undefined : new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     try {
       // In a real app, you would send this data to an API
       // For now, we'll save to localStorage
-      const savedBlogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+      const savedBlogs = JSON.parse(localStorage.getItem("blogs") || "[]");
 
       if (editMode && blogId) {
         // Update existing blog
-        const index = savedBlogs.findIndex(b => b.id === blogId);
+        const index = savedBlogs.findIndex((b) => b.id === blogId);
         if (index !== -1) {
           savedBlogs[index] = { ...savedBlogs[index], ...blogData };
         }
@@ -360,193 +493,607 @@ const EnhancedBlogEditor = ({ editMode = false }) => {
         savedBlogs.push(blogData);
       }
 
-      localStorage.setItem('blogs', JSON.stringify(savedBlogs));
-      navigate('/blogs');
+      localStorage.setItem("blogs", JSON.stringify(savedBlogs));
+      alert(
+        editMode ? "Blog updated successfully!" : "Blog published successfully!"
+      );
+      navigate("/blogs");
     } catch (error) {
-      console.error('Error saving blog:', error);
-      alert('Failed to save blog. Please try again.');
+      console.error("Error saving blog:", error);
+      alert("Failed to save blog. Please try again.");
+    }
+  };
+
+  // Handle deleting the blog
+  const handleDeleteBlog = () => {
+    if (!editMode || !blogId) return;
+
+    try {
+      const savedBlogs = JSON.parse(localStorage.getItem("blogs") || "[]");
+      const updatedBlogs = savedBlogs.filter((blog) => blog.id !== blogId);
+      localStorage.setItem("blogs", JSON.stringify(updatedBlogs));
+      alert("Blog deleted successfully!");
+      navigate("/blogs");
+    } catch (error) {
+      console.error("Error deleting blog:", error);
+      alert("Failed to delete blog. Please try again.");
     }
   };
 
   // Handle inserting an image
   const handleInsertImage = () => {
-    const url = prompt('Enter image URL:');
+    const url = prompt("Enter image URL:");
     if (!url) return;
 
-    const alt = prompt('Enter image description (alt text):');
+    const alt = prompt("Enter image description (alt text):");
 
     // Use Transforms.insertNodes instead of Editor.insertNodes
     Transforms.insertNodes(editor, {
-      type: 'image',
+      type: "image",
       url,
       alt,
-      children: [{ text: '' }],
+      children: [{ text: "" }],
     });
   };
 
+  const inputColor = theme.palette.text.primary;
+const labelColor = theme.palette.text.secondary;
+
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4, mt: 10 }}>
       <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h4" component="h1">
-            {editMode ? 'Edit Blog Post' : 'Create New Blog Post'}
-          </Typography>
+        <Box
+          sx={{
+            mb: 4,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Box>
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                fontWeight: "bold",
+                color: "primary.main",
+              }}
+            >
+              {editMode ? "Edit Blog Post" : "Create New Blog Post"}
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              sx={{ mt: 0.5 }}
+            >
+              {editMode
+                ? "Update your existing blog post"
+                : "Share your thoughts with the world"}
+            </Typography>
+          </Box>
           <Button
+            variant="outlined"
             startIcon={<ArrowBack />}
-            onClick={() => setConfirmDialogOpen(true)}
+            onClick={() => {
+              // Check if there are unsaved changes
+              if (title || tags || content !== initialValue) {
+                setConfirmDialogOpen(true);
+              } else {
+                navigate("/blogs");
+              }
+            }}
           >
             Back to Blogs
           </Button>
         </Box>
 
-        <Divider sx={{ mb: 3 }} />
+        <Divider sx={{ mb: 4 }} />
 
         {!previewMode ? (
           <>
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Blog Title"
-                  variant="outlined"
-                  fullWidth
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={3}>
-                <FormControl fullWidth>
-                  <InputLabel id="category-label">Category</InputLabel>
-                  <Select
-                    labelId="category-label"
-                    value={category}
-                    label="Category"
-                    onChange={(e) => setCategory(e.target.value)}
-                  >
-                    <MenuItem value="technology">Technology</MenuItem>
-                    <MenuItem value="finance">Finance</MenuItem>
-                    <MenuItem value="career">Career</MenuItem>
-                    <MenuItem value="personal">Personal</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={3}>
-                <TextField
-                  label="Tags (comma separated)"
-                  variant="outlined"
-                  fullWidth
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  placeholder="tech, react, web"
-                />
-              </Grid>
-            </Grid>
+            <Grid container spacing={2} sx={{ mb: 4 }}>
+  {/* Blog Title */}
+  <Grid item xs={12} md={6}>
+    <TextField
+      label="Blog Title"
+      variant="outlined"
+      fullWidth
+      value={title}
+      onChange={(e) => setTitle(e.target.value)}
+      required
+      InputLabelProps={{
+        sx: { color: labelColor }
+      }}
+      InputProps={{
+        sx: {
+          color: inputColor,
+          backgroundColor: theme.palette.background.paper
+        }
+      }}
+      FormHelperTextProps={{
+        sx: { color: labelColor }
+      }}
+      helperText="Make it short and catchy"
+    />
+  </Grid>
+
+  {/* Category */}
+  <Grid item xs={12} sm={6} md={3}>
+    <FormControl fullWidth>
+      <InputLabel id="category-label" sx={{ color: labelColor }}>
+        Category
+      </InputLabel>
+      <Select
+        labelId="category-label"
+        id="category"
+        value={category}
+        label="Category"
+        onChange={(e) => setCategory(e.target.value)}
+        sx={{
+          color: inputColor,
+          backgroundColor: theme.palette.background.paper
+        }}
+      >
+        <MenuItem value="technology">Technology</MenuItem>
+        <MenuItem value="finance">Finance</MenuItem>
+        <MenuItem value="career">Career</MenuItem>
+        <MenuItem value="personal">Personal</MenuItem>
+      </Select>
+    </FormControl>
+  </Grid>
+
+  {/* Tags */}
+  <Grid item xs={12} sm={6} md={3}>
+    <TextField
+      label="Tags"
+      variant="outlined"
+      fullWidth
+      value={tags}
+      onChange={(e) => setTags(e.target.value)}
+      placeholder="e.g., react, dev, fintech"
+      InputLabelProps={{
+        sx: { color: labelColor }
+      }}
+      InputProps={{
+        sx: {
+          color: inputColor,
+          backgroundColor: theme.palette.background.paper
+        }
+      }}
+      FormHelperTextProps={{
+        sx: { color: labelColor }
+      }}
+      helperText="Comma separated tags"
+    />
+  </Grid>
+</Grid>
+
 
             <Box
               sx={{
                 border: `1px solid ${theme.palette.divider}`,
                 borderRadius: 1,
-                mb: 3
+                mb: 3,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden"
               }}
             >
-              <Box
-                sx={{
-                  p: 1,
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 0.5
-                }}
+              <Slate
+                editor={editor}
+                value={content}
+                initialValue={initialValue}
+                onChange={(value) => setContent(value)}
               >
-                <Slate>
-                <MarkButton format="bold" icon={<FormatBold />} />
-                <MarkButton format="italic" icon={<FormatItalic />} />
-                <MarkButton format="underline" icon={<FormatUnderlined />} />
-                <MarkButton format="code" icon={<Code />} />
-                </Slate>
-                <Slate>
-                <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
-                <BlockButton format="heading-one" icon={<LooksOne />} />
-                <BlockButton format="heading-two" icon={<LooksTwo />} />
-                <BlockButton format="block-quote" icon={<FormatQuote />} />
-                <BlockButton format="bulleted-list" icon={<FormatListBulleted />} />
-                <BlockButton format="numbered-list" icon={<FormatListNumbered />} />
-                <BlockButton format="code-block" icon={<Code />} />
-                </Slate>
-                <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
-                <Tooltip title="Insert Image">
-                  <IconButton onClick={handleInsertImage} size="small">
-                    <Image />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-
-              <Box sx={{ p: 2, minHeight: '400px' }}>
-                <Slate
-                  editor={editor}
-                  initialValue={initialValue}
-                  // value={content}
-                  // onChange={setContent}
+                {/* Toolbar - Properly positioned at the top */}
+                <Box
+                  sx={{
+                    p: 1,
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 0.5,
+                    bgcolor:
+                      theme.palette.mode === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(0, 0, 0, 0.03)",
+                    borderTopLeftRadius: 1,
+                    borderTopRightRadius: 1,
+                  }}
                 >
+                  <MarkButton format="bold" icon={<FormatBold />} />
+                  <MarkButton format="italic" icon={<FormatItalic />} />
+                  <MarkButton
+                    format="underline"
+                    icon={<FormatUnderlined />}
+                  />
+                  <MarkButton format="code" icon={<Code />} />
+
+                  <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+                  {/* Heading Dropdown */}
+                  <Box sx={{ position: 'relative' }}>
+                    <Select
+                      value=""
+                      displayEmpty
+                      variant="standard"
+                      sx={{
+                        minWidth: 100,
+                        '& .MuiSelect-select': {
+                          py: 0.5,
+                          px: 1,
+                          display: 'flex',
+                          alignItems: 'center'
+                        }
+                      }}
+                      IconComponent={ArrowDropDown}
+                      renderValue={() => (
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant="body2" sx={{ mr: 1 }}>Heading</Typography>
+                        </Box>
+                      )}
+                    >
+                      <MenuItem value="paragraph" onClick={(e) => {
+                        e.preventDefault();
+                        const event = new MouseEvent('mousedown', { bubbles: true });
+                        Transforms.setNodes(
+                          editor,
+                          { type: 'paragraph' },
+                          { match: n => Editor.isBlock(editor, n) }
+                        );
+                      }}>
+                        <Typography variant="body2">Normal Text</Typography>
+                      </MenuItem>
+                      <MenuItem value="heading-one" onClick={(e) => {
+                        e.preventDefault();
+                        const event = new MouseEvent('mousedown', { bubbles: true });
+                        toggleBlock(event, 'heading-one');
+                      }}>
+                        <Typography variant="h6">Heading 1</Typography>
+                      </MenuItem>
+                      <MenuItem value="heading-two" onClick={(e) => {
+                        e.preventDefault();
+                        const event = new MouseEvent('mousedown', { bubbles: true });
+                        toggleBlock(event, 'heading-two');
+                      }}>
+                        <Typography variant="subtitle1">Heading 2</Typography>
+                      </MenuItem>
+                      <MenuItem value="heading-three" onClick={(e) => {
+                        e.preventDefault();
+                        const event = new MouseEvent('mousedown', { bubbles: true });
+                        toggleBlock(event, 'heading-three');
+                      }}>
+                        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Heading 3</Typography>
+                      </MenuItem>
+                      <MenuItem value="heading-four" onClick={(e) => {
+                        e.preventDefault();
+                        const event = new MouseEvent('mousedown', { bubbles: true });
+                        toggleBlock(event, 'heading-four');
+                      }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Heading 4</Typography>
+                      </MenuItem>
+                      <MenuItem value="heading-five" onClick={(e) => {
+                        e.preventDefault();
+                        const event = new MouseEvent('mousedown', { bubbles: true });
+                        toggleBlock(event, 'heading-five');
+                      }}>
+                        <Typography variant="body2">Heading 5</Typography>
+                      </MenuItem>
+                      <MenuItem value="heading-six" onClick={(e) => {
+                        e.preventDefault();
+                        const event = new MouseEvent('mousedown', { bubbles: true });
+                        toggleBlock(event, 'heading-six');
+                      }}>
+                        <Typography variant="caption" sx={{ fontWeight: 'bold' }}>Heading 6</Typography>
+                      </MenuItem>
+                    </Select>
+                  </Box>
+
+                  <BlockButton format="block-quote" icon={<FormatQuote />} />
+                  <BlockButton
+                    format="bulleted-list"
+                    icon={<FormatListBulleted />}
+                  />
+                  <BlockButton
+                    format="numbered-list"
+                    icon={<FormatListNumbered />}
+                  />
+                  <BlockButton format="code-block" icon={<Code />} />
+
+                  <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+                  {/* Text Alignment Buttons */}
+                  <Tooltip title="Align Left">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        Transforms.setNodes(
+                          editor,
+                          { align: 'left' },
+                          { match: n => Editor.isBlock(editor, n) }
+                        );
+                      }}
+                    >
+                      <FormatAlignLeft />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Align Center">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        Transforms.setNodes(
+                          editor,
+                          { align: 'center' },
+                          { match: n => Editor.isBlock(editor, n) }
+                        );
+                      }}
+                    >
+                      <FormatAlignCenter />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Align Right">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        Transforms.setNodes(
+                          editor,
+                          { align: 'right' },
+                          { match: n => Editor.isBlock(editor, n) }
+                        );
+                      }}
+                    >
+                      <FormatAlignRight />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Justify">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        Transforms.setNodes(
+                          editor,
+                          { align: 'justify' },
+                          { match: n => Editor.isBlock(editor, n) }
+                        );
+                      }}
+                    >
+                      <FormatAlignJustify />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+                  <Tooltip title="Insert Image">
+                    <IconButton onClick={handleInsertImage} size="small">
+                      <Image />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+
+                {/* Editor Content */}
+                <Box sx={{ p: 2, minHeight: "400px", flex: 1 }}>
                   <Editable
                     renderElement={renderElement}
                     renderLeaf={renderLeaf}
                     placeholder="Start writing your blog content here..."
                     spellCheck
-                    style={{ minHeight: '400px' }}
+                    style={{ minHeight: "400px" }}
+                    onKeyDown={(event) => {
+                      // Handle special key combinations
+                      if (event.key === 'Enter' && event.shiftKey) {
+                        // Shift+Enter for soft breaks within a block
+                        event.preventDefault();
+                        editor.insertText('\n');
+                        return;
+                      }
+
+                      // Handle tab key for indentation
+                      if (event.key === 'Tab') {
+                        event.preventDefault();
+                        editor.insertText('    ');
+                        return;
+                      }
+
+                      // Keyboard shortcuts for formatting
+                      if (event.ctrlKey || event.metaKey) {
+                        switch (event.key) {
+                          case 'b': {
+                            event.preventDefault();
+                            Editor.addMark(editor, 'bold', true);
+                            return;
+                          }
+                          case 'i': {
+                            event.preventDefault();
+                            Editor.addMark(editor, 'italic', true);
+                            return;
+                          }
+                          case 'u': {
+                            event.preventDefault();
+                            Editor.addMark(editor, 'underline', true);
+                            return;
+                          }
+                          case '1': {
+                            event.preventDefault();
+                            toggleBlock(event, 'heading-one');
+                            return;
+                          }
+                          case '2': {
+                            event.preventDefault();
+                            toggleBlock(event, 'heading-two');
+                            return;
+                          }
+                          case '`': {
+                            event.preventDefault();
+                            Editor.addMark(editor, 'code', true);
+                            return;
+                          }
+                        }
+                      }
+                    }}
                   />
-                </Slate>
-              </Box>
+                </Box>
+              </Slate>
             </Box>
           </>
         ) : (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h4" gutterBottom>{title || 'Blog Title'}</Typography>
-            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+            <Typography variant="h4" gutterBottom>
+              {title || "Blog Title"}
+            </Typography>
+            <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
               <Chip label={category} color="primary" size="small" />
-              {tags.split(',').map((tag, index) => (
-                tag.trim() && <Chip key={index} label={tag.trim()} size="small" />
-              ))}
+              {tags
+                .split(",")
+                .map(
+                  (tag, index) =>
+                    tag.trim() && (
+                      <Chip
+                        key={index}
+                        label={tag.trim()}
+                        size="small"
+                        variant="outlined"
+                      />
+                    )
+                )}
             </Box>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={{ typography: 'body1' }}>
-              {/* In a real app, you would render the Slate content here */}
-              <Typography variant="body1">
-                Preview mode would render the formatted content here.
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                mb: 2,
+                color: "text.secondary",
+                typography: "body2",
+              }}
+            >
+              <Typography variant="body2">
+                {new Date().toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </Typography>
+              <Divider orientation="vertical" flexItem />
+              <Typography variant="body2">5 min read</Typography>
             </Box>
+            <Divider sx={{ mb: 3 }} />
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                bgcolor:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255, 255, 255, 0.05)"
+                    : "rgba(0, 0, 0, 0.02)",
+                borderRadius: 2,
+                minHeight: "400px",
+              }}
+            >
+              <Box sx={{ typography: "body1" }}>
+                {/* In a real app, you would render the Slate content here */}
+                {content.map((node, i) => (
+                  <Box key={i} sx={{ mb: 2 }}>
+                    {node.type === "heading-one" && (
+                      <Typography variant="h4">
+                        {node.children[0].text}
+                      </Typography>
+                    )}
+                    {node.type === "heading-two" && (
+                      <Typography variant="h5">
+                        {node.children[0].text}
+                      </Typography>
+                    )}
+                    {node.type === "paragraph" && (
+                      <Typography variant="body1" sx={{ mb: 2 }}>
+                        {node.children[0].text}
+                      </Typography>
+                    )}
+                    {node.type === "block-quote" && (
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          borderLeft: "3px solid",
+                          borderColor: "primary.main",
+                          pl: 2,
+                          py: 1,
+                          fontStyle: "italic",
+                          color: "text.secondary",
+                        }}
+                      >
+                        {node.children[0].text}
+                      </Typography>
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
           </Box>
         )}
 
-        <Stack direction="row" spacing={2} justifyContent="space-between">
-          <Button
-            variant="outlined"
-            startIcon={previewMode ? <Edit /> : <Preview />}
-            onClick={() => setPreviewMode(!previewMode)}
+        <Paper
+          elevation={2}
+          sx={{
+            p: 2,
+            mt: 4,
+            borderRadius: 2,
+            bgcolor:
+              theme.palette.mode === "dark"
+                ? "rgba(255, 255, 255, 0.05)"
+                : "rgba(0, 0, 0, 0.02)",
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            justifyContent="space-between"
+            alignItems={{ xs: "stretch", sm: "center" }}
           >
-            {previewMode ? 'Edit' : 'Preview'}
-          </Button>
-          <Box>
             <Button
-              variant="contained"
-              color="primary"
-              startIcon={<Save />}
-              onClick={handleSaveBlog}
-              sx={{ mr: 1 }}
+              variant="outlined"
+              startIcon={previewMode ? <Edit /> : <Preview />}
+              onClick={() => setPreviewMode(!previewMode)}
+              fullWidth={false}
+              sx={{ minWidth: "120px" }}
             >
-              {editMode ? 'Update' : 'Publish'} Blog
+              {previewMode ? "Edit" : "Preview"}
             </Button>
-            {editMode && (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                flexDirection: { xs: "column", sm: "row" },
+                width: { xs: "100%", sm: "auto" },
+              }}
+            >
+              {editMode && (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<Delete />}
+                  onClick={handleDeleteBlog}
+                  fullWidth={false}
+                >
+                  Delete
+                </Button>
+              )}
               <Button
-                variant="outlined"
-                color="error"
-                startIcon={<Delete />}
+                variant="contained"
+                color="primary"
+                startIcon={<Save />}
+                onClick={handleSaveBlog}
+                size="large"
+                sx={{
+                  px: 3,
+                  py: 1,
+                }}
               >
-                Delete
+                {editMode ? "Update" : "Publish"} Blog
               </Button>
-            )}
-          </Box>
-        </Stack>
+            </Box>
+          </Stack>
+        </Paper>
       </Paper>
 
       {/* Confirmation dialog for navigating away */}
@@ -557,12 +1104,13 @@ const EnhancedBlogEditor = ({ editMode = false }) => {
         <DialogTitle>Discard changes?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            You have unsaved changes. Are you sure you want to leave this page? Your changes will be lost.
+            You have unsaved changes. Are you sure you want to leave this page?
+            Your changes will be lost.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
-          <Button onClick={() => navigate('/blogs')} color="error">
+          <Button onClick={() => navigate("/blogs")} color="error">
             Discard Changes
           </Button>
         </DialogActions>
@@ -572,7 +1120,7 @@ const EnhancedBlogEditor = ({ editMode = false }) => {
 };
 
 EnhancedBlogEditor.propTypes = {
-  editMode: PropTypes.bool
+  editMode: PropTypes.bool,
 };
 
 export default EnhancedBlogEditor;

@@ -84,8 +84,9 @@ const Glossary = () => {
     }, {});
   }, [filteredItems]);
 
-  // Handle card flip
+  // Handle card flip with animation
   const handleCardFlip = (id) => {
+    // Add a small delay to make the animation smoother
     setFlippedCards(prev => ({
       ...prev,
       [id]: !prev[id]
@@ -118,7 +119,7 @@ const Glossary = () => {
         bgcolor: 'background.default'
       }}
     >
-      <Container maxWidth="lg">
+      <Container maxWidth="md">
         <Typography
           variant="h3"
           component="h1"
@@ -191,22 +192,25 @@ const Glossary = () => {
                 {letter}
               </Typography>
 
-              <Grid container spacing={2}>
+              <Grid container spacing={2} justifyContent="center">
                 {items.map((item) => {
-                  const isFlipped = flippedCards[item.id];                 
+                  const isFlipped = flippedCards[item.id];
                   return (
-                    <Grid item xs={12} sm={6} md={4} key={item.id}>
+                    <Grid item xs={12} sm={6} md={4} lg={4} key={item.id} sx={{ maxWidth: { xs: '100%', sm: '300px', md: '250px' }, mx: 'auto' }}>
                       <Card
                         elevation={3}
                         sx={{
-                          height: 200,
+                          height: { xs: 220, sm: 240 },
+                          maxWidth: '100%',
                           position: 'relative',
                           transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                           '&:hover': {
                             transform: 'translateY(-4px)',
                             boxShadow: 6
                           },
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          borderRadius: 2,
+                          overflow: 'hidden'
                         }}
                         onClick={() => handleCardFlip(item.id)}
                       >
@@ -221,53 +225,130 @@ const Glossary = () => {
                           <CardContent
                             sx={{
                               position: 'relative',
+                              top: 0,
+                              left: 0,
                               width: '100%',
                               height: '100%',
                               display: 'flex',
                               flexDirection: 'column',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              p: 2,
+                              p: { xs: 1.5, sm: 2 },
                               opacity: isFlipped ? 0 : 1,
-                              transition: 'opacity 0.3s ease',
+                              transition: 'opacity 0.4s ease-in-out',
                               pointerEvents: isFlipped ? 'none' : 'auto',
+                              zIndex: isFlipped ? 0 : 1,
+                              bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.paper',
+                              borderLeft: `4px solid ${theme.palette.primary.main}`
                             }}
                           >
-                            <Typography variant="h6" color="primary" gutterBottom>
-                              {item.acronym}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" align="center">
-                              {item.fullForm}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ mt: 2, opacity: 0.7 }}>
-                              (Click to see details)
-                            </Typography>
+                            <Box sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flex: 1
+                            }}>
+                              <Typography
+                                variant="h6"
+                                color="primary"
+                                gutterBottom
+                                sx={{
+                                  fontWeight: 'bold',
+                                  textAlign: 'center'
+                                }}
+                              >
+                                {item.acronym}
+                              </Typography>
+                              <Divider sx={{ width: '40%', my: 1.5 }} />
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                align="center"
+                                sx={{
+                                  fontWeight: 500,
+                                  px: 1
+                                }}
+                              >
+                                {item.fullForm}
+                              </Typography>
+                            </Box>
+                            <Box sx={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              mt: 'auto',
+                              pt: 1,
+                              borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`
+                            }}>
+                              <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
+                                (Click to see details)
+                              </Typography>
+                            </Box>
                           </CardContent>
 
                           {/* Back */}
                           <CardContent
                             sx={{
-                              position: 'relative',
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
                               width: '100%',
                               height: '100%',
                               display: 'flex',
                               flexDirection: 'column',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              p: 2,
-                              opacity: isFlipped ? 1 : 0,                              
-                              transition: 'opacity 0.3s ease',
+                              p: { xs: 1.5, sm: 2 },
+                              opacity: isFlipped ? 1 : 0,
+                              transition: 'opacity 0.4s ease-in-out',
                               pointerEvents: isFlipped ? 'auto' : 'none',
                               bgcolor: theme.palette.mode === 'dark' ? 'primary.dark' : 'primary.light',
                               color: theme.palette.mode === 'dark' ? 'white' : 'text.primary',
+                              zIndex: isFlipped ? 1 : 0,
+                              overflow: 'hidden'
                             }}
                           >
-                            <Typography variant="body2" align="center">
-                              {item.details}
-                            </Typography>
-                            <Typography variant="caption" sx={{ mt: 2, opacity: 0.7 }}>
-                              (Click to go back)
-                            </Typography>
+                            <Box sx={{ mb: 1 }}>
+                              <Typography variant="subtitle1" fontWeight="bold" color={theme.palette.mode === 'dark' ? 'primary.light' : 'primary.dark'}>
+                                {item.acronym}: {item.fullForm}
+                              </Typography>
+                            </Box>
+                            <Divider sx={{ mb: 1.5 }} />
+                            <Box
+                              sx={{
+                                flex: 1,
+                                overflowY: 'auto',
+                                overflowX: 'hidden',
+                                pr: 1,
+                                mr: -1,
+                                '&::-webkit-scrollbar': {
+                                  width: '6px',
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                  backgroundColor: 'rgba(0,0,0,0.2)',
+                                  borderRadius: '10px',
+                                }
+                              }}
+                            >
+                              <Typography variant="body2" align="left" sx={{
+                                lineHeight: 1.6,
+                                fontSize: '0.875rem',
+                                textAlign: 'justify',
+                                wordBreak: 'break-word',
+                                hyphens: 'auto',
+                                maxWidth: '100%',
+                                overflowWrap: 'break-word'
+                              }}>
+                                {item.details}
+                              </Typography>
+                            </Box>
+                            <Box sx={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              mt: 'auto',
+                              pt: 1,
+                              borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`
+                            }}>
+                              <Typography variant="caption" sx={{ opacity: 0.7 }}>
+                                (Click to go back)
+                              </Typography>
+                            </Box>
                           </CardContent>
                         </Box>
                       </Card>
