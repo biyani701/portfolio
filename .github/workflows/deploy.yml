@@ -15,15 +15,41 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies
+      # Portfolio Build and Setup
+      - name: Install portfolio dependencies
         run: npm ci
 
-      - name: Build the project
+      - name: Build the portfolio project
         run: npm run build
         env:
           REACT_APP_GITHUB_CLIENT_ID: ${{ vars.REACT_APP_GITHUB_CLIENT_ID }}
           REACT_APP_REDIRECT_URI: ${{ vars.REACT_APP_REDIRECT_URI }}
           REACT_APP_TOKEN_PROXY_URL: ${{ vars.REACT_APP_TOKEN_PROXY_URL }}
+
+      # Docusaurus Setup and Build
+      - name: Setup Docusaurus
+        run: |
+          npx create-docusaurus@latest docs-site classic --skip-install
+          cp -r docs/docs docs-site/docs
+          cp docs/docusaurus.config.js docs-site/
+          cp docs/sidebars.js docs-site/
+          mkdir -p docs-site/static/img
+
+      - name: Install Docusaurus dependencies
+        run: |
+          cd docs-site
+          npm install
+
+      - name: Build Docusaurus
+        run: |
+          cd docs-site
+          npm run build
+
+      # Combined Deployment
+      - name: Prepare combined deployment
+        run: |
+          mkdir -p build/docs
+          cp -r docs-site/build/* build/docs/
 
       - name: Deploy to production server
         uses: peaceiris/actions-gh-pages@v4

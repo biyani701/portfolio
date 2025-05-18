@@ -2,36 +2,50 @@
 
 This directory contains the Docusaurus documentation site for the portfolio project.
 
-## Setup Instructions
+## Deployment
+
+The documentation site is automatically built and deployed as part of the main GitHub Actions workflow. The workflow:
+
+1. Builds the main portfolio site
+2. Sets up and builds the Docusaurus documentation
+3. Combines both builds into a single deployment
+4. Deploys to GitHub Pages
+
+The documentation is available at: https://vishal.biyani.xyz/docs/
+
+## Local Development
+
+To run the documentation site locally:
 
 1. Install Docusaurus:
 ```bash
-npm init docusaurus@latest docs-site classic
+npx create-docusaurus@latest docs-site classic
 cd docs-site
 ```
 
-2. Configure Docusaurus:
-- Update the `docusaurus.config.js` file with the appropriate settings
-- Set the base URL to `/docs/` for GitHub Pages deployment
-
-3. Create documentation content:
-- Add architecture documentation
-- Add library documentation
-- Add SBOM (Software Bill of Materials)
-- Add other relevant documentation
-
-4. Build and deploy:
+2. Copy the configuration and content:
 ```bash
-npm run build
+cp -r ../docs/docs ./
+cp ../docs/docusaurus.config.js ./
+cp ../docs/sidebars.js ./
 ```
 
-5. Deploy to GitHub Pages:
-- Configure GitHub Pages to serve from the `build` directory
-- Set up GitHub Actions for automatic deployment
+3. Install dependencies and start the development server:
+```bash
+npm install
+npm start
+```
 
 ## Documentation Structure
 
+- `/docs/intro.md` - Introduction and overview
 - `/docs/architecture/` - Architecture documentation
 - `/docs/libraries/` - Library documentation
 - `/docs/sbom/` - Software Bill of Materials
-- `/docs/api/` - API documentation
+
+## Adding Content
+
+1. Create new Markdown files in the appropriate directories
+2. Update the `sidebars.js` file to include new pages
+3. Commit changes to the repository
+4. The GitHub Actions workflow will automatically build and deploy the updated documentation
