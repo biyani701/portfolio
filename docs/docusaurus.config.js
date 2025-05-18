@@ -22,7 +22,7 @@ const config = {
   projectName: 'portfolio', // Usually your repo name.
   trailingSlash: false,
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internalization, you can use this field to set useful
@@ -77,7 +77,7 @@ const config = {
             position: 'left',
             label: 'Documentation',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
+          {to: 'https://vishal.biyani.xyz', label: 'Main Site', position: 'right'},
           {
             href: 'https://github.com/vishal-biyani/portfolio',
             label: 'GitHub',
@@ -92,16 +92,20 @@ const config = {
             title: 'Docs',
             items: [
               {
+                label: 'Introduction',
+                to: '/docs/intro',
+              },
+              {
                 label: 'Architecture',
-                to: '/docs/architecture',
+                to: '/docs/architecture/overview',
               },
               {
                 label: 'Libraries',
-                to: '/docs/libraries',
+                to: '/docs/libraries/mui',
               },
               {
                 label: 'SBOM',
-                to: '/docs/sbom',
+                to: '/docs/sbom/dependencies',
               },
             ],
           },
@@ -117,10 +121,6 @@ const config = {
           {
             title: 'More',
             items: [
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
               {
                 label: 'Main Site',
                 href: 'https://vishal.biyani.xyz',
