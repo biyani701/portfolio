@@ -14,6 +14,16 @@
         console.log("🚀 404.html loaded");
         console.log("🔍 Query params:", Object.fromEntries(params.entries()));
         console.log("🐞 Debug mode:", debug);
+        console.log("📍 Current path:", window.location.pathname);
+
+        // Check if this is a docs path
+        const isDocsPath = window.location.pathname.startsWith('/docs/');
+
+        if (isDocsPath) {
+          console.log("📚 Docs path detected:", window.location.pathname);
+          // Store the path for Docusaurus to handle
+          sessionStorage.setItem("docusaurusPath", window.location.pathname);
+        }
 
         if (code || error) {
           localStorage.setItem("oauth.code", code ?? "");
@@ -39,8 +49,15 @@
         }
 
         if (!debug) {
+          // Handle docs paths
+          if (isDocsPath) {
+            console.log("⏩ Docs path detected, redirecting to docs home...");
+            setTimeout(() => {
+              window.location.href = "/docs/";
+            }, 500);
+          }
           // Always redirect to home page for OAuth flows
-          if (code) {
+          else if (code) {
             console.log("⏩ OAuth flow detected, redirecting to home page...");
             setTimeout(() => {
               window.location.href = "/";
