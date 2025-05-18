@@ -55,6 +55,13 @@ const DomainKnowledge = () => {
 
   // Handle category change
   const handleCategoryChange = (categoryId) => {
+    // Close any open menus in the navbar
+    const knowledgeMenu = document.getElementById('knowledge-menu');
+    if (knowledgeMenu) {
+      // Trigger a click outside event to close the menu
+      document.body.click();
+    }
+
     navigate(`/knowledge/domain/${categoryId}`);
   };
 

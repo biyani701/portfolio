@@ -867,6 +867,9 @@ const NavigationBar = ({
                     overflowY: 'auto'
                   },
                 }}
+                MenuListProps={{
+                  onClick: () => setKnowledgeAnchorEl(null) // Close menu when any item is clicked
+                }}
               >
                 <MenuItem
                   component={RouterLink}
@@ -961,6 +964,9 @@ const NavigationBar = ({
                     boxShadow: theme.shadows[4],
                     p: 1
                   },
+                }}
+                MenuListProps={{
+                  onClick: handleBlogMenuClose // Close menu when any item is clicked
                 }}
               >
                 <MenuItem

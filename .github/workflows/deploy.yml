@@ -29,39 +29,108 @@ jobs:
       # Docusaurus Setup and Build
       - name: Setup Docusaurus
         run: |
-          npx create-docusaurus@latest docs-site classic --skip-install 
+          echo "Creating Docusaurus site..."
+          npx create-docusaurus@latest docs-site classic --skip-install --yes
+
+          echo "Creating necessary directories..."
           mkdir -p docs-site/docs
           mkdir -p docs-site/static/img
 
+          echo "Examining docs directory structure..."
+          find docs -type f | sort
+
           # Copy docs content if it exists
           if [ -d "docs/docs" ]; then
+            echo "Copying docs content..."
             cp -r docs/docs/* docs-site/docs/
+            echo "Contents of docs-site/docs after copying:"
+            find docs-site/docs -type f | sort
+          else
+            echo "WARNING: docs/docs directory not found"
           fi
 
           # Copy config files if they exist
           if [ -f "docs/docusaurus.config.js" ]; then
+            echo "Copying docusaurus.config.js..."
             cp docs/docusaurus.config.js docs-site/
+            echo "Contents of copied docusaurus.config.js:"
+            grep -n "baseUrl\|trailingSlash" docs-site/docusaurus.config.js || echo "baseUrl or trailingSlash not found"
+          else
+            echo "WARNING: docs/docusaurus.config.js not found"
+            # Create a basic config with correct baseUrl
+            echo "Creating basic docusaurus.config.js..."
+            cat > docs-site/docusaurus.config.js << 'EOF'
+const config = {
+  title: 'Portfolio Documentation',
+  tagline: 'Documentation for the portfolio project',
+  url: 'https://vishal.biyani.xyz',
+  baseUrl: '/docs/',
+  trailingSlash: false,
+  onBrokenLinks: 'warn',
+  onBrokenMarkdownLinks: 'warn',
+  organizationName: 'biyani701',
+  projectName: 'portfolio',
+};
+module.exports = config;
+EOF
           fi
 
           if [ -f "docs/sidebars.js" ]; then
+            echo "Copying sidebars.js..."
             cp docs/sidebars.js docs-site/
+          else
+            echo "WARNING: docs/sidebars.js not found"
+          fi
+
+          # Create a basic intro file if it doesn't exist
+          if [ ! -f "docs-site/docs/intro.md" ]; then
+            echo "Creating basic intro.md..."
+            mkdir -p docs-site/docs
+            cat > docs-site/docs/intro.md << 'EOF'
+---
+sidebar_position: 1
+---
+
+# Portfolio Documentation
+
+Welcome to the documentation for the Portfolio project.
+
+## Overview
+
+The Portfolio project is a personal website built with React and Material-UI.
+
+## Features
+
+- Resume Sections
+- Blog
+- Knowledge Base
+- Authentication
+- Responsive Design
+EOF
           fi
 
           # List directories for debugging
-          echo "Contents of docs directory:"
-          ls -la docs/
-          echo "Contents of docs-site directory:"
-          ls -la docs-site/
+          echo "Final contents of docs-site directory:"
+          find docs-site -type f | sort
 
       - name: Install Docusaurus dependencies
         run: |
           cd docs-site
+          echo "Installing Docusaurus dependencies..."
           npm install
 
       - name: Build Docusaurus
         run: |
           cd docs-site
+          echo "Building Docusaurus site..."
           npm run build || echo "Docusaurus build failed but continuing deployment"
+
+          if [ -d "build" ]; then
+            echo "Docusaurus build succeeded. Contents of build directory:"
+            find build -type f | sort
+          else
+            echo "WARNING: Docusaurus build directory not found"
+          fi
 
       # Combined Deployment
       - name: Prepare combined deployment
@@ -72,7 +141,28 @@ jobs:
           # Check if Docusaurus build exists and copy it
           if [ -d "docs-site/build" ]; then
             echo "Copying Docusaurus build to build/docs"
+            # Important: Copy the contents correctly - this is a key step
             cp -r docs-site/build/* build/docs/ || echo "Warning: Could not copy Docusaurus build"
+
+            # Verify the copy worked
+            echo "Verifying copied files:"
+            find build/docs -type f | sort
+
+            # Check if index.html exists in the root of build/docs
+            if [ ! -f "build/docs/index.html" ]; then
+              echo "WARNING: index.html not found in build/docs"
+
+              # Try to find where index.html might be
+              echo "Searching for index.html in build/docs:"
+              find build/docs -name "index.html" | sort
+
+              # If index.html is in a subdirectory, copy it to the root
+              INDEX_HTML=$(find build/docs -name "index.html" | head -n 1)
+              if [ -n "$INDEX_HTML" ]; then
+                echo "Found index.html at $INDEX_HTML, copying to build/docs/"
+                cp "$INDEX_HTML" build/docs/
+              fi
+            fi
           else
             echo "Warning: Docusaurus build directory not found"
             # Use fallback index.html if it exists
@@ -85,9 +175,28 @@ jobs:
             fi
           fi
 
+          # Ensure there's an index.html in the docs directory
+          if [ ! -f "build/docs/index.html" ]; then
+            echo "WARNING: No index.html found in build/docs after all steps"
+            echo "Creating a basic index.html"
+            cat > build/docs/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0;url=./docs/">
+  <title>Portfolio Documentation</title>
+</head>
+<body>
+  <p>If you are not redirected automatically, follow this <a href="./docs/">link to the documentation</a>.</p>
+</body>
+</html>
+EOF
+          fi
+
           # List contents for debugging
-          echo "Contents of build/docs directory:"
-          ls -la build/docs/ || echo "Could not list build/docs directory"
+          echo "Final contents of build/docs directory:"
+          find build/docs -type f | head -n 20 || echo "Could not list build/docs directory"
 
       - name: Deploy to production server
         uses: peaceiris/actions-gh-pages@v4
