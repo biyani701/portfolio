@@ -205,6 +205,33 @@ jobs:
           echo "Final contents of docs-site directory:"
           find docs-site -type f | sort
 
+      - name: Verify docusaurus config
+        run: |
+          # Explicitly check and update docusaurus configuration
+          cd docs-site
+          echo "Checking docusaurus.config.js..."
+          if grep -q "baseUrl: '/docs/'" docusaurus.config.js; then
+            echo "baseUrl is correctly set to '/docs/'"
+          else
+            echo "Updating baseUrl in docusaurus.config.js"
+            sed -i "s|baseUrl: '.*'|baseUrl: '/docs/'|" docusaurus.config.js
+          fi
+          
+          if grep -q "trailingSlash: false" docusaurus.config.js; then
+            echo "trailingSlash is correctly set to false"
+          else
+            echo "Setting trailingSlash to false in docusaurus.config.js"
+            sed -i "s|trailingSlash: .*,|trailingSlash: false,|" docusaurus.config.js
+            # If trailingSlash is not found, add it
+            if ! grep -q "trailingSlash" docusaurus.config.js; then
+              sed -i "/baseUrl: '\/docs\/'/a \  trailingSlash: false," docusaurus.config.js
+            fi
+          fi
+          
+          # Show the updated configuration
+          echo "Updated docusaurus.config.js:"
+          cat docusaurus.config.js
+
       - name: Install Docusaurus dependencies
         run: |
           cd docs-site
@@ -215,90 +242,76 @@ jobs:
         run: |
           cd docs-site
           echo "Building Docusaurus site..."
-          npm run build || echo "Docusaurus build failed but continuing deployment"
+          npx docusaurus build --out-dir ../build/docs
+          
+          # Create a .nojekyll file to prevent GitHub Pages from processing the site with Jekyll
+          touch ../build/docs/.nojekyll
+          
+          echo "Docusaurus build completed. Contents of build/docs directory:"
+          find ../build/docs -type f | head -n 20
 
-          if [ -d "build" ]; then
-            echo "Docusaurus build succeeded. Contents of build directory:"
-            find build -type f | sort
-          else
-            echo "WARNING: Docusaurus build directory not found"
-          fi
-
-      # Prepare combined deployment
-      - name: Prepare combined deployment
+      # Create main site index.html with proper /docs link
+      - name: Add docs link to main site
         run: |
-          # Create docs directory in build
-          mkdir -p build/docs
-
-          # Check if Docusaurus build exists and copy it
-          if [ -d "docs-site/build" ]; then
-            echo "Copying Docusaurus build to build/docs"
-            cp -r docs-site/build/* build/docs/ || echo "Warning: Could not copy Docusaurus build"
-
-            # Create a .nojekyll file to prevent GitHub Pages from processing the site with Jekyll
-            touch build/docs/.nojekyll
-
-            # Verify the copy worked
-            echo "Verifying copied files:"
-            find build/docs -type f | sort
-          else
-            echo "Warning: Docusaurus build directory not found"
-            # Use fallback index.html if it exists
-            if [ -f "docs/fallback-index.html" ]; then
-              echo "Using fallback index.html"
-              cp docs/fallback-index.html build/docs/index.html
-            else
-              # Create a simple placeholder page
-              echo "<html><head><title>Documentation</title></head><body><h1>Documentation</h1><p>Documentation is being set up. Please check back later.</p></body></html>" > build/docs/index.html
-            fi
-          fi
-
-          # Create a special router.js file in the docs directory to handle navigation
-          echo "Creating router.js for docs navigation"
-          cat > build/docs/router.js << 'EOF'
-          // This script handles routing within the docs subdirectory
-          (function() {
-            console.log('📚 Docs router.js loaded');
-
-            // Check if we're in the docs directory
-            if (window.location.pathname.startsWith('/docs/')) {
-              // Get the path after /docs/
-              const path = window.location.pathname.substring(6);
-
-              // If we're at the root of docs, we're good
-              if (path === '' || path === 'index.html') {
-                console.log('📍 At docs root, no redirect needed');
-                return;
-              }
-
-              // Check if the requested file exists
-              fetch(path)
-                .then(response => {
-                  if (response.ok) {
-                    console.log(`✅ File ${path} exists, no redirect needed`);
-                  } else {
-                    console.log(`❌ File ${path} not found, redirecting to index.html`);
-                    window.location.href = '/docs/';
+          # Create a simple HTML file at the root to link to the docs
+          echo "<script>
+          // Add a link to docs in the main site if it doesn't exist already
+          if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+            document.addEventListener('DOMContentLoaded', function() {
+              // Check if navigation exists and add docs link if appropriate
+              setTimeout(function() {
+                const nav = document.querySelector('nav');
+                if (nav) {
+                  const docsLinkExists = Array.from(nav.querySelectorAll('a')).some(a => 
+                    a.href.includes('/docs') || a.textContent.toLowerCase().includes('docs')
+                  );
+                  
+                  if (!docsLinkExists) {
+                    const docsLink = document.createElement('a');
+                    docsLink.href = '/docs/';
+                    docsLink.textContent = 'Docs';
+                    docsLink.style.marginLeft = '1rem';
+                    nav.appendChild(docsLink);
                   }
-                })
-                .catch(error => {
-                  console.error('Error checking file:', error);
-                  // On error, redirect to docs home
-                  window.location.href = '/docs/';
-                });
-            }
-          })();
-          EOF
-
-          # Add the router script to the docs index.html
-          if [ -f "build/docs/index.html" ]; then
-            echo "Adding router script to docs/index.html"
-            sed -i 's/<\/head>/<script src="router.js"><\/script><\/head>/' build/docs/index.html
+                }
+              }, 1000);
+            });
+          }
+          </script>" > docs-link.html
+          
+          # Check if index.html exists and append our script
+          if [ -f "build/index.html" ]; then
+            echo "Adding docs link script to main index.html"
+            cat docs-link.html >> build/index.html
           fi
 
-          # List contents for debugging
-          echo "Final contents of build/docs directory:"
-          find build/docs -type f | head -n 20 || echo "Could not list build/docs directory"
+      # Create .htaccess file for potential fallback
+      - name: Create .htaccess file
+        run: |
+          # Create .htaccess file to handle potential routing issues
+          echo "# Enable rewrite engine
+          <IfModule mod_rewrite.c>
+            RewriteEngine On
+            
+            # If the request is for a file that exists, serve it
+            RewriteCond %{REQUEST_FILENAME} -f
+            RewriteRule ^ - [L]
+            
+            # For /docs/ paths
+            RewriteRule ^docs/$ docs/index.html [L]
+            RewriteCond %{REQUEST_URI} ^/docs/
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteRule ^docs/(.*)$ docs/index.html [L]
+            
+            # For root site (React app)
+            RewriteCond %{REQUEST_URI} !^/docs/
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteRule ^ index.html [L]
+          </IfModule>" > build/.htaccess
+          
+          # Create also a _redirects file for Netlify-like services
+          echo "/* /index.html 200
+          /docs/* /docs/index.html 200" > build/_redirects
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
