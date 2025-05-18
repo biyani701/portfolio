@@ -43,52 +43,8 @@ jobs:
       (function () {
         const search = window.location.search;
         const params = new URLSearchParams(search);
-        const debug = params.get("debug") === "true";
-        const code = params.get("code");
-        const state = params.get("state");
-        const error = params.get("error");
-
-        console.log("🚀 404.html loaded");
-        console.log("🔍 Query params:", Object.fromEntries(params.entries()));
-        console.log("🐞 Debug mode:", debug);
-        console.log("📍 Current path:", window.location.pathname);
-
-        // Check if this is a docs path
-        const isDocsPath = window.location.pathname.startsWith('/docs/');
-
-        // Store the full path for the original URL
-        sessionStorage.setItem("redirect", window.location.href);
-
-        if (isDocsPath) {
-          console.log("📚 Docs path detected:", window.location.pathname);
-
-          // For docs paths, simply redirect to the docs index
-          // Let Docusaurus handle internal routing
-          if (!debug) {
-            console.log("⏩ Redirecting to docs home page...");
-            window.location.href = "/docs/";
-          }
-        } else if (code || error) {
-          localStorage.setItem("oauth.code", code ?? "");
-          localStorage.setItem("oauth.state", state ?? "");
-          localStorage.setItem("oauth.error", error ?? "");
-          console.log("💾 Stored OAuth info in localStorage");
-
-          if (!debug) {
-            console.log("⏩ OAuth flow detected, redirecting to home page...");
-            window.location.href = "/";
-          }
-        } else {
-          // For all other paths, redirect to React app
-          if (!debug) {
-            console.log("⏩ Regular path, redirecting to home page...");
-            window.location.href = "/";
-          }
-        }
-
-        if (debug) {
-          console.log("🛑 Debug mode — staying on this page.");
-        }
+        const redirect = params.get("redirect") || "/";
+        window.location.replace(redirect);
       })();
     </script>
   </head>
@@ -98,6 +54,7 @@ jobs:
 </html>
 EOF
           fi
+
 
       # Create docs directory and basic index.html
       - name: Create basic docs index
