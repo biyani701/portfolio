@@ -449,7 +449,7 @@ function App(props) {
             <Route path="/credits" element={<CreditsPage />} />
             {/* <Route path="/blog/edit/:blogId" element={<BlogEditor />} /> */}
 
-            {/* <Route path="*" element={<div>404 Not Found</div>} /> */}
+            <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>
           <Footer />
           <ScrollTop {...props}>

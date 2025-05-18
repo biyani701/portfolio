@@ -23,17 +23,17 @@ const sidebars = {
     {
       type: 'category',
       label: 'Architecture',
-      items: ['architecture/overview', 'architecture/components', 'architecture/data-flow'],
+      items: ['architecture/overview'],
     },
     {
       type: 'category',
       label: 'Libraries',
-      items: ['libraries/react', 'libraries/mui', 'libraries/slate'],
+      items: ['libraries/mui'],
     },
     {
       type: 'category',
       label: 'SBOM',
-      items: ['sbom/dependencies', 'sbom/licenses'],
+      items: ['sbom/dependencies'],
     },
   ],
 };
