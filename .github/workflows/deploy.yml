@@ -79,6 +79,35 @@ jobs:
             echo "WARNING: docs/sidebars.js not found"
           fi
 
+          # Copy package.json if it exists
+          if [ -f "docs/package.json" ]; then
+            echo "Copying package.json..."
+            cp docs/package.json docs-site/
+            echo "Contents of copied package.json:"
+            grep -n "homepage" docs-site/package.json || echo "homepage not found in package.json"
+          else
+            echo "WARNING: docs/package.json not found"
+            # Create a basic package.json with correct homepage
+            echo "Creating basic package.json..."
+            echo '{
+            "name": "portfolio-docs",
+            "version": "0.1.0",
+            "private": true,
+            "homepage": "/docs/",
+            "scripts": {
+              "docusaurus": "docusaurus",
+              "start": "docusaurus start",
+              "build": "docusaurus build",
+              "swizzle": "docusaurus swizzle",
+              "deploy": "docusaurus deploy",
+              "clear": "docusaurus clear",
+              "serve": "docusaurus serve",
+              "write-translations": "docusaurus write-translations",
+              "write-heading-ids": "docusaurus write-heading-ids"
+            }
+          }' > docs-site/package.json
+          fi
+
           # Create a basic intro file if it doesn't exist
           if [ ! -f "docs-site/docs/intro.md" ]; then
             echo "Creating basic intro.md..."
@@ -118,11 +147,48 @@ jobs:
         run: |
           cd docs-site
           echo "Building Docusaurus site..."
-          npm run build || echo "Docusaurus build failed but continuing deployment"
-          
+          npm run build -- --out-dir=build/docs || echo "Docusaurus build failed but continuing deployment"
+
           if [ -d "build" ]; then
             echo "Docusaurus build succeeded. Contents of build directory:"
             find build -type f | sort
           else
             echo "WARNING: Docusaurus build directory not found"
           fi
+
+      # Combined Deployment
+      - name: Prepare combined deployment
+        run: |
+          # Create docs directory in build
+          mkdir -p build/docs
+
+          # Check if Docusaurus build exists and copy it
+          if [ -d "docs-site/build/docs" ]; then
+            echo "Copying Docusaurus build to build/docs"
+            cp -r docs-site/build/docs/* build/docs/ || echo "Warning: Could not copy Docusaurus build"
+
+            # Verify the copy worked
+            echo "Verifying copied files:"
+            find build/docs -type f | sort
+          else
+            echo "Warning: Docusaurus build directory not found"
+            # Use fallback index.html if it exists
+            if [ -f "docs/fallback-index.html" ]; then
+              echo "Using fallback index.html"
+              cp docs/fallback-index.html build/docs/index.html
+            else
+              # Create a simple placeholder page
+              echo "<html><head><title>Documentation</title></head><body><h1>Documentation</h1><p>Documentation is being set up. Please check back later.</p></body></html>" > build/docs/index.html
+            fi
+          fi
+
+          # List contents for debugging
+          echo "Final contents of build/docs directory:"
+          find build/docs -type f | head -n 20 || echo "Could not list build/docs directory"
+
+      - name: Deploy to production server
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          cname: vishal.biyani.xyz
