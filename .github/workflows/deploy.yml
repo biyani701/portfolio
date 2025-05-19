@@ -365,9 +365,7 @@ jobs:
           pwd
           ls -la
           ls -la build || { echo "❌ build/ directory does not exist. Build likely failed."; exit 1; }
-          ls build/docs
-
-          
+                    
           # Copy built files to the main build/docs directory
           echo "Copying built files to main build/docs directory..."
           cp -r build/* ../build/docs/
@@ -383,8 +381,9 @@ jobs:
 
       # Add a debugging script to help diagnose issues
       - name: Add diagnostics script
-        run: |
-          pwd
+        run: |          
+          echo "Directory structure in .. $(pwd)"
+          find docs-site -type d | sort
           cat > ./build/docs/diagnostics.js <<"EOF"
           // Diagnostic script to help troubleshoot Docusaurus issues
           console.log('📊 Running diagnostics for Docusaurus site');
