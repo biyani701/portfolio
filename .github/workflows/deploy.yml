@@ -345,8 +345,8 @@ jobs:
           // `@type` JSDoc annotations allow editor autocompletion and type checking
           // (when paired with `@ts-check`).
 
-          const lightCodeTheme = require('prism-react-renderer').themes.github;
-          const darkCodeTheme = require('prism-react-renderer').themes.dracula;
+          const lightCodeTheme = require('prism-react-renderer/themes/github');
+          const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
           /** @type {import('@docusaurus/types').Config} */
           const config = {
@@ -1010,24 +1010,62 @@ jobs:
           ls -la
           ls -la build || { echo "❌ build/ directory does not exist. Build likely failed."; exit 1; }
 
-          # Copy built files to the main build/docs directory
-          echo "Copying built files to main build/docs directory..."
-          cp -r build/* ../build/docs/
-
-          # Ensure the router script is available
-          if [ -f "../build/docs/js/docusaurus-router.js" ]; then
-            echo "✅ Router script exists at the correct location"
-          else
-            echo "⚠️ Router script not found, creating it..."
-            mkdir -p ../build/docs/js
-            cp static/js/docusaurus-router.js ../build/docs/js/
-          fi
+          # No need to copy files here, we'll do it in a separate step
+          echo "Docusaurus build completed successfully."
 
       # Add a debugging script to help diagnose issues
       - name: Add diagnostics script
         run: |
           echo "Directory structure in .. $(pwd)"
           find docs-site \( -path '*/node_modules' -o -path '*/.docusaurus' \) -prune -o -type d -print | sort
+
+          # We'll add the diagnostics script in the final copy step
+
+      # Create redirect placeholders for common paths
+      - name: Create redirect for common paths
+        run: |
+          # Create a placeholder for /docs
+          cat > ./build/docs.html <<"EOF"
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta http-equiv="refresh" content="0;url=/docs/">
+            <title>Redirecting to Documentation</title>
+          </head>
+          <body>
+            <p>Redirecting to documentation... <a href="/docs/">Click here if you're not redirected</a></p>
+          </body>
+          </html>
+          EOF
+
+          # We'll handle the redirect in the copy step instead
+      - name: List build output
+        run: |
+          ls -R ./docs-site/build
+
+      # Copy Docusaurus build to the main build directory
+      - name: Copy Docusaurus build to main build directory
+        run: |
+          echo "Copying Docusaurus build to main build/docs directory..."
+          mkdir -p ./build/docs
+
+          # Save the original index.html from docs-site if it exists
+          if [ -f "./docs-site/build/index.html" ]; then
+            echo "Saving original Docusaurus index.html"
+            cp ./docs-site/build/index.html ./docs-site/build/docs-index.html
+          fi
+
+          # Copy all files from docs-site/build to build/docs
+          cp -r ./docs-site/build/* ./build/docs/
+
+          # Create a proper index.html in the docs directory that loads the Docusaurus site
+          echo "Creating index.html in docs directory"
+          if [ -f "./docs-site/build/docs-index.html" ]; then
+            cp ./docs-site/build/docs-index.html ./build/docs/index.html
+          fi
+
+          # Add diagnostics script
           cat > ./build/docs/diagnostics.js <<"EOF"
           // Diagnostic script to help troubleshoot Docusaurus issues
           console.log('📊 Running diagnostics for Docusaurus site');
@@ -1078,39 +1116,23 @@ jobs:
           EOF
 
           # Add the diagnostics script to the docs index.html
-          if [ -f "build/docs/index.html" ]; then
+          if [ -f "./build/docs/index.html" ]; then
             echo "Adding diagnostics script to docs/index.html"
-            sed -i 's/<\/body>/<script src="diagnostics.js"><\/script><\/body>/' build/docs/index.html
+            sed -i 's/<\/body>/<script src="diagnostics.js"><\/script><\/body>/' ./build/docs/index.html
           else
             echo "❌ docs/index.html not found. Diagnostics script not added."
           fi
 
-      # Create redirect placeholders for common paths
-      - name: Create redirect for common paths
-        run: |
-          # Create a placeholder for /docs
-          cat > ./build/docs.html <<"EOF"
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="utf-8">
-              <meta http-equiv="refresh" content="0;url=/docs/">
-              <title>Redirecting to Documentation</title>
-            </head>
-            <body>
-              <p>Redirecting to documentation... <a href="/docs/">Click here if you're not redirected</a></p>
-            </body>
-            </html>
-          EOF
-      - name: List build output
-        run: |
-          ls -R ./docs-site/build
+          # Verify the contents
+          echo "Contents of build directory:"
+          ls -la ./build
+          echo "Contents of build/docs directory:"
+          ls -la ./build/docs
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs-site/build
-          destination_dir: docs
+          publish_dir: ./build
           cname: vishal.biyani.xyz
