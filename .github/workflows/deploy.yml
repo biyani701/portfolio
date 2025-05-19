@@ -11,9 +11,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "20.10.0"
 
       # Portfolio Build and Setup
       - name: Install portfolio dependencies
@@ -104,7 +104,7 @@ jobs:
         run: |
           echo "Creating Docusaurus site..."
           pwd
-          npx create-docusaurus@latest docs-site classic --skip-install --javascript
+          npx create-docusaurus@3.7.0 docs-site classic --skip-install --javascript
           echo "Checking necessary directories"
           find docs-site -type d | sort
           # echo "Creating necessary directories..."
@@ -345,8 +345,12 @@ jobs:
           // `@type` JSDoc annotations allow editor autocompletion and type checking
           // (when paired with `@ts-check`).
 
-          const lightCodeTheme = require('prism-react-renderer/themes/github');
-          const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+          // Note: type annotations allow type checking and IDEs autocompletion
+
+          import { themes as prismThemes } from 'prism-react-renderer';
+
+          const lightCodeTheme = prismThemes.github;
+          const darkCodeTheme = prismThemes.dracula;
 
           /** @type {import('@docusaurus/types').Config} */
           const config = {
@@ -380,14 +384,14 @@ jobs:
                 ({
                   docs: {
                     routeBasePath: '/',
-                    sidebarPath: require.resolve('./sidebars.js'),
+                    sidebarPath: './sidebars.js',
                     editUrl: 'https://github.com/biyani701/portfolio/tree/main/docs/',
                     remarkPlugins: [
-                      [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
+                      ['@docusaurus/remark-plugin-npm2yarn', {sync: true}],
                     ],
                   },
                   theme: {
-                    customCss: require.resolve('./src/css/custom.css'),
+                    customCss: './src/css/custom.css',
                   },
                 }),
               ],
@@ -503,7 +507,7 @@ jobs:
               }),
           };
 
-          module.exports = config;
+          export default config;
           EOF
 
           # Create custom.css file with portfolio styling
@@ -742,7 +746,7 @@ jobs:
             ],
           };
 
-          module.exports = sidebars;
+          export default sidebars;
           EOF
 
           # Create basic static files. No need directory already exists
@@ -764,8 +768,9 @@ jobs:
           # Create custom theme components
           mkdir -p docs-site/src/components/ThemeToggle
           cat > docs-site/src/components/ThemeToggle/index.js <<"EOF"
-          import React, { useEffect, useState } from 'react';
-          import { useColorMode } from '@docusaurus/theme-common';
+          import * as React from 'react';
+          import { useEffect, useState } from 'react';
+          import { useColorMode } from '@docusaurus/theme-common/internal';
           import styles from './styles.module.css';
 
           export default function ThemeToggle() {
@@ -898,7 +903,7 @@ jobs:
           # Create custom Navbar component
           mkdir -p docs-site/src/theme/Navbar
           cat > docs-site/src/theme/Navbar/index.js <<"EOF"
-          import React from 'react';
+          import * as React from 'react';
           import Navbar from '@theme-original/Navbar';
           import ThemeToggle from '../../components/ThemeToggle';
           import styles from './styles.module.css';
@@ -961,18 +966,18 @@ jobs:
               "write-heading-ids": "docusaurus write-heading-ids"
             },
             "dependencies": {
-              "@docusaurus/core": "^2.4.1",
-              "@docusaurus/preset-classic": "^2.4.1",
-              "@docusaurus/theme-mermaid": "^2.4.1",
-              "@docusaurus/remark-plugin-npm2yarn": "^2.4.1",
-              "@mdx-js/react": "^1.6.22",
-              "clsx": "^1.2.1",
-              "prism-react-renderer": "^1.3.5",
-              "react": "^17.0.2",
-              "react-dom": "^17.0.2"
+              "@docusaurus/core": "^3.7.0",
+              "@docusaurus/preset-classic": "^3.7.0",
+              "@docusaurus/theme-mermaid": "^3.7.0",
+              "@docusaurus/remark-plugin-npm2yarn": "^3.7.0",
+              "@mdx-js/react": "^3.0.0",
+              "clsx": "^2.1.0",
+              "prism-react-renderer": "^2.3.0",
+              "react": "^19.0.0",
+              "react-dom": "^19.0.0"
             },
             "devDependencies": {
-              "@docusaurus/module-type-aliases": "^2.4.1"
+              "@docusaurus/module-type-aliases": "^3.7.0"
             },
             "browserslist": {
               "production": [
@@ -987,7 +992,8 @@ jobs:
               ]
             },
             "engines": {
-              "node": ">=16.14"
+              "node": ">=18.0",
+              "npm": ">=8.0.0"
             }
           }
           EOF
