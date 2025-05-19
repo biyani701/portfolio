@@ -786,12 +786,11 @@ jobs:
                 expiryDate.setDate(expiryDate.getDate() + 365);
 
                 // Use secure cookies with proper attributes
-                const cookieOptions = \`expires=\${expiryDate.toUTCString()}; path=/; SameSite=Strict\${
-                  window.location.protocol === 'https:' ? '; Secure' : ''
-                }\`;
+                const cookieOptions = "expires=" + expiryDate.toUTCString() + "; path=/; SameSite=Strict" +
+                  (window.location.protocol === 'https:' ? '; Secure' : '');
 
-                document.cookie = \`themeMode=\${colorMode}; \${cookieOptions}\`;
-                console.log(\`Theme preference saved to cookie: mode=\${colorMode}\`);
+                document.cookie = "themeMode=" + colorMode + "; " + cookieOptions;
+                console.log("Theme preference saved to cookie: mode=" + colorMode);
               }
             }, [colorMode, mounted]);
 
@@ -808,8 +807,8 @@ jobs:
               <button
                 onClick={toggleTheme}
                 className={styles.themeToggle}
-                title={\`Switch to \${colorMode === 'dark' ? 'light' : 'dark'} mode\`}
-                aria-label={\`Switch to \${colorMode === 'dark' ? 'light' : 'dark'} mode\`}
+                title={"Switch to " + (colorMode === 'dark' ? 'light' : 'dark') + " mode"}
+                aria-label={"Switch to " + (colorMode === 'dark' ? 'light' : 'dark') + " mode"}
               >
                 {colorMode === 'dark' ? (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
