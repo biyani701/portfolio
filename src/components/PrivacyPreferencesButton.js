@@ -4,24 +4,17 @@ import Tooltip from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import SvgIcon from "@mui/material/SvgIcon";
 import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 // Styled IconButton for cookie preferences
 const CookieIconButton = styled(IconButton)(({ theme }) => ({
-  position: "fixed",
-  bottom: 16,
-  left: 16,
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.getContrastText(theme.palette.primary.main),
-  width: "50px",
-  height: "50px",
   "&:hover": {
     backgroundColor: theme.palette.primary.dark,
     transform: "scale(1.05)",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
   },
-  boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
   transition: "all 0.3s ease",
-  zIndex: 9999,
   "@keyframes pulse": {
     "0%": { transform: "scale(1)" },
     "50%": { transform: "scale(1.05)" },
@@ -43,6 +36,8 @@ const CookieIcon = (props) => (
 );
 
 const PrivacyPreferencesButton = () => {
+  const theme = useTheme();
+  const isSmallMobile = useMediaQuery('(max-width:400px)');
   const [klaroReady, setKlaroReady] = useState(false);
   const [pulsing, setPulsing] = useState(false);
 
@@ -96,9 +91,15 @@ const PrivacyPreferencesButton = () => {
         onClick={handleClick}
         aria-label="Cookie Settings"
         className={pulsing ? "pulse" : ""}
-        size="large"
+        size="small"
+        sx={{
+          padding: isSmallMobile ? 0.3 : 0.5,
+          minWidth: isSmallMobile ? 28 : 32,
+          width: isSmallMobile ? 28 : 32,
+          height: isSmallMobile ? 28 : 32,
+        }}
       >
-        <CookieIcon fontSize="medium" />
+        <CookieIcon fontSize="small" />
       </CookieIconButton>
     </Tooltip>
   );
