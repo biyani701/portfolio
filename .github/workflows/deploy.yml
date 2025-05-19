@@ -383,7 +383,7 @@ jobs:
       - name: Add diagnostics script
         run: |          
           echo "Directory structure in .. $(pwd)"
-          find docs-site -type d | sort
+          find docs-site \( -path '*/node_modules' -o -path '*/.docusaurus' \) -prune -o -type d -print | sort
           cat > ./build/docs/diagnostics.js <<"EOF"
           // Diagnostic script to help troubleshoot Docusaurus issues
           console.log('📊 Running diagnostics for Docusaurus site');
@@ -436,7 +436,9 @@ jobs:
           # Add the diagnostics script to the docs index.html
           if [ -f "build/docs/index.html" ]; then
             echo "Adding diagnostics script to docs/index.html"
-            sed -i 's/<\/body>/<script src="diagnostics.js"><\/script><\/body>/' build/docs/index.html
+            sed -i 's/<\/body>/<script src="diagnostics.js"><\/script><\/body>/' build/docs/index.html          
+          else
+            echo "❌ docs/index.html not found. Diagnostics script not added."
           fi
 
       # Create redirect placeholders for common paths
@@ -466,4 +468,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs-site/build
+          destination_dir: docs
           cname: vishal.biyani.xyz          
