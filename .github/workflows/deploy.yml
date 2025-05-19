@@ -763,7 +763,7 @@ jobs:
           cat > docs-site/src/components/ThemeToggle/index.js <<"EOF"
           const React = require('react');
           const {useEffect, useState} = require('react');
-          const {useColorMode} = require('@docusaurus/theme-common').ColorModeUtils;
+          const {useColorMode} = require('@docusaurus/theme-common');
 
           // Import styles
           const styles = {
