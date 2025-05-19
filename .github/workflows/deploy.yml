@@ -102,13 +102,16 @@ jobs:
       # Docusaurus Setup and Build
       - name: Setup Docusaurus
         run: |
-          echo "Creating Docusaurus site..."          
+          echo "Creating Docusaurus site..." 
+          pwd         
           npx create-docusaurus@latest docs-site classic --skip-install --javascript
-          echo "Creating necessary directories..."
-          mkdir -p docs-site/docs
-          mkdir -p docs-site/static/img
-          mkdir -p docs-site/src/css
-          mkdir -p docs-site/static/js
+          echo "Checking necessary directories"
+          find docs-site -type d | sort
+          # echo "Creating necessary directories..."
+          # mkdir -p docs-site/docs
+          # mkdir -p docs-site/static/img
+          # mkdir -p docs-site/src/css
+          # mkdir -p docs-site/static/js
 
           # Create docusaurus-router.js for handling navigation
           cat > docs-site/static/js/docusaurus-router.js <<"EOF"
@@ -128,7 +131,7 @@ jobs:
           })();
           EOF
 
-          echo "Examining docs directory structure..."
+          echo "Examining docs directory structure...$(pwd)"
           find docs -type f | sort || echo "No docs directory found"
 
           # Copy docs content if it exists
@@ -194,7 +197,7 @@ jobs:
                 /** @type {import('@docusaurus/preset-classic').Options} */
                 ({
                   docs: {
-                    routeBasePath: 'docs',
+                    routeBasePath: '/',
                     sidebarPath: require.resolve('./sidebars.js'),
                     editUrl: 'https://github.com/biyani701/portfolio/tree/main/docs/',
                   },
@@ -361,6 +364,7 @@ jobs:
           pwd
           ls -la
           ls -la build || { echo "❌ build/ directory does not exist. Build likely failed."; exit 1; }
+          ls build/docs
 
           # Create .nojekyll file to prevent GitHub Pages processing
           touch ./build/.nojekyll
@@ -381,7 +385,8 @@ jobs:
       # Add a debugging script to help diagnose issues
       - name: Add diagnostics script
         run: |
-          cat > build/docs/diagnostics.js <<"EOF"
+          pwd
+          cat > ./build/docs/diagnostics.js <<"EOF"
           // Diagnostic script to help troubleshoot Docusaurus issues
           console.log('📊 Running diagnostics for Docusaurus site');
 
@@ -440,7 +445,7 @@ jobs:
       - name: Create redirect for common paths
         run: |
           # Create a placeholder for /docs
-          cat > build/docs.html <<"EOF"
+          cat > ./build/docs.html <<"EOF"
             <!DOCTYPE html>
             <html>
             <head>
@@ -453,11 +458,14 @@ jobs:
             </body>
             </html>
           EOF
+      - name: List build output
+        run: |
+          ls -R ./docs-site/build
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs-site/build/docs
+          publish_dir: ./docs-site/build
           cname: vishal.biyani.xyz          
