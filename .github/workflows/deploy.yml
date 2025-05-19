@@ -102,8 +102,8 @@ jobs:
       # Docusaurus Setup and Build
       - name: Setup Docusaurus
         run: |
-          echo "Creating Docusaurus site..." 
-          pwd         
+          echo "Creating Docusaurus site..."
+          pwd
           npx create-docusaurus@latest docs-site classic --skip-install --javascript
           echo "Checking necessary directories"
           find docs-site -type d | sort
@@ -131,34 +131,212 @@ jobs:
           })();
           EOF
 
+          # Create theme-init.js for initializing theme from cookies
+          mkdir -p docs-site/static/js
+          cat > docs-site/static/js/theme-init.js <<"EOF"
+          // This script initializes the theme based on cookies before the page loads
+          // to prevent theme flashing
+          (function() {
+            function getCookie(name) {
+              const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+              return match ? match[2] : null;
+            }
+
+            // Try to get theme from cookie
+            const themeCookie = getCookie('themeMode');
+
+            // If cookie exists, set the theme
+            if (themeCookie) {
+              document.documentElement.setAttribute('data-theme', themeCookie);
+              console.log('Theme initialized from cookie:', themeCookie);
+            } else {
+              // Default to light theme if no cookie exists
+              document.documentElement.setAttribute('data-theme', 'light');
+            }
+          })();
+          EOF
+
           # Copy docs content if it exists
           if [ -d "docs/docs" ]; then
             echo "Copying docs content..."
             cp -r docs/docs/* docs-site/docs/
           else
-            echo "Creating basic docs content..."
+            echo "Creating docs content..."
+
+            # Create necessary directories
+            mkdir -p docs-site/docs/policies
+            mkdir -p docs-site/docs/architecture
+            mkdir -p docs-site/docs/libraries
+            mkdir -p docs-site/docs/sbom
+            mkdir -p docs-site/docs/development
 
             # Create a basic intro file
-            mkdir -p docs-site/docs
             echo '---' > docs-site/docs/intro.md
             echo 'sidebar_position: 1' >> docs-site/docs/intro.md
             echo '---' >> docs-site/docs/intro.md
             echo '' >> docs-site/docs/intro.md
             echo '# Portfolio Documentation' >> docs-site/docs/intro.md
             echo '' >> docs-site/docs/intro.md
-            echo 'Welcome to the documentation for the Portfolio project.' >> docs-site/docs/intro.md
+            echo 'Welcome to the documentation for the Portfolio project. This documentation provides detailed information about the architecture, libraries, and components used in the project.' >> docs-site/docs/intro.md
             echo '' >> docs-site/docs/intro.md
             echo '## Overview' >> docs-site/docs/intro.md
             echo '' >> docs-site/docs/intro.md
-            echo 'The Portfolio project is a personal website built with React and Material-UI.' >> docs-site/docs/intro.md
+            echo 'The Portfolio project is a personal website built with React and Material-UI. It showcases skills, experience, projects, and blog posts. The site is designed to be responsive, accessible, and user-friendly.' >> docs-site/docs/intro.md
             echo '' >> docs-site/docs/intro.md
             echo '## Features' >> docs-site/docs/intro.md
             echo '' >> docs-site/docs/intro.md
-            echo '- Resume Sections' >> docs-site/docs/intro.md
-            echo '- Blog' >> docs-site/docs/intro.md
-            echo '- Knowledge Base' >> docs-site/docs/intro.md
-            echo '- Authentication' >> docs-site/docs/intro.md
-            echo '- Responsive Design' >> docs-site/docs/intro.md
+            echo '- **Resume Sections**: Display professional information including skills, experience, education, and certifications' >> docs-site/docs/intro.md
+            echo '- **Blog**: Create, view, edit, and delete blog posts with a rich text editor' >> docs-site/docs/intro.md
+            echo '- **Knowledge Base**: Share domain knowledge and glossary terms' >> docs-site/docs/intro.md
+            echo '- **Authentication**: Secure access to protected routes with Auth.js' >> docs-site/docs/intro.md
+            echo '- **Responsive Design**: Optimized for all screen sizes' >> docs-site/docs/intro.md
+            echo '' >> docs-site/docs/intro.md
+            echo '## Technology Stack' >> docs-site/docs/intro.md
+            echo '' >> docs-site/docs/intro.md
+            echo '- **Frontend**: React, Material-UI, Slate.js' >> docs-site/docs/intro.md
+            echo '- **Authentication**: Auth.js' >> docs-site/docs/intro.md
+            echo '- **Deployment**: GitHub Pages' >> docs-site/docs/intro.md
+            echo '- **Documentation**: Docusaurus' >> docs-site/docs/intro.md
+
+            # Create architecture overview
+            echo '---' > docs-site/docs/architecture/overview.md
+            echo 'sidebar_position: 1' >> docs-site/docs/architecture/overview.md
+            echo 'title: Architecture Overview' >> docs-site/docs/architecture/overview.md
+            echo '---' >> docs-site/docs/architecture/overview.md
+            echo '' >> docs-site/docs/architecture/overview.md
+            echo '# Architecture Overview' >> docs-site/docs/architecture/overview.md
+            echo '' >> docs-site/docs/architecture/overview.md
+            echo 'This document provides an overview of the portfolio project architecture.' >> docs-site/docs/architecture/overview.md
+            echo '' >> docs-site/docs/architecture/overview.md
+            echo '```mermaid' >> docs-site/docs/architecture/overview.md
+            echo 'flowchart TD' >> docs-site/docs/architecture/overview.md
+            echo '    A[User] -->|Visits| B[GitHub Pages]' >> docs-site/docs/architecture/overview.md
+            echo '    B -->|Loads| C[React App]' >> docs-site/docs/architecture/overview.md
+            echo '    C -->|Authentication| D[Auth.js Server]' >> docs-site/docs/architecture/overview.md
+            echo '    C -->|Routing| E[React Router]' >> docs-site/docs/architecture/overview.md
+            echo '    E -->|Public Routes| F[Home/Resume]' >> docs-site/docs/architecture/overview.md
+            echo '    E -->|Protected Routes| G[Admin/Blog Editor]' >> docs-site/docs/architecture/overview.md
+            echo '```' >> docs-site/docs/architecture/overview.md
+
+            # Create MUI library doc
+            echo '---' > docs-site/docs/libraries/mui.md
+            echo 'sidebar_position: 1' >> docs-site/docs/libraries/mui.md
+            echo 'title: Material-UI' >> docs-site/docs/libraries/mui.md
+            echo '---' >> docs-site/docs/libraries/mui.md
+            echo '' >> docs-site/docs/libraries/mui.md
+            echo '# Material-UI (MUI)' >> docs-site/docs/libraries/mui.md
+            echo '' >> docs-site/docs/libraries/mui.md
+            echo 'Material-UI is the primary UI library used in the portfolio project.' >> docs-site/docs/libraries/mui.md
+
+            # Create SBOM dependencies doc
+            echo '---' > docs-site/docs/sbom/dependencies.md
+            echo 'sidebar_position: 1' >> docs-site/docs/sbom/dependencies.md
+            echo 'title: Dependencies' >> docs-site/docs/sbom/dependencies.md
+            echo '---' >> docs-site/docs/sbom/dependencies.md
+            echo '' >> docs-site/docs/sbom/dependencies.md
+            echo '# Software Bill of Materials (SBOM)' >> docs-site/docs/sbom/dependencies.md
+            echo '' >> docs-site/docs/sbom/dependencies.md
+            echo 'This document provides a comprehensive list of dependencies used in the portfolio project.' >> docs-site/docs/sbom/dependencies.md
+
+            # Create ESLint version doc
+            echo '---' > docs-site/docs/development/eslint-version.md
+            echo 'sidebar_position: 1' >> docs-site/docs/development/eslint-version.md
+            echo 'title: ESLint Version' >> docs-site/docs/development/eslint-version.md
+            echo '---' >> docs-site/docs/development/eslint-version.md
+            echo '' >> docs-site/docs/development/eslint-version.md
+            echo '# ESLint Version Explanation' >> docs-site/docs/development/eslint-version.md
+            echo '' >> docs-site/docs/development/eslint-version.md
+            echo '## Current Version' >> docs-site/docs/development/eslint-version.md
+            echo '' >> docs-site/docs/development/eslint-version.md
+            echo 'The portfolio project uses ESLint version `^8.34.0` as specified in the dependencies.' >> docs-site/docs/development/eslint-version.md
+            echo '' >> docs-site/docs/development/eslint-version.md
+            echo '## Why Not the Latest Version?' >> docs-site/docs/development/eslint-version.md
+            echo '' >> docs-site/docs/development/eslint-version.md
+            echo 'ESLint version 8.57.1 has been deprecated by the ESLint team. When running npm install or npm update, you might see the following warning:' >> docs-site/docs/development/eslint-version.md
+            echo '' >> docs-site/docs/development/eslint-version.md
+            echo '```bash' >> docs-site/docs/development/eslint-version.md
+            echo 'npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.' >> docs-site/docs/development/eslint-version.md
+            echo '```' >> docs-site/docs/development/eslint-version.md
+
+            # Create policy pages
+            # Privacy Policy
+            echo '---' > docs-site/docs/policies/privacy-policy.mdx
+            echo 'sidebar_position: 1' >> docs-site/docs/policies/privacy-policy.mdx
+            echo 'title: Privacy Policy' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '---' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '# Privacy Policy' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '*Last updated: June 2023*' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '## Introduction' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '' >> docs-site/docs/policies/privacy-policy.mdx
+            echo 'Your privacy is important to us. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '```mermaid' >> docs-site/docs/policies/privacy-policy.mdx
+            echo 'flowchart TD' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '    A[User Visits Website] --> B{Cookie Consent?}' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '    B -->|Yes| C[Set Cookies]' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '    B -->|No| D[Essential Cookies Only]' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '    C --> E[Analytics & Preferences]' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '    D --> F[Basic Functionality]' >> docs-site/docs/policies/privacy-policy.mdx
+            echo '```' >> docs-site/docs/policies/privacy-policy.mdx
+
+            # Terms of Use
+            echo '---' > docs-site/docs/policies/terms-of-use.mdx
+            echo 'sidebar_position: 2' >> docs-site/docs/policies/terms-of-use.mdx
+            echo 'title: Terms of Use' >> docs-site/docs/policies/terms-of-use.mdx
+            echo '---' >> docs-site/docs/policies/terms-of-use.mdx
+            echo '' >> docs-site/docs/policies/terms-of-use.mdx
+            echo '# Terms of Use' >> docs-site/docs/policies/terms-of-use.mdx
+            echo '' >> docs-site/docs/policies/terms-of-use.mdx
+            echo '*Last updated: June 2023*' >> docs-site/docs/policies/terms-of-use.mdx
+            echo '' >> docs-site/docs/policies/terms-of-use.mdx
+            echo '## Introduction' >> docs-site/docs/policies/terms-of-use.mdx
+            echo '' >> docs-site/docs/policies/terms-of-use.mdx
+            echo 'By accessing and using this website, you agree to be bound by these Terms of Use, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws.' >> docs-site/docs/policies/terms-of-use.mdx
+
+            # Security Policy
+            echo '---' > docs-site/docs/policies/security-policy.mdx
+            echo 'sidebar_position: 3' >> docs-site/docs/policies/security-policy.mdx
+            echo 'title: Security Policy' >> docs-site/docs/policies/security-policy.mdx
+            echo '---' >> docs-site/docs/policies/security-policy.mdx
+            echo '' >> docs-site/docs/policies/security-policy.mdx
+            echo '# Security Policy' >> docs-site/docs/policies/security-policy.mdx
+            echo '' >> docs-site/docs/policies/security-policy.mdx
+            echo '*Last updated: June 2023*' >> docs-site/docs/policies/security-policy.mdx
+            echo '' >> docs-site/docs/policies/security-policy.mdx
+            echo '## Our Commitment to Security' >> docs-site/docs/policies/security-policy.mdx
+            echo '' >> docs-site/docs/policies/security-policy.mdx
+            echo 'We are committed to ensuring the security of our website and protecting your information.' >> docs-site/docs/policies/security-policy.mdx
+
+            # Cookie Policy
+            echo '---' > docs-site/docs/policies/cookie-policy.mdx
+            echo 'sidebar_position: 4' >> docs-site/docs/policies/cookie-policy.mdx
+            echo 'title: Cookie Policy' >> docs-site/docs/policies/cookie-policy.mdx
+            echo '---' >> docs-site/docs/policies/cookie-policy.mdx
+            echo '' >> docs-site/docs/policies/cookie-policy.mdx
+            echo '# Cookie Policy' >> docs-site/docs/policies/cookie-policy.mdx
+            echo '' >> docs-site/docs/policies/cookie-policy.mdx
+            echo '*Last updated: June 2023*' >> docs-site/docs/policies/cookie-policy.mdx
+            echo '' >> docs-site/docs/policies/cookie-policy.mdx
+            echo '## What Are Cookies' >> docs-site/docs/policies/cookie-policy.mdx
+            echo '' >> docs-site/docs/policies/cookie-policy.mdx
+            echo 'Cookies are small pieces of text sent to your web browser by a website you visit.' >> docs-site/docs/policies/cookie-policy.mdx
+
+            # EULA
+            echo '---' > docs-site/docs/policies/eula.mdx
+            echo 'sidebar_position: 5' >> docs-site/docs/policies/eula.mdx
+            echo 'title: End User License Agreement (EULA)' >> docs-site/docs/policies/eula.mdx
+            echo '---' >> docs-site/docs/policies/eula.mdx
+            echo '' >> docs-site/docs/policies/eula.mdx
+            echo '# End User License Agreement (EULA)' >> docs-site/docs/policies/eula.mdx
+            echo '' >> docs-site/docs/policies/eula.mdx
+            echo '*Last updated: June 2023*' >> docs-site/docs/policies/eula.mdx
+            echo '' >> docs-site/docs/policies/eula.mdx
+            echo '## Introduction' >> docs-site/docs/policies/eula.mdx
+            echo '' >> docs-site/docs/policies/eula.mdx
+            echo 'This End User License Agreement ("EULA") is a legal agreement between you and the website owner regarding your use of the website and any associated content, features, or services.' >> docs-site/docs/policies/eula.mdx
           fi
 
           # Update docusaurus.config.js with proper settings
@@ -166,6 +344,9 @@ jobs:
           // @ts-check
           // `@type` JSDoc annotations allow editor autocompletion and type checking
           // (when paired with `@ts-check`).
+
+          const lightCodeTheme = require('prism-react-renderer').themes.github;
+          const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 
           /** @type {import('@docusaurus/types').Config} */
           const config = {
@@ -186,6 +367,10 @@ jobs:
                 src: '/docs/js/docusaurus-router.js',
                 async: false,
               },
+              {
+                src: '/docs/js/theme-init.js',
+                async: false,
+              },
             ],
 
             presets: [
@@ -197,6 +382,9 @@ jobs:
                     routeBasePath: '/',
                     sidebarPath: require.resolve('./sidebars.js'),
                     editUrl: 'https://github.com/biyani701/portfolio/tree/main/docs/',
+                    remarkPlugins: [
+                      [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
+                    ],
                   },
                   theme: {
                     customCss: require.resolve('./src/css/custom.css'),
@@ -205,9 +393,23 @@ jobs:
               ],
             ],
 
+            // Add Mermaid support
+            markdown: {
+              mermaid: true,
+            },
+
+            themes: ['@docusaurus/theme-mermaid'],
+
             themeConfig:
               /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
               ({
+                // Replace with your project's social card
+                image: 'img/docusaurus-social-card.jpg',
+                colorMode: {
+                  defaultMode: 'light',
+                  disableSwitch: true, // We're using our custom theme toggle
+                  respectPrefersColorScheme: false,
+                },
                 navbar: {
                   title: 'Portfolio Docs',
                   logo: {
@@ -221,11 +423,7 @@ jobs:
                       position: 'left',
                       label: 'Documentation',
                     },
-                    {
-                      href: '/',
-                      label: 'Back to Portfolio',
-                      position: 'right',
-                    },
+                    {to: 'https://vishal.biyani.xyz', label: 'Main Site', position: 'right'},
                     {
                       href: 'https://github.com/biyani701/portfolio',
                       label: 'GitHub',
@@ -237,33 +435,70 @@ jobs:
                   style: 'dark',
                   links: [
                     {
-                      title: 'Docs',
+                      title: 'Documentation',
                       items: [
                         {
-                          label: 'Getting Started',
-                          to: '/',
+                          label: 'Introduction',
+                          to: '/docs/intro',
+                        },
+                        {
+                          label: 'Architecture',
+                          to: '/docs/architecture/overview',
+                        },
+                        {
+                          label: 'Libraries',
+                          to: '/docs/libraries/mui',
                         },
                       ],
                     },
                     {
-                      title: 'More',
+                      title: 'Policies',
                       items: [
                         {
-                          label: 'Portfolio',
-                          href: '/',
+                          label: 'Privacy Policy',
+                          to: '/docs/policies/privacy-policy',
+                        },
+                        {
+                          label: 'Terms of Use',
+                          to: '/docs/policies/terms-of-use',
+                        },
+                        {
+                          label: 'Security Policy',
+                          to: '/docs/policies/security-policy',
+                        },
+                        {
+                          label: 'Cookie Policy',
+                          to: '/docs/policies/cookie-policy',
+                        },
+                      ],
+                    },
+                    {
+                      title: 'Links',
+                      items: [
+                        {
+                          label: 'Main Site',
+                          href: 'https://vishal.biyani.xyz',
                         },
                         {
                           label: 'GitHub',
                           href: 'https://github.com/biyani701/portfolio',
                         },
+                        {
+                          label: 'LinkedIn',
+                          href: 'https://www.linkedin.com/in/vishalbiyani2/',
+                        },
                       ],
                     },
                   ],
-                  copyright: `Copyright © ${new Date().getFullYear()} Vishal Biyani. Built with Docusaurus.`,
+                  copyright: `Copyright © ${new Date().getFullYear()} Vishal Biyani. All rights reserved.`,
                 },
                 prism: {
-                  theme: require('prism-react-renderer').themes.github,
-                  darkTheme: require('prism-react-renderer').themes.dracula,
+                  theme: lightCodeTheme,
+                  darkTheme: darkCodeTheme,
+                  additionalLanguages: ['bash', 'json', 'markdown', 'yaml', 'jsx', 'tsx'],
+                },
+                mermaid: {
+                  theme: { light: 'neutral', dark: 'dark' },
                 },
               }),
           };
@@ -271,7 +506,8 @@ jobs:
           module.exports = config;
           EOF
 
-          # Create basic custom.css file
+          # Create custom.css file with portfolio styling
+          mkdir -p docs-site/src/css
           cat > docs-site/src/css/custom.css <<"EOF"
           /**
           * Any CSS included here will be global. The classic template
@@ -281,31 +517,175 @@ jobs:
 
           /* You can override the default Infima variables here. */
           :root {
-            --ifm-color-primary: #2e8555;
-            --ifm-color-primary-dark: #29784c;
-            --ifm-color-primary-darker: #277148;
-            --ifm-color-primary-darkest: #205d3b;
-            --ifm-color-primary-light: #33925d;
-            --ifm-color-primary-lighter: #359962;
-            --ifm-color-primary-lightest: #3cad6e;
+            /* Light mode - Sunny Day palette */
+            --ifm-color-primary: #FFEB3B;
+            --ifm-color-primary-dark: #FFC107;
+            --ifm-color-primary-darker: #F57F17;
+            --ifm-color-primary-darkest: #E65100;
+            --ifm-color-primary-light: #FFEE58;
+            --ifm-color-primary-lighter: #FFF176;
+            --ifm-color-primary-lightest: #FFF59D;
+
+            --ifm-background-color: #FFFDE7;
+            --ifm-navbar-background-color: #F57F17;
+            --ifm-footer-background-color: #F57F17;
+
+            --ifm-navbar-link-color: #FFFFFF;
+            --ifm-footer-link-color: #FFFFFF;
+            --ifm-footer-title-color: #FFFFFF;
+
             --ifm-code-font-size: 95%;
             --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+
+            /* Custom variables */
+            --portfolio-header-height: 64px;
+            --portfolio-footer-height: 60px;
           }
 
           /* For readability concerns, you should choose a lighter palette in dark mode. */
-          [data-theme="dark"] {
-            --ifm-color-primary: #25c2a0;
-            --ifm-color-primary-dark: #21af90;
-            --ifm-color-primary-darker: #1fa588;
-            --ifm-color-primary-darkest: #1a8870;
-            --ifm-color-primary-light: #29d5b0;
-            --ifm-color-primary-lighter: #32d8b4;
-            --ifm-color-primary-lightest: #4fddbf;
+          [data-theme='dark'] {
+            /* Dark mode - Blue Eclipse palette */
+            --ifm-color-primary: #90CAF9;
+            --ifm-color-primary-dark: #64B5F6;
+            --ifm-color-primary-darker: #42A5F5;
+            --ifm-color-primary-darkest: #1E88E5;
+            --ifm-color-primary-light: #BBDEFB;
+            --ifm-color-primary-lighter: #E3F2FD;
+            --ifm-color-primary-lightest: #F5F9FF;
+
+            --ifm-background-color: #121212;
+            --ifm-navbar-background-color: #121212;
+            --ifm-footer-background-color: #121212;
+
+            --ifm-navbar-link-color: #E0E0E0;
+            --ifm-footer-link-color: #E0E0E0;
+            --ifm-footer-title-color: #E0E0E0;
+
             --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+          }
+
+          /* Navbar styling */
+          .navbar {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            height: var(--portfolio-header-height);
+          }
+
+          .navbar__link {
+            font-weight: 500;
+            transition: all 0.3s ease;
+          }
+
+          .navbar__link:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+          }
+
+          .navbar__brand {
+            font-weight: 700;
+          }
+
+          /* Footer styling */
+          .footer {
+            padding: 2rem 0;
+            height: var(--portfolio-footer-height);
+            border-top: 1px solid var(--ifm-color-emphasis-300);
+          }
+
+          .footer__link-item {
+            transition: all 0.3s ease;
+          }
+
+          .footer__link-item:hover {
+            text-decoration: underline;
+            opacity: 0.8;
+          }
+
+          .footer__copyright {
+            font-size: 0.875rem;
+            opacity: 0.8;
+          }
+
+          /* Button styling */
+          .button {
+            border-radius: 8px;
+            text-transform: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+          }
+
+          .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+          }
+
+          /* Card styling */
+          .card {
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          }
+
+          .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+          }
+
+          /* Markdown content styling */
+          .markdown {
+            --ifm-heading-font-weight: 600;
+          }
+
+          .markdown h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .markdown h2 {
+            font-size: 2rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--ifm-color-emphasis-200);
+          }
+
+          .markdown h3 {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+          }
+
+          .markdown code {
+            border-radius: 4px;
+            padding: 0.2rem 0.4rem;
+          }
+
+          /* Responsive adjustments */
+          @media (max-width: 768px) {
+            .navbar {
+              height: 56px;
+            }
+
+            .footer {
+              padding: 1rem 0;
+            }
+
+            .markdown h1 {
+              font-size: 2rem;
+            }
+
+            .markdown h2 {
+              font-size: 1.75rem;
+            }
+
+            .markdown h3 {
+              font-size: 1.25rem;
+            }
           }
           EOF
 
-          # Create basic sidebars.js file
+          # Create custom sidebars.js file with policy pages
           cat > docs-site/sidebars.js <<"EOF"
           /**
           * Creating a sidebar enables you to:
@@ -322,8 +702,44 @@ jobs:
 
           /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
           const sidebars = {
-            // By default, Docusaurus generates a sidebar from the docs folder structure
-            tutorialSidebar: [{type: 'autogenerated', dirName: '.'}],
+            tutorialSidebar: [
+              {
+                type: 'category',
+                label: 'Introduction',
+                items: ['intro'],
+              },
+              {
+                type: 'category',
+                label: 'Architecture',
+                items: ['architecture/overview'],
+              },
+              {
+                type: 'category',
+                label: 'Libraries',
+                items: ['libraries/mui'],
+              },
+              {
+                type: 'category',
+                label: 'Development',
+                items: ['development/eslint-version'],
+              },
+              {
+                type: 'category',
+                label: 'SBOM',
+                items: ['sbom/dependencies'],
+              },
+              {
+                type: 'category',
+                label: 'Policies',
+                items: [
+                  'policies/privacy-policy',
+                  'policies/terms-of-use',
+                  'policies/security-policy',
+                  'policies/cookie-policy',
+                  'policies/eula',
+                ],
+              },
+            ],
           };
 
           module.exports = sidebars;
@@ -345,10 +761,238 @@ jobs:
           touch docs-site/static/img/favicon.ico
           touch docs-site/static/img/docusaurus-social-card.jpg
 
+          # Create custom theme components
+          mkdir -p docs-site/src/components/ThemeToggle
+          cat > docs-site/src/components/ThemeToggle/index.js <<"EOF"
+          import React, { useEffect, useState } from 'react';
+          import { useColorMode } from '@docusaurus/theme-common';
+          import styles from './styles.module.css';
+
+          export default function ThemeToggle() {
+            const { colorMode, setColorMode } = useColorMode();
+            const [mounted, setMounted] = useState(false);
+
+            // The Docusaurus theme system is client-side only, so we need to make sure
+            // we don't render this component on the server
+            useEffect(() => {
+              setMounted(true);
+            }, []);
+
+            // Save theme preference to cookies when it changes
+            useEffect(() => {
+              if (mounted) {
+                // Set cookie with 365 days expiry
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + 365);
+
+                // Use secure cookies with proper attributes
+                const cookieOptions = \`expires=\${expiryDate.toUTCString()}; path=/; SameSite=Strict\${
+                  window.location.protocol === 'https:' ? '; Secure' : ''
+                }\`;
+
+                document.cookie = \`themeMode=\${colorMode}; \${cookieOptions}\`;
+                console.log(\`Theme preference saved to cookie: mode=\${colorMode}\`);
+              }
+            }, [colorMode, mounted]);
+
+            const toggleTheme = () => {
+              setColorMode(colorMode === 'dark' ? 'light' : 'dark');
+            };
+
+            if (!mounted) {
+              // Don't render anything until client-side hydration is complete
+              return null;
+            }
+
+            return (
+              <button
+                onClick={toggleTheme}
+                className={styles.themeToggle}
+                title={\`Switch to \${colorMode === 'dark' ? 'light' : 'dark'} mode\`}
+                aria-label={\`Switch to \${colorMode === 'dark' ? 'light' : 'dark'} mode\`}
+              >
+                {colorMode === 'dark' ? (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17ZM12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M12 5C12.5523 5 13 4.55228 13 4V2C13 1.44772 12.5523 1 12 1C11.4477 1 11 1.44772 11 2V4C11 4.55228 11.4477 5 12 5Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M12 23C12.5523 23 13 22.5523 13 22V20C13 19.4477 12.5523 19 12 19C11.4477 19 11 19.4477 11 20V22C11 22.5523 11.4477 23 12 23Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M5 12C5 11.4477 4.55228 11 4 11H2C1.44772 11 1 11.4477 1 12C1 12.5523 1.44772 13 2 13H4C4.55228 13 5 12.5523 5 12Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M23 12C23 11.4477 22.5523 11 22 11H20C19.4477 11 19 11.4477 19 12C19 12.5523 19.4477 13 20 13H22C22.5523 13 23 12.5523 23 12Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M12.2256 2.00253C9.59172 1.94346 6.93894 2.9189 4.92893 4.92891C1.02369 8.83415 1.02369 15.1658 4.92893 19.071C8.83418 22.9763 15.1658 22.9763 19.0711 19.071C21.0811 17.061 22.0565 14.4082 21.9975 11.7743C21.9796 10.9772 21.8669 10.1818 21.6595 9.40643C21.0933 9.9488 20.3275 10.2636 19.5 10.2636C17.8431 10.2636 16.5 8.92051 16.5 7.26364C16.5 6.43612 16.8148 5.67034 17.3572 5.10418C16.5818 4.89677 15.7864 4.78414 14.9893 4.76623C14.1924 4.74832 13.3877 4.86649 12.6108 5.11029C11.8338 5.35409 11.0998 5.72209 10.4407 6.20046C9.78165 6.67882 9.21038 7.26184 8.75321 7.92197C7.83853 9.29209 7.42511 10.9206 7.57253 12.5603C7.72005 14.1999 8.41898 15.7433 9.55557 16.8799C10.6922 18.0165 12.2355 18.7154 13.8752 18.8629C15.5148 19.0103 17.1433 18.5969 18.5135 17.6822C19.1736 17.225 19.7566 16.6538 20.235 15.9947C20.7133 15.3356 21.0813 14.6016 21.3251 13.8246C21.5689 13.0476 21.6871 12.243 21.6692 11.4461C21.6532 10.6835 21.5458 9.92309 21.3482 9.18407C21.1506 8.44505 20.8663 7.73171 20.4999 7.06241C20.1336 6.39311 19.6886 5.77206 19.1777 5.22109C18.6667 4.67012 18.0956 4.19486 17.4644 3.80854C16.8332 3.42222 16.1481 3.12612 15.4372 2.92856C14.7262 2.73101 13.9953 2.63331 13.2616 2.63773C12.9136 2.64058 12.5672 2.65973 12.2256 2.00253Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                )}
+              </button>
+            );
+          }
+          EOF
+
+          cat > docs-site/src/components/ThemeToggle/styles.module.css <<"EOF"
+          .themeToggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--ifm-navbar-link-color);
+            transition: all 0.3s ease;
+            padding: 0;
+            margin-left: 8px;
+          }
+
+          .themeToggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+          }
+
+          .themeToggle:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--ifm-color-primary);
+          }
+
+          /* Animation for the toggle */
+          .themeToggle svg {
+            transition: transform 0.3s ease;
+          }
+
+          .themeToggle:hover svg {
+            transform: rotate(30deg);
+          }
+          EOF
+
+          # Create custom Navbar component
+          mkdir -p docs-site/src/theme/Navbar
+          cat > docs-site/src/theme/Navbar/index.js <<"EOF"
+          import React from 'react';
+          import Navbar from '@theme-original/Navbar';
+          import ThemeToggle from '../../components/ThemeToggle';
+          import styles from './styles.module.css';
+
+          export default function NavbarWrapper(props) {
+            return (
+              <div className={styles.navbarWrapper}>
+                <Navbar {...props} />
+                <div className={styles.themeToggleWrapper}>
+                  <ThemeToggle />
+                </div>
+              </div>
+            );
+          }
+          EOF
+
+          cat > docs-site/src/theme/Navbar/styles.module.css <<"EOF"
+          .navbarWrapper {
+            position: relative;
+          }
+
+          .themeToggleWrapper {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+          }
+
+          /* Adjust position for mobile */
+          @media (max-width: 996px) {
+            .themeToggleWrapper {
+              right: 70px; /* Leave space for the mobile menu button */
+            }
+          }
+          EOF
+
       - name: Install Docusaurus dependencies
         run: |
           cd docs-site
           echo "Installing Docusaurus dependencies..."
+
+          # Create package.json with required dependencies
+          cat > package.json <<"EOF"
+          {
+            "name": "portfolio-docs",
+            "version": "0.1.0",
+            "private": true,
+            "homepage": "/docs/",
+            "scripts": {
+              "docusaurus": "docusaurus",
+              "start": "docusaurus start",
+              "build": "docusaurus build",
+              "swizzle": "docusaurus swizzle",
+              "deploy": "docusaurus deploy",
+              "clear": "docusaurus clear",
+              "serve": "docusaurus serve",
+              "write-translations": "docusaurus write-translations",
+              "write-heading-ids": "docusaurus write-heading-ids"
+            },
+            "dependencies": {
+              "@docusaurus/core": "^2.4.1",
+              "@docusaurus/preset-classic": "^2.4.1",
+              "@docusaurus/theme-mermaid": "^2.4.1",
+              "@docusaurus/remark-plugin-npm2yarn": "^2.4.1",
+              "@mdx-js/react": "^1.6.22",
+              "clsx": "^1.2.1",
+              "prism-react-renderer": "^1.3.5",
+              "react": "^17.0.2",
+              "react-dom": "^17.0.2"
+            },
+            "devDependencies": {
+              "@docusaurus/module-type-aliases": "^2.4.1"
+            },
+            "browserslist": {
+              "production": [
+                ">0.5%",
+                "not dead",
+                "not op_mini all"
+              ],
+              "development": [
+                "last 1 chrome version",
+                "last 1 firefox version",
+                "last 1 safari version"
+              ]
+            },
+            "engines": {
+              "node": ">=16.14"
+            }
+          }
+          EOF
+
           npm install
 
       - name: Build Docusaurus
@@ -356,7 +1000,7 @@ jobs:
           cd docs-site
           echo "Building Docusaurus site..."
           npm run build
-          
+
           # Create .nojekyll file to prevent GitHub Pages processing
           touch ./build/.nojekyll
 
@@ -365,7 +1009,7 @@ jobs:
           pwd
           ls -la
           ls -la build || { echo "❌ build/ directory does not exist. Build likely failed."; exit 1; }
-                    
+
           # Copy built files to the main build/docs directory
           echo "Copying built files to main build/docs directory..."
           cp -r build/* ../build/docs/
@@ -381,7 +1025,7 @@ jobs:
 
       # Add a debugging script to help diagnose issues
       - name: Add diagnostics script
-        run: |          
+        run: |
           echo "Directory structure in .. $(pwd)"
           find docs-site \( -path '*/node_modules' -o -path '*/.docusaurus' \) -prune -o -type d -print | sort
           cat > ./build/docs/diagnostics.js <<"EOF"
@@ -436,7 +1080,7 @@ jobs:
           # Add the diagnostics script to the docs index.html
           if [ -f "build/docs/index.html" ]; then
             echo "Adding diagnostics script to docs/index.html"
-            sed -i 's/<\/body>/<script src="diagnostics.js"><\/script><\/body>/' build/docs/index.html          
+            sed -i 's/<\/body>/<script src="diagnostics.js"><\/script><\/body>/' build/docs/index.html
           else
             echo "❌ docs/index.html not found. Diagnostics script not added."
           fi
@@ -469,4 +1113,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs-site/build
           destination_dir: docs
-          cname: vishal.biyani.xyz          
+          cname: vishal.biyani.xyz
