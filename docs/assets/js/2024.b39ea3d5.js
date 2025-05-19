@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkportfolio_docs=self.webpackChunkportfolio_docs||[]).push([[2024],{2024:(e,c,o)=>{o.d(c,{createArchitectureServices:()=>r.S});var r=o(8815);o(3579)}}]);
