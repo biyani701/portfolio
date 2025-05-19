@@ -32,8 +32,24 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: 'Development',
+      items: ['development/eslint-version'],
+    },
+    {
+      type: 'category',
       label: 'SBOM',
       items: ['sbom/dependencies'],
+    },
+    {
+      type: 'category',
+      label: 'Policies',
+      items: [
+        'policies/privacy-policy',
+        'policies/terms-of-use',
+        'policies/security-policy',
+        'policies/cookie-policy',
+        'policies/eula',
+      ],
     },
   ],
 };

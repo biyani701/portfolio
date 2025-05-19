@@ -50,7 +50,7 @@ This document provides a comprehensive list of dependencies used in the portfoli
 
 | Package | Version | Description | License |
 |---------|---------|-------------|---------|
-| next-auth | ^4.22.1 | Authentication for Next.js (Auth.js) | ISC |
+| next-auth | ^5.0.0 | Authentication for Next.js (Auth.js) v5 | ISC |
 
 ## Development Dependencies
 
@@ -59,7 +59,7 @@ This document provides a comprehensive list of dependencies used in the portfoli
 | @testing-library/jest-dom | ^5.16.5 | Custom jest matchers for DOM testing | MIT |
 | @testing-library/react | ^13.4.0 | React testing utilities | MIT |
 | @testing-library/user-event | ^13.5.0 | Simulate user events for testing | MIT |
-| eslint | ^8.34.0 | JavaScript linter | MIT |
+| eslint | ^8.34.0 | JavaScript linter (stable version before 8.57.1 deprecation) | MIT |
 | eslint-config-react-app | ^7.0.1 | ESLint configuration for React apps | MIT |
 | prettier | ^2.8.4 | Code formatter | MIT |
 | web-vitals | ^2.1.4 | Library for measuring web vitals | Apache-2.0 |

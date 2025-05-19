@@ -44,6 +44,9 @@ const config = {
           // Remove this to remove the "edit this page" links.
           editUrl:
             'https://github.com/vishal-biyani/portfolio/tree/main/docs/',
+          remarkPlugins: [
+            [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
+          ],
         },
         blog: {
           showReadingTime: true,
@@ -59,11 +62,31 @@ const config = {
     ],
   ],
 
+  // Add Mermaid support
+  markdown: {
+    mermaid: true,
+  },
+
+  themes: ['@docusaurus/theme-mermaid'],
+
+  // Add scripts to be loaded before the content
+  scripts: [
+    {
+      src: '/docs/js/theme-init.js',
+      async: false,
+    },
+  ],
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
+      colorMode: {
+        defaultMode: 'light',
+        disableSwitch: true, // We're using our custom theme toggle
+        respectPrefersColorScheme: false,
+      },
       navbar: {
         title: 'Portfolio Docs',
         logo: {
@@ -89,7 +112,7 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
+            title: 'Documentation',
             items: [
               {
                 label: 'Introduction',
@@ -103,36 +126,56 @@ const config = {
                 label: 'Libraries',
                 to: '/docs/libraries/mui',
               },
-              {
-                label: 'SBOM',
-                to: '/docs/sbom/dependencies',
-              },
             ],
           },
           {
-            title: 'Community',
+            title: 'Policies',
             items: [
               {
-                label: 'GitHub',
-                href: 'https://github.com/vishal-biyani/portfolio',
+                label: 'Privacy Policy',
+                to: '/docs/policies/privacy-policy',
+              },
+              {
+                label: 'Terms of Use',
+                to: '/docs/policies/terms-of-use',
+              },
+              {
+                label: 'Security Policy',
+                to: '/docs/policies/security-policy',
+              },
+              {
+                label: 'Cookie Policy',
+                to: '/docs/policies/cookie-policy',
               },
             ],
           },
           {
-            title: 'More',
+            title: 'Links',
             items: [
               {
                 label: 'Main Site',
                 href: 'https://vishal.biyani.xyz',
               },
+              {
+                label: 'GitHub',
+                href: 'https://github.com/vishal-biyani/portfolio',
+              },
+              {
+                label: 'LinkedIn',
+                href: 'https://www.linkedin.com/in/vishalbiyani2/',
+              },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Vishal Biyani. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Vishal Biyani. All rights reserved.`,
       },
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
+        additionalLanguages: ['bash', 'json', 'markdown', 'yaml', 'jsx', 'tsx'],
+      },
+      mermaid: {
+        theme: { light: 'neutral', dark: 'dark' },
       },
     }),
 };
