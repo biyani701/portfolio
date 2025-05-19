@@ -111,7 +111,7 @@ jobs:
           # mkdir -p docs-site/docs
           # mkdir -p docs-site/static/img
           # mkdir -p docs-site/src/css
-          # mkdir -p docs-site/static/js
+          mkdir -p docs-site/static/js
 
           # Create docusaurus-router.js for handling navigation
           cat > docs-site/static/js/docusaurus-router.js <<"EOF"
@@ -130,9 +130,6 @@ jobs:
             }
           })();
           EOF
-
-          echo "Examining docs directory structure...$(pwd)"
-          find docs -type f | sort || echo "No docs directory found"
 
           # Copy docs content if it exists
           if [ -d "docs/docs" ]; then
@@ -332,8 +329,8 @@ jobs:
           module.exports = sidebars;
           EOF
 
-          # Create basic static files
-          mkdir -p docs-site/static/img
+          # Create basic static files. No need directory already exists
+          # mkdir -p docs-site/static/img
 
           # Create a simple logo.svg
           cat > docs-site/static/img/logo.svg <<"EOF"
@@ -359,6 +356,10 @@ jobs:
           cd docs-site
           echo "Building Docusaurus site..."
           npm run build
+          
+          # Create .nojekyll file to prevent GitHub Pages processing
+          touch ./build/.nojekyll
+
           echo "Docusaurus build completed."
           echo "Contents of build directory:"
           pwd
@@ -366,9 +367,7 @@ jobs:
           ls -la build || { echo "❌ build/ directory does not exist. Build likely failed."; exit 1; }
           ls build/docs
 
-          # Create .nojekyll file to prevent GitHub Pages processing
-          touch ./build/.nojekyll
-
+          
           # Copy built files to the main build/docs directory
           echo "Copying built files to main build/docs directory..."
           cp -r build/* ../build/docs/
