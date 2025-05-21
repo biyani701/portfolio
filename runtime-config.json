@@ -1,4 +1,12 @@
 {
-  "AUTH_SERVER_URL": "http://localhost:3000",
-  "CLIENT_ID": "portfolio"
+  "ENVIRONMENT": "PROD",
+  "AUTH_SERVER_URL": "https://my-next-auth-app-ten.vercel.app",
+  "CLIENT_ID": "portfolio",
+  "CLIENT_URL": "https://vishal.biyani.xyz",
+  "GITHUB_CLIENT_ID": "Ov23lirEiA7MvCNmdhxl",
+  "GOOGLE_CLIENT_ID": "",
+  "REDIRECT_URI": "https://vishal.biyani.xyz/callback",
+  "TOKEN_PROXY_URL": "https://auth.vishal.biyani.xyz/api/github-token.js",
+  "BUILD_TIMESTAMP": "2025-05-21T16:57:49.929Z",
+  "BUILD_VERSION": "0.0.0"
 }

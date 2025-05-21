@@ -1,35 +1,14 @@
-// public/runtime-config.js
-// This script loads runtime configuration that can be updated after the app is built
-// Useful for changing environment variables without rebuilding the app
-
+// Runtime configuration for Auth.js
 window.runtimeConfig = {
-  // Default values (will be overridden by runtime-config.json if available)
-  AUTH_SERVER_URL: window.location.hostname === 'localhost'
-    ? 'http://localhost:3000'
-    : 'https://my-oauth-proxy.vercel.app',
-
-  // Client ID for the portfolio application
-  CLIENT_ID: 'portfolio'
+  "ENVIRONMENT": "PROD",
+  "AUTH_SERVER_URL": "https://my-next-auth-app-ten.vercel.app",
+  "CLIENT_ID": "portfolio",
+  "CLIENT_URL": "https://vishal.biyani.xyz",
+  "GITHUB_CLIENT_ID": "Ov23lirEiA7MvCNmdhxl",
+  "GOOGLE_CLIENT_ID": "",
+  "REDIRECT_URI": "https://vishal.biyani.xyz/callback",
+  "TOKEN_PROXY_URL": "https://auth.vishal.biyani.xyz/api/github-token.js",
+  "BUILD_TIMESTAMP": "2025-05-21T16:57:49.929Z",
+  "BUILD_VERSION": "0.0.0"
 };
-
-// Function to load runtime configuration
-(function loadRuntimeConfig() {
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', '/runtime-config.json', true);
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        try {
-          const config = JSON.parse(xhr.responseText);
-          window.runtimeConfig = { ...window.runtimeConfig, ...config };
-          console.log('[Runtime Config] Loaded:', window.runtimeConfig);
-        } catch (e) {
-          console.error('[Runtime Config] Error parsing runtime-config.json:', e);
-        }
-      } else {
-        console.warn('[Runtime Config] Could not load runtime-config.json, using defaults');
-      }
-    }
-  };
-  xhr.send();
-})();
+console.log('[Runtime Config] Loaded with AUTH_SERVER_URL:', window.runtimeConfig.AUTH_SERVER_URL);
