@@ -8,7 +8,7 @@ window.runtimeConfig = {
   "GOOGLE_CLIENT_ID": "",
   "REDIRECT_URI": "https://vishal.biyani.xyz/callback",
   "TOKEN_PROXY_URL": "https://auth.vishal.biyani.xyz/api/github-token.js",
-  "BUILD_TIMESTAMP": "2025-05-21T16:57:49.929Z",
+  "BUILD_TIMESTAMP": "2025-05-22T06:42:48.581Z",
   "BUILD_VERSION": "0.0.0"
 };
 console.log('[Runtime Config] Loaded with AUTH_SERVER_URL:', window.runtimeConfig.AUTH_SERVER_URL);
