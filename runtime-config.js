@@ -3,12 +3,13 @@ window.runtimeConfig = {
   "ENVIRONMENT": "PROD",
   "AUTH_SERVER_URL": "https://my-next-auth-app-ten.vercel.app",
   "CLIENT_ID": "portfolio",
+  "ANALYTICS_API_URL": "https://click-tracker-five.vercel.app/api",
   "CLIENT_URL": "https://vishal.biyani.xyz",
   "GITHUB_CLIENT_ID": "Ov23lirEiA7MvCNmdhxl",
   "GOOGLE_CLIENT_ID": "",
   "REDIRECT_URI": "https://vishal.biyani.xyz/callback",
   "TOKEN_PROXY_URL": "https://auth.vishal.biyani.xyz/api/github-token.js",
-  "BUILD_TIMESTAMP": "2025-05-22T06:42:48.581Z",
+  "BUILD_TIMESTAMP": "2025-05-23T16:40:58.879Z",
   "BUILD_VERSION": "0.0.0"
 };
 console.log('[Runtime Config] Loaded with AUTH_SERVER_URL:', window.runtimeConfig.AUTH_SERVER_URL);
